@@ -1,0 +1,17 @@
+Package: nfsa
+Title: Set of utilities for NFSA workflows
+Version: 0.0.1
+Author: Luis Biedma <luis.biedma@ec.europa.eu>
+Maintainer: Luis Biedma <luis.biedma@ec.europa.eu>
+Description: Collection of functions, dictionaries and other utilities to work interactively  with NFS data or to embed it in particular workflows.
+License: MIT
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
