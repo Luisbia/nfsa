@@ -2,16 +2,16 @@
 % Please edit documentation in R/nfsa_read_xml.R
 \name{nfsa_read_xml}
 \alias{nfsa_read_xml}
-\title{Read an xml file either passed as an argument or selected interactively}
+\title{Read an xml file or several xml files}
 \usage{
 nfsa_read_xml(
   file_sel,
-  folder_sel = "M:/Incoming_SDMX_files",
+  folder_sel = "M:/Incoming_SDMX_files/",
   interactive = TRUE
 )
 }
 \arguments{
-\item{file_sel}{the file to read}
+\item{file_sel}{the file(s) to read}
 
 \item{folder_sel}{the default folder to look for xml files}
 
@@ -21,6 +21,7 @@ nfsa_read_xml(
 a data frame
 }
 \description{
+Pass a list of files or select one interactively.
 The default path is "M:/Incoming_SDMX_files"
 }
 \examples{

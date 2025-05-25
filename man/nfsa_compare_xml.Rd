@@ -2,25 +2,21 @@
 % Please edit documentation in R/nfsa_compare_xml.R
 \name{nfsa_compare_xml}
 \alias{nfsa_compare_xml}
-\title{Compare two xml files from the same country}
+\title{Compare the content of different xml files}
 \usage{
-nfsa_compare_xml(
-  path_new_file,
-  path_prev_file,
-  interactive = TRUE,
-  folder_sel = "M:/Incoming_SDMX_files"
-)
+nfsa_compare_xml(paths_sel)
 }
 \arguments{
-\item{path_new_file}{the most recent file}
-
-\item{path_prev_file}{the file to compare with}
-
-\item{interactive}{if the user choose the files via the menu}
+\item{paths_sel}{paths to the files}
 }
 \value{
-a temporary excel file
+a data frame
 }
 \description{
-Compare two xml files from the same country
+Compare the content of different xml files
+}
+\examples{
+files_sel <- nfsa_find_xml(table_sel = "T0801_Q",country_sel = "BE",period_sel = "2024_0004")
+tmp <- nfsa_compare_xml(files_sel)
+
 }
