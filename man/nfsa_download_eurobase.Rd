@@ -2,24 +2,25 @@
 % Please edit documentation in R/nfsa_download_eurobase.R
 \name{nfsa_download_eurobase}
 \alias{nfsa_download_eurobase}
-\title{Download from Eurobase different tables}
+\title{Download from Eurobase different tables for NFSA and related domains}
 \usage{
 nfsa_download_eurobase(dataset_sel, geo_sel, time_sel)
 }
 \arguments{
 \item{dataset_sel}{the dataset name to download. Options are: "nasa_10_nf_tr","nasq_10_nf_tr",
-"nama_10_gdp", "namq_10_gdp"}
+"nama_10_gdp", "namq_10_gdp", "gov_10a_taxag", "gov_10q_ggnfa", "bop_c6_a",
+"bop_c6_q"}
 
 \item{geo_sel}{select the country (or countries) you need.}
 
-\item{time_sel}{for annual data, select the years to download. By defaulq quarterly data is
+\item{time_sel}{for annual data, select the years to download. By default quarterly data is
 downloaded for all available quarters}
 }
 \value{
 a data.frame/data.table
 }
 \description{
-Download from Eurobase different tables
+Download from Eurobase different tables for NFSA and related domains
 }
 \examples{
 tmp <- nfsa_download_eurobase ("nasa_10_nf_tr", c("ES","DE"), "2023")
