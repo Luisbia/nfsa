@@ -1,17 +1,16 @@
 #' Default theme options for charts
 #'
-#' @param font Font to be used by default Roboto
-#' @return a set of theme paremeters
-#' @importFrom sysfonts font_add_google
-#' @importFrom showtext showtext_auto
+#' @param font Font to be used by default serif
+#' @return a set of theme parameters
+#' @import ggplot2
 #' @export nfsa_theme
 #' @examples
 #' library(ggplot2)
-#' ggplot(mtcars, aes(mpg, cyl)) + geom_point() + nfsa_theme(font = "Open Sans")+ ggtitle("Test")
+#' ggplot(mtcars, aes(mpg, cyl)) +
+#' geom_point() +
+#' nfsa_theme()
 
-nfsa_theme <- function(font= "Roboto") {
-  sysfonts::font_add_google(font)
-  showtext::showtext_auto()
+nfsa_theme <- function(font= "serif") {
 
   ggplot2::theme(
 
@@ -47,7 +46,6 @@ nfsa_theme <- function(font= "Roboto") {
     # The legend may often need some more manual tweaking
     # when it comes to its exact position based on the plot coordinates.
     legend.position = "right",
-    legend.text.align = 0,
     legend.background = ggplot2::element_blank(),
     legend.title = ggplot2::element_blank(),
     legend.key = ggplot2::element_blank(),

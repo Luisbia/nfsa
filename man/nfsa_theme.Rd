@@ -4,18 +4,20 @@
 \alias{nfsa_theme}
 \title{Default theme options for charts}
 \usage{
-nfsa_theme(font = "Roboto")
+nfsa_theme(font = "serif")
 }
 \arguments{
-\item{font}{Font to be used by default Roboto}
+\item{font}{Font to be used by default serif}
 }
 \value{
-a set of theme paremeters
+a set of theme parameters
 }
 \description{
 Default theme options for charts
 }
 \examples{
 library(ggplot2)
-ggplot(mtcars, aes(mpg, cyl)) + geom_point() + nfsa_theme(font = "Open Sans")+ ggtitle("Test")
+ggplot(mtcars, aes(mpg, cyl)) +
+geom_point() +
+nfsa_theme()
 }
