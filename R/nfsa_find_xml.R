@@ -18,7 +18,7 @@
 #'nfsa_find_xml(table_sel = "T0801_Q",
 #'country_sel = "SK",
 #'period_sel = "2024_0004",
-#'path_sel = "D:/sa_toolNFSAv2/data/")
+#'path_sel = "M:/Incoming_SDMX_files")
 #'
 #'
 #'# Find more than one country (table or period)
@@ -27,7 +27,7 @@
 #'purrr::map(countries,~nfsa_find_xml(country_sel = .x,
 #'                                    table_sel = "T0801_Q",
 #'                                    period_sel = "2024_0004",
-#'                                    path_sel = "D:/sa_toolNFSAv2/data/"))
+#'                                    path_sel = "M:/Incoming_SDMX_files"))
 #' #Look for several countries and tables
 #'tables <- c("T0801_Q", "T0801SA_Q")
 #'country_tables <- expand.grid(countries,tables)
@@ -36,7 +36,7 @@
 #'            ~nfsa_find_xml(country_sel = .x,
 #'                           table_sel = .y,
 #'                           period_sel = "2024_0004",
-#'                           path_sel = "D:/sa_toolNFSAv2/data/"))
+#'                           path_sel = "M:/Incoming_SDMX_files"))
 
 nfsa_find_xml <- function(table_sel,
                           country_sel,

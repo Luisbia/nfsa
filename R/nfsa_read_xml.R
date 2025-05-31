@@ -26,10 +26,13 @@ library(dplyr)
 
   if (interactive == TRUE){
 
- file_sel <- selectFile(caption = "Select ONE xml file",
+ file_sel <- rstudioapi::selectFile(caption = "Select ONE xml file",
                         label = "Select",
-                        path = folder_sel,
                         filter = "xml files (xml)")
+
+ data <- readsdmx::read_sdmx(file_sel) |>
+   janitor::clean_names() |>
+   mutate(obs_value = as.numeric(obs_value))
 
   return(data)
 
