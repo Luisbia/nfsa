@@ -57,6 +57,8 @@ dt<- restatapi::get_eurostat_data(dataset_sel,
   rename(ref_area = geo,
          sto = na_item,
          unit_measure = unit,
+         ref_sector = sector,
+         accounting_entry = direct,
          adjustment = s_adj,
          time_period = time,
          obs_value = values) |>

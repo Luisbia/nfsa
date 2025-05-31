@@ -1,11 +1,10 @@
 #' Read an xml file or several xml files
 #'
 #' Pass a list of files or select one interactively.
-#' The default path is "M:/Incoming_SDMX_files"
 #'
 #' @param file_sel the file(s) to read
 #' @param interactive if the user choose the file via the menu
-#' @param folder_sel the default folder to look for xml files
+#' @param folder_sel the folder to look for xml files
 #' @return a data frame
 #' @importFrom rstudioapi selectFile
 #' @importFrom janitor clean_names
@@ -21,7 +20,7 @@
 #' tmp <- nfsa_read_xml()
 #' tmp1 <- nfsa_read_xml(file_sel = "M:/Incoming_SDMX_files/NASEC_T0800_A_SK_2024_0000_V0003.xml",
 #' interactive = FALSE)
-nfsa_read_xml <- function(file_sel, folder_sel = "M:/Incoming_SDMX_files/", interactive = TRUE){
+nfsa_read_xml <- function(file_sel, folder_sel, interactive = TRUE){
 library(dplyr)
 
 

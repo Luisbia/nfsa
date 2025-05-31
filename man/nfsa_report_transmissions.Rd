@@ -7,7 +7,8 @@
 nfsa_report_transmissions(
   table_sel = "T0801_Q",
   country_sel = nfsa_eu27,
-  period_sel = "2024_0004",
+  period_sel,
+  path_sel,
   output = "excel"
 )
 }

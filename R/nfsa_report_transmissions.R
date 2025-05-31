@@ -18,7 +18,8 @@
 #' nfsa_report_transmissions (table_sel = "T0800_A", period_sel = "2024_0000")
 nfsa_report_transmissions <- function(table_sel = "T0801_Q",
                                       country_sel= nfsa_eu27,
-                                      period_sel = "2024_0004",
+                                      period_sel,
+                                      path_sel,
                                       output = "excel"){
 library(dplyr)
 library(ggplot2)
@@ -26,7 +27,7 @@ library(ggplot2)
 
 
 dat <- map(country_sel, ~nfsa::nfsa_find_xml(country_sel = .x, table_sel = table_sel, period_sel = period_sel,
-  path_sel = "M:/Incoming_SDMX_files",archived = FALSE)) |>
+  path_sel = path_sel)) |>
   unlist() |>
   as_tibble() |>
   mutate(received = file.mtime(value)) |>

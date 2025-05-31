@@ -20,10 +20,3 @@ library(nfsa)
 
 I illustrate some possible uses of the available functions in the **{nfsa}** package. You may want to
 have a quick look at the files we have received from a particular table, year and country. You can do that with the *nsa_find_xml function*.
-
-```{r}
-tmp <- nfsa_find_xml(table_sel = "T0800_A",
-                    country_sel = "IT",
-                    period_sel = "2024_0000")
-```
-

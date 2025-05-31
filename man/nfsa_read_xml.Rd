@@ -4,16 +4,12 @@
 \alias{nfsa_read_xml}
 \title{Read an xml file or several xml files}
 \usage{
-nfsa_read_xml(
-  file_sel,
-  folder_sel = "M:/Incoming_SDMX_files/",
-  interactive = TRUE
-)
+nfsa_read_xml(file_sel, folder_sel, interactive = TRUE)
 }
 \arguments{
 \item{file_sel}{the file(s) to read}
 
-\item{folder_sel}{the default folder to look for xml files}
+\item{folder_sel}{the folder to look for xml files}
 
 \item{interactive}{if the user choose the file via the menu}
 }
@@ -22,7 +18,6 @@ a data frame
 }
 \description{
 Pass a list of files or select one interactively.
-The default path is "M:/Incoming_SDMX_files"
 }
 \examples{
 tmp <- nfsa_read_xml()
