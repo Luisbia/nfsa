@@ -2,21 +2,31 @@
 % Please edit documentation in R/nfsa_compare_xml.R
 \name{nfsa_compare_xml}
 \alias{nfsa_compare_xml}
-\title{Compare the content of different xml files}
+\title{Compare the content of different xml files loaded as data frames}
 \usage{
-nfsa_compare_xml(paths_sel)
+nfsa_compare_xml(df1, df2, flags = FALSE)
 }
 \arguments{
-\item{paths_sel}{paths to the files}
+\item{df1}{one data.frame}
+
+\item{df2}{the other data.frame}
+
+\item{flags}{if obs_status and conf_status are taken into account. By default false}
 }
 \value{
 a data frame
 }
 \description{
-Compare the content of different xml files
+Compare the content of different xml files loaded as data frames
 }
 \examples{
-files_sel <- nfsa_find_xml(table_sel = "T0801_Q",country_sel = "BE",period_sel = "2024_0004")
-tmp <- nfsa_compare_xml(files_sel)
+file1 <- nfsa::nfsa_read_xml(file_sel = "M:/Incoming_SDMX_files/NASEC_T0801_Q_FR_2025_0001_V0001.xml",
+interactive = FALSE)
+
+file2 <- nfsa::nfsa_read_xml(file_sel = "M:/Incoming_SDMX_files/NASEC_T0801_Q_FR_2025_0001_V0002.xml",
+                            interactive = FALSE)
+
+tmp <-nfsa_compare_xml(file1,file2)
+tmp <-nfsa_compare_xml(file1,file2, flags = TRUE)
 
 }
