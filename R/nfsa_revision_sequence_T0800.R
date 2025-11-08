@@ -1,0 +1,99 @@
+#' @title Calculate and Export Revisions in T0800 Data
+#'
+#' @description This function calculates the revisions between new and previous
+#'   T0800 data, formats the output, and exports it to an Excel file based on a
+#'   specified template. It processes data for selected countries and time periods.
+#'
+#' @param country_sel A character vector specifying the countries to process (e.g., "BE", "NL").
+#' @param time_min A numeric value specifying the minimum time period to consider (default: 2020).
+#' @param template_sel A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_A.xlsx")`.
+#' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","revisions")`.
+#'
+#' @return None. The function saves an Excel file to the specified output directory.
+#'   The filename includes the country code(s) and a timestamp. A success message is printed to the console
+#'   indicating the location of the created file, or if there are no revisions.
+#'
+#' @details The function performs the following steps:
+#'   \enumerate{
+#'     \item Reads the data from the parquet files using `arrow::open_dataset()`.
+#'     \item Filters the data based on sector, time period, and other criteria.
+#'     \item Joins the new and previous data based on common identifiers.
+#'     \item Calculates the revisions (new - previous).
+#'     \item Formats the revisions and creates an Excel file using the specified template via `openxlsx`.
+#'     \item Saves the Excel file to the output directory with a timestamped filename.
+#'   }
+#'
+#' @examples
+#' \dontrun{
+#'   # Example usage with specific country and default settings
+#'   nfsa_revision_sequence_T0800(country_sel = "BE")
+#'
+#'   # Example usage with multiple countries and custom time period
+#'   nfsa_revision_sequence_T0800(country_sel = c("BE", "NL"), time_min = 2021)
+#'
+#' }
+#'
+#' @export
+nfsa_revision_sequence_T0800 <- function(country_sel,
+                                         time_min = 2020,
+                                         template_sel = here("assets","seq_accounts_A.xlsx"),
+                                         output_sel = here("output","revisions")) {
+library(tidyverse)
+library(arrow)
+library(here)
+library(openxlsx)
+
+lookup <- nfsa::nfsa_sto_lookup
+
+
+nfsa_new_data <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0800", type = "new") |>
+  separate_wider_delim(cols = id,
+                       delim = ".",
+                       names = c("ref_sector", "sto", "accounting_entry")) |>
+  filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
+         time_period >= time_min) |>
+  na.omit() |>
+  unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
+  select(ref_area,id,time_period,obs_value) |>
+  unite("id",c(time_period,ref_area,id),sep = ".") |>
+  rename(new = obs_value)
+
+nfsa_prev_data <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0800", type = "prev") |>
+  separate_wider_delim(cols = id,
+                       delim = ".",
+                       names = c("ref_sector", "sto", "accounting_entry")) |>
+  filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
+         time_period >= time_min) |>
+  na.omit() |>
+  unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
+  select(ref_area,id,time_period,obs_value) |>
+  unite("id",c(time_period,ref_area,id),sep = ".") |>
+  rename(prev = obs_value)
+
+
+nfsa_data <- full_join(nfsa_new_data,nfsa_prev_data,by= join_by(id)) |>
+  mutate(obs_value = round(new-prev)) |>
+  mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+  select(-new,-prev)
+
+if (nrow(nfsa_data) == 0) {
+  cli::cli_alert_success("No revisions in T0800!")}
+
+
+wb <- loadWorkbook(template_sel)
+writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+
+
+if(length(country_sel) == 1) {
+  saveWorkbook(wb, ,file =paste0(output_sel,"/revisions_T0800_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+}
+
+if(length(country_sel) > 1) {
+  saveWorkbook(wb, ,file = paste0(output_sel,"/revisions_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+}
+
+ }

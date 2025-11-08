@@ -8,7 +8,7 @@
 #' @importFrom fs file_show
 #' @importFrom readr write_excel_csv
 #' @return an excel file in a temporary folder
-#' @export nfsa_to_excel
+#' @export
 #'
 #' @examples
 #'
