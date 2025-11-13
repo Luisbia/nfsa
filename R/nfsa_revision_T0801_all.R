@@ -28,7 +28,7 @@ nfsa_revision_T0801_all <- function(country_sel,
                                     path_sel = here::here("data", "q")){
 
 library(arrow)
-librray(tidyverse)
+library(tidyverse)
 lookup <- nfsa::nfsa_sto_lookup
 
 revisions <- list.files(path = path_sel,

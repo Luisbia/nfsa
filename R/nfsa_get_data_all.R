@@ -18,7 +18,7 @@
 #' }
 #'
 #' @export
-nfsa_get_data <- function(input_sel = here::here("data"),
+nfsa_get_data_all <- function(input_sel = here::here("data"),
                           country,
                           table,
                           type ){
@@ -38,7 +38,6 @@ lookup <- nfsa::nfsa_sto_lookup
     filter(countries %in% country) |>
     group_by(countries) |>
     arrange(version) |>
-    slice_tail(n=1) |>
     pull(value) |>
     open_dataset() |>
     select(-embargo_date,-received) |>
@@ -46,7 +45,7 @@ lookup <- nfsa::nfsa_sto_lookup
     left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                     consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
     na.omit() |>
-    select(ref_area,id,time_period,obs_value)
+    select(ref_area,version,id,time_period,obs_value)
   }
   else if (paste0(table,type) == "T0801prev") {
     nfsa_new_files <- list.files(path = paste0(input_sel,"/q/prev/nsa/"),
@@ -58,15 +57,14 @@ lookup <- nfsa::nfsa_sto_lookup
       filter(countries %in% country) |>
       group_by(countries) |>
       arrange(version) |>
-      slice_tail(n=1) |>
-      pull(value) |>
+          pull(value) |>
       open_dataset() |>
       select(-embargo_date,-received) |>
       collect() %>%
       left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                       consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
       na.omit() |>
-      select(ref_area,id,time_period,obs_value)
+      select(ref_area,version,id,time_period,obs_value)
   }
   else if (paste0(table,type) == "T0801SAnew") {
     nfsa_new_files <- list.files(path = paste0(input_sel,"/q/new/sca/"),
@@ -78,7 +76,6 @@ lookup <- nfsa::nfsa_sto_lookup
       filter(countries %in% country) |>
       group_by(countries) |>
       arrange(version) |>
-      slice_tail(n=1) |>
       pull(value) |>
       open_dataset() |>
       select(-embargo_date,-received) |>
@@ -86,7 +83,7 @@ lookup <- nfsa::nfsa_sto_lookup
       left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                       consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
       na.omit() |>
-      select(ref_area,id,time_period,obs_value)
+      select(ref_area,version,id,time_period,obs_value)
   }
 else if (paste0(table,type) == "T0801SAprev") {
     nfsa_new_files <- list.files(path = paste0(input_sel,"/q/prev/sca/"),
@@ -98,7 +95,6 @@ else if (paste0(table,type) == "T0801SAprev") {
       filter(countries %in% country) |>
       group_by(countries) |>
       arrange(version) |>
-      slice_tail(n=1) |>
       pull(value) |>
       open_dataset() |>
       select(-embargo_date,-received) |>
@@ -106,7 +102,7 @@ else if (paste0(table,type) == "T0801SAprev") {
       left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                       consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
       na.omit() |>
-      select(ref_area,id,time_period,obs_value)
+      select(ref_area,version,id,time_period,obs_value)
   }
 else if (paste0(table,type) == "T0800new") {
     nfsa_new_files <- list.files(path = paste0(input_sel,"/a/new/"),
@@ -118,7 +114,6 @@ else if (paste0(table,type) == "T0800new") {
       filter(countries %in% country) |>
       group_by(countries) |>
       arrange(version) |>
-      slice_tail(n=1) |>
       pull(value) |>
       open_dataset() |>
       select(-embargo_date,-received) |>
@@ -126,7 +121,7 @@ else if (paste0(table,type) == "T0800new") {
       left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                       consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
       na.omit() |>
-      select(ref_area,id,time_period,obs_value)
+      select(ref_area,version,id,time_period,obs_value)
   }
 else if (paste0(table,type) == "T0800prev") {
     nfsa_new_files <- list.files(path = paste0(input_sel,"/a/prev/"),
@@ -138,7 +133,6 @@ else if (paste0(table,type) == "T0800prev") {
       filter(countries %in% country) |>
       group_by(countries) |>
       arrange(version) |>
-      slice_tail(n=1) |>
       pull(value) |>
       open_dataset() |>
       select(-embargo_date,-received) |>
@@ -146,7 +140,7 @@ else if (paste0(table,type) == "T0800prev") {
       left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
                                       consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
       na.omit() |>
-      select(ref_area,id,time_period,obs_value)
+      select(ref_area,version,id,time_period,obs_value)
   }
   else cli::cli_abort("Probably wrong input to the function.
                       table = T0801 or T0801SA or T0800,

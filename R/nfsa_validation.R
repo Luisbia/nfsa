@@ -21,7 +21,7 @@
 #'
 #' @export
 nfsa_validation <- function(time_min,
-                                 output_sel = here::here("output", "logs")){
+                            output_sel = here::here("output", "logs")){
 
 library(tidyverse)
 library(data.table)
@@ -78,7 +78,7 @@ if (nrow(validated) == 0) {
 
 
     openxlsx::write.xlsx(validated,
-                         file = paste0(output_sel,"validation_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                         file = paste0(output_sel,"/validation_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                          overwrite = TRUE,
                          asTable = TRUE)
 

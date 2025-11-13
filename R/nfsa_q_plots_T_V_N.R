@@ -5,7 +5,7 @@
 #' comparing the two sources for various statistical concepts (STO).
 #' The plots are saved as a PDF file.
 #'
-#' @param country_sel A character string specifying the country code (e.g., "AT"). This code is used to filter the data files.
+#' @param country A character string specifying the country code (e.g., "AT"). This code is used to filter the data files.
 #' @param output_sel A character string specifying the path to the directory where the generated PDF file should be saved. Defaults to `here("output", "plots")`.
 #' @param time_min A character string specifying the earliest time period to include in the plots, in the format "YYYY-QX" (e.g., "1999-Q1"). Defaults to "1999-Q1".
 #' @param my_theme A ggplot2 theme object to use for the plots. Defaults to `ggthemes::theme_fivethirtyeight()`.
@@ -14,11 +14,11 @@
 #'
 #' @examples
 #' \dontrun{
-#' nfsa_q_plots_T_V_N(country_sel = "AT", output_sel = here("my_output"))
+#' nfsa_q_plots_T_V_N(country = "AT", output_sel = here("my_output"))
 #' }
 #'
 #' @export
-nfsa_q_plots_T_V_N <- function(country_sel,
+nfsa_q_plots_T_V_N <- function(country,
                              output_sel = here("output", "plots"),
                              time_min = "1999-Q1",
                              my_theme = ggthemes::theme_fivethirtyeight()){
@@ -39,15 +39,15 @@ nfsa_q_plots_T_V_N <- function(country_sel,
 
   cli::cli_progress_message("Collecting data...")
 
-tmp_t <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "new") |>
-  separate_wider_delim(id,delim = ".", names = c("ref_sector","sto","accounting_entry")) |>
+tmp_t <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
+  nfsa::nfsa_separate_id() |>
   filter(obs_value != "NaN") |>
   filter(time_period >= time_min) |>
   mutate(source = "T",
          time_period = lubridate::yq(time_period))
 
-tmp_v <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "prev") |>
-  separate_wider_delim(id,delim = ".", names = c("ref_sector","sto","accounting_entry")) |>
+tmp_v <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
+  nfsa::nfsa_separate_id() |>
   filter(obs_value != "NaN") |>
   filter(time_period >= time_min) |>
   mutate(source = "V",
@@ -79,10 +79,10 @@ charts <- tmp |>
 
 cli::cli_progress_message("Generating file...")
 ggsave(
-  filename = paste0(output_sel,"/", country_sel,"_q_T_V_N.pdf"),
+  filename = paste0(output_sel,"/", country,"_q_T_V_N.pdf"),
   plot = marrangeGrob(charts, nrow=1, ncol=1),
   width = 15, height = 9
 )
-cli::cli_alert_success(paste0("Charts created in ",output_sel,"/", country_sel,"_q_T_V_N.pdf"))
+cli::cli_alert_success(paste0("Charts created in ",output_sel,"/", country,"_q_T_V_N.pdf"))
 }
 

@@ -43,7 +43,8 @@ nfsa_transmissions <- function(time_min  ,
                          names = c("NASEC", "table", "freq", "ref_area","year", "quarter","version"),
                          cols_remove = FALSE) |>
     mutate(version = stringr::str_remove_all(version,".xml"),
-           period = paste0(year,"-Q", str_sub(quarter,4,4))) |>
+           period = paste0(year,"-Q", str_sub(quarter,4,4)),
+           period = str_replace_all(period,"Q0", "A")) |>
     select(ref_area,file=value,table, period,version,received)
 
 

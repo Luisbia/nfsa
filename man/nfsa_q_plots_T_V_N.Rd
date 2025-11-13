@@ -5,14 +5,14 @@
 \title{Generate plots comparing not adjusted data from two sources (T and V) for a given country.}
 \usage{
 nfsa_q_plots_T_V_N(
-  country_sel,
+  country,
   output_sel = here("output", "plots"),
   time_min = "1999-Q1",
   my_theme = ggthemes::theme_fivethirtyeight()
 )
 }
 \arguments{
-\item{country_sel}{A character string specifying the country code (e.g., "AT"). This code is used to filter the data files.}
+\item{country}{A character string specifying the country code (e.g., "AT"). This code is used to filter the data files.}
 
 \item{output_sel}{A character string specifying the path to the directory where the generated PDF file should be saved. Defaults to \code{here("output", "plots")}.}
 
@@ -31,7 +31,7 @@ The plots are saved as a PDF file.
 }
 \examples{
 \dontrun{
-nfsa_q_plots_T_V_N(country_sel = "AT", output_sel = here("my_output"))
+nfsa_q_plots_T_V_N(country = "AT", output_sel = here("my_output"))
 }
 
 }

@@ -25,4 +25,5 @@ Imports:
     readxl,
     stringr,
     tidyr,
-    dplyr
+    dplyr,
+    restatapi
