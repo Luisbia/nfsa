@@ -4,8 +4,8 @@
 #' comparing different versions of the data stored as Parquet files. It joins the data with a lookup table,
 #' calculates the changes between versions, and prepares the data for export to Excel.
 #'
-#' @param country_sel A character string specifying the country code to filter the data.
-#' @param path_sel A character string specifying the path to the directory containing the Parquet files.
+#' @param country A character string specifying the country code to filter the data.
+#' @param input_sel A character string specifying the path to the directory containing the Parquet files.
 #'   Defaults to `"data/q"` relative to the project root.
 #'
 #' @return An Excel workbook (created via `nfsa::nfsa_to_excel()`) containing the identified revisions,
@@ -16,23 +16,23 @@
 #' \dontrun{
 #' # Example usage: Identify and extract revisions for country code "IT"
 #' # from Parquet files located in the default "data/q" directory.
-#' nfsa_revision_T0801_all(country_sel = "IT")
+#' nfsa_revision_T0801_all(country = "IT")
 #'
 #' # Example usage: Identify and extract revisions for country code "BE"
 #' # from Parquet files located in a custom directory.
-#' nfsa_revision_T0801_all(country_sel = "BE", path_sel = "path/to/my/data")
+#' nfsa_revision_T0801_all(country = "BE", input_sel = "path/to/my/data")
 #' }
 #'
 #' @export
-nfsa_revision_T0801_all <- function(country_sel,
-                                    path_sel = here::here("data", "q")){
+nfsa_revision_T0801_all <- function(country,
+                                    input_sel = here::here("data", "q")){
 
 library(arrow)
 library(tidyverse)
 lookup <- nfsa::nfsa_sto_lookup
 
-revisions <- list.files(path = path_sel,
-                        pattern = paste0("^NASEC_T0801_Q_", country_sel, "_.*\\.parquet$"),
+revisions <- list.files(path = input_sel,
+                        pattern = paste0("^NASEC_T0801_Q_", country, "_.*\\.parquet$"),
                         full.names = TRUE,
                         recursive = TRUE) |>
   open_dataset() |>
@@ -48,9 +48,7 @@ revisions <- list.files(path = path_sel,
   filter(change != 0) |>
   ungroup() |>
   select(-obs_value) |>
-  separate_wider_delim(cols = id,
-                       delim = ".",
-                       names = c("ref_sector", "sto", "accounting_entry")) |>
+  nfsa_separate_id() |>
   pivot_wider(names_from = version,
               values_from = change) |>
   nfsa::nfsa_to_excel()

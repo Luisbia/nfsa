@@ -4,12 +4,12 @@
 \alias{nfsa_revision_T0801_all}
 \title{Identify and extract revisions in NASEC T0801 data across different versions.}
 \usage{
-nfsa_revision_T0801_all(country_sel, path_sel = here::here("data", "q"))
+nfsa_revision_T0801_all(country, input_sel = here::here("data", "q"))
 }
 \arguments{
-\item{country_sel}{A character string specifying the country code to filter the data.}
+\item{country}{A character string specifying the country code to filter the data.}
 
-\item{path_sel}{A character string specifying the path to the directory containing the Parquet files.
+\item{input_sel}{A character string specifying the path to the directory containing the Parquet files.
 Defaults to \code{"data/q"} relative to the project root.}
 }
 \value{
@@ -26,11 +26,11 @@ calculates the changes between versions, and prepares the data for export to Exc
 \dontrun{
 # Example usage: Identify and extract revisions for country code "IT"
 # from Parquet files located in the default "data/q" directory.
-nfsa_revision_T0801_all(country_sel = "IT")
+nfsa_revision_T0801_all(country = "IT")
 
 # Example usage: Identify and extract revisions for country code "BE"
 # from Parquet files located in a custom directory.
-nfsa_revision_T0801_all(country_sel = "BE", path_sel = "path/to/my/data")
+nfsa_revision_T0801_all(country = "BE", input_sel = "path/to/my/data")
 }
 
 }

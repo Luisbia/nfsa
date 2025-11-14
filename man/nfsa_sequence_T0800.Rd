@@ -5,21 +5,21 @@
 \title{Show data or revisions as sequence of accounts}
 \usage{
 nfsa_sequence_T0800(
-  country_sel,
+  country,
   time_min = 2020,
-  type = "new",
-  template_sel = here("assets", "seq_accounts_A.xlsx"),
+  type = "values",
+  template = here("assets", "seq_accounts_A.xlsx"),
   output_sel = here("output", "sequence")
 )
 }
 \arguments{
-\item{country_sel}{A character vector specifying the countries to process (e.g., "BE", "NL").}
+\item{country}{A character vector specifying the countries to process (e.g., "BE", "NL").}
 
 \item{time_min}{A numeric value specifying the minimum time period to consider (default: 2020).}
 
 \item{type}{Either "values" by default or "revisions"}
 
-\item{template_sel}{A character string specifying the file path to the Excel template file. Default: \code{here("assets","seq_accounts_A.xlsx")}.}
+\item{template}{A character string specifying the file path to the Excel template file. Default: \code{here("assets","seq_accounts_A.xlsx")}.}
 
 \item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here("output","revisions")}.}
 }
@@ -46,10 +46,10 @@ The function performs the following steps:
 \examples{
 \dontrun{
   # Example usage with specific country and default settings
-  nfsa_sequence_T0800(country_sel = "BE", type = "values")
+  nfsa_sequence_T0800(country = "BE", type = "values")
 
   # Example usage with multiple countries and custom time period
-  nfsa_sequence_T0800(country_sel = c("BE", "NL"), time_min = 2021, type = "revisions")
+  nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "revisions")
 
 }
 

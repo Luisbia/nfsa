@@ -3,7 +3,7 @@
 #' This function compares new and previous versions of T0801 data, identifies revisions based on absolute and relative thresholds,
 #' and exports the revisions to an Excel file.  It utilizes `arrow` for efficient data handling and `openxlsx` for Excel output.
 #'
-#' @param country_sel A character vector specifying the countries to analyze (ISO2 codes).
+#' @param country A character vector specifying the countries to analyze (ISO2 codes).
 #' @param abs_threshold A numeric value specifying the absolute threshold for revision detection. Revisions with an absolute difference greater than this threshold are flagged. Defaults to 10.
 #' @param rel_threshold A numeric value specifying the relative threshold (percentage of GDP) for revision detection. Revisions with a relative difference greater than this threshold are flagged. Defaults to 0.
 #' @param output_sel Path to the directory where the output Excel file containing the revisions will be saved. Defaults to `here("output", "revisions")`.
@@ -13,28 +13,28 @@
 #' @examples
 #' \dontrun{
 #' # Example usage with default thresholds:
-#' nfsa_revision_T0801(country_sel = c("ES", "IT"))
+#' nfsa_revision_T0801(country = c("ES", "IT"))
 #'
 #' # Example usage with custom thresholds:
-#' nfsa_revision_T0801(country_sel = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
+#' nfsa_revision_T0801(country = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
 #' }
 #'
 #' @export
-nfsa_revision_T0801 <- function(country_sel,
+nfsa_revision_T0801 <- function(country,
                                 abs_threshold = 10,
                                 rel_threshold = 0,
                                 output_sel = here("output", "revisions")){
   pacman::p_load(tidyverse,arrow, here,openxlsx, readxl)
   lookup <- nfsa::nfsa_sto_lookup
 
-new_db <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "new") |>
+new_db <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
   select(ref_area,id,time_period,new = obs_value)  |>
   separate_wider_delim(cols = id,
                        delim = ".",
                        names = c("ref_sector", "sto", "accounting_entry"))
 
 
-prev_db <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "prev") |>
+prev_db <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
   select(ref_area,id,time_period,prev = obs_value)  |>
   separate_wider_delim(cols = id,
                        delim = ".",
@@ -64,11 +64,11 @@ if (nrow(new_prev_db) == 0) {
 
 if(length(unique(new_prev_db$ref_area)) == 1) {
     openxlsx::write.xlsx(new_prev_db,
-                         file = paste0(output_sel,"/revisions_T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                         file = paste0(output_sel,"/revisions_T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                          overwrite = TRUE,
                          asTable = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
 
 if(length(unique(new_prev_db$ref_area)) > 1) {

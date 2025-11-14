@@ -4,7 +4,7 @@
 #' It compares the `obs_value` in the new and previous datasets, calculates the absolute and
 #' relative revisions, and filters the results based on specified thresholds.
 #'
-#' @param country_sel A character vector specifying the country or countries to analyze.
+#' @param country A character vector specifying the country or countries to analyze.
 #'        This should correspond to the country codes used in the input file names.
 #' @param abs_threshold A numeric value specifying the minimum absolute revision value to consider.
 #'        Revisions with an absolute value less than this threshold will be filtered out. Defaults to 100.
@@ -32,35 +32,31 @@
 #' @examples
 #' \dontrun{
 #' # Example usage with default thresholds and file paths:
-#' nfsa_revision_T0800(country_sel = "BE")
+#' nfsa_revision_T0800(country = "BE")
 #'
 #' # Example usage with custom thresholds:
-#' nfsa_revision_T0800(country_sel = c("IT", "ES"),
+#' nfsa_revision_T0800(country = c("IT", "ES"),
 #'                      abs_threshold = 50,
 #'                      rel_threshold = 0.5,
 #'                      output_sel = here("path", "to", "output"))
 #' }
 #'
 #' @export
-nfsa_revision_T0800 <- function(country_sel,
+nfsa_revision_T0800 <- function(country,
                                 abs_threshold = 100,
                                 rel_threshold = 0,
                                 output_sel = here("output", "revisions")){
   pacman::p_load(tidyverse,arrow, here,openxlsx, readxl)
   lookup <- nfsa::nfsa_sto_lookup
 
-new_db <- nfsa::nfsa_get_data(country = country_sel, table_sel = "T0800", type = "new") |>
+new_db <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "new") |>
   select(ref_area,id,time_period,new = obs_value)  |>
-  separate_wider_delim(cols = id,
-                       delim = ".",
-                       names = c("ref_sector", "sto", "accounting_entry")) |>
+  nfsa::nfsa_separate_id() |>
   na.omit()
 
-prev_db <- nfsa::nfsa_get_data(country = country_sel, table_sel = "T0800", type = "prev") |>
+prev_db <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "prev") |>
   select(ref_area,id,time_period,prev = obs_value)  |>
-  separate_wider_delim(cols = id,
-                       delim = ".",
-                       names = c("ref_sector", "sto", "accounting_entry")) |>
+  nfsa::nfsa_separate_id() |>
   na.omit()
 
 
@@ -86,11 +82,11 @@ if (nrow(new_prev_db) == 0) {
 
 if(length(unique(new_prev_db$ref_area)) == 1) {
     openxlsx::write.xlsx(new_prev_db,
-                         file = paste0(output_sel,"/revisions_T0800_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                         file = paste0(output_sel,"/revisions_T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                          overwrite = TRUE,
                          asTable = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
 
 if(length(unique(new_prev_db$ref_area)) > 1) {

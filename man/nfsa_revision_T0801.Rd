@@ -5,14 +5,14 @@
 \title{Detects and reports revisions in T0801 data between two versions of the database.}
 \usage{
 nfsa_revision_T0801(
-  country_sel,
+  country,
   abs_threshold = 10,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
 )
 }
 \arguments{
-\item{country_sel}{A character vector specifying the countries to analyze (ISO2 codes).}
+\item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
 
 \item{abs_threshold}{A numeric value specifying the absolute threshold for revision detection. Revisions with an absolute difference greater than this threshold are flagged. Defaults to 10.}
 
@@ -30,10 +30,10 @@ and exports the revisions to an Excel file.  It utilizes \code{arrow} for effici
 \examples{
 \dontrun{
 # Example usage with default thresholds:
-nfsa_revision_T0801(country_sel = c("ES", "IT"))
+nfsa_revision_T0801(country = c("ES", "IT"))
 
 # Example usage with custom thresholds:
-nfsa_revision_T0801(country_sel = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
+nfsa_revision_T0801(country = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
 }
 
 }

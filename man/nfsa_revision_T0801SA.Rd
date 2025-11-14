@@ -5,14 +5,14 @@
 \title{Identify and report revisions in T0801SA data.}
 \usage{
 nfsa_revision_T0801SA(
-  country_sel,
+  country,
   abs_threshold = 10,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
 )
 }
 \arguments{
-\item{country_sel}{A character vector specifying the countries to analyze (ISO2 codes).}
+\item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
 
 \item{abs_threshold}{A numeric value specifying the absolute threshold for revisions. Defaults to 10.}
 
@@ -30,7 +30,7 @@ revisions exceeding specified thresholds, and generates an Excel report.
 \examples{
 \dontrun{
 # Example usage:
-nfsa_revision_T0801SA(country_sel = c("IE", "ES"),
+nfsa_revision_T0801SA(country = c("IE", "ES"),
                       abs_threshold = 5,
                       rel_threshold = 0.1,
                       output_sel = here("output", "revisions"))

@@ -5,14 +5,14 @@
 \title{Identify and Report Revisions in T0800 Data}
 \usage{
 nfsa_revision_T0800(
-  country_sel,
+  country,
   abs_threshold = 100,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
 )
 }
 \arguments{
-\item{country_sel}{A character vector specifying the country or countries to analyze.
+\item{country}{A character vector specifying the country or countries to analyze.
 This should correspond to the country codes used in the input file names.}
 
 \item{abs_threshold}{A numeric value specifying the minimum absolute revision value to consider.
@@ -49,10 +49,10 @@ separating the \code{id} column into \code{ref_sector}, \code{sto}, and \code{ac
 \examples{
 \dontrun{
 # Example usage with default thresholds and file paths:
-nfsa_revision_T0800(country_sel = "BE")
+nfsa_revision_T0800(country = "BE")
 
 # Example usage with custom thresholds:
-nfsa_revision_T0800(country_sel = c("IT", "ES"),
+nfsa_revision_T0800(country = c("IT", "ES"),
                      abs_threshold = 50,
                      rel_threshold = 0.5,
                      output_sel = here("path", "to", "output"))

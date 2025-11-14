@@ -5,22 +5,22 @@
 #'   writes the results to an Excel file. It supports both annual (T0800) and
 #'   quarterly (T0801) datasets, as well as new and previous versions.
 #'
-#' @param table_sel Character string indicating the table to analyze.  Must be
+#' @param table Character string indicating the table to analyze.  Must be
 #'   "T0800" or "T0801".  Defaults to "T0801".
 #' @param type Character string indicating whether to process "new" or "prev"
 #'   (previous) data. Defaults to "new".
-#' @param path_sel Character string specifying the base path to the data
+#' @param input_sel Character string specifying the base path to the data
 #'   directory. Defaults to `here::here("data")`.
-#' @param output_path Character string specifying the path to the output
+#' @param output_sel Character string specifying the path to the output
 #'   directory where the Excel file will be saved. Defaults to
 #'   `here::here()`.
 #'
 #' @return None. The function's primary effect is to write an Excel file
-#'   containing the analysis results to the specified `output_path`.  It also
+#'   containing the analysis results to the specified `output_sel`.  It also
 #'   prints a success message to the console using `cli::cli_alert_success()`.
 #'
 #' @details The function reads data from arrow files located in subdirectories
-#'   of the `path_sel` directory, based on the `table_sel` and `type`
+#'   of the `input_sel` directory, based on the `table` and `type`
 #'   parameters. It then joins the data with a lookup table (`nfsa::nfsa_sto_lookup`),
 #'   performs aggregations, and writes the results to an Excel file. The file
 #'   name includes a timestamp and indicates the dataset being analyzed.
@@ -28,23 +28,23 @@
 #' @examples
 #' \dontrun{
 #' # Analyze the new T0801 data and save the output to the default location
-#' nfsa_obs_status(table_sel = "T0801", type = "new")
+#' nfsa_obs_status(table = "T0801", type = "new")
 #'
 #' # Analyze the previous T0800 data and save the output to a specific folder
-#' nfsa_obs_status(table_sel = "T0800", type = "prev", output_path = here::here("my_output"))
+#' nfsa_obs_status(table = "T0800", type = "prev", output_sel = here::here("my_output"))
 #' }
 #' @export
-nfsa_obs_status <- function(table_sel = "T0801",
+nfsa_obs_status <- function(table = "T0801",
                             type = "new",
-                            path_sel = here::here("data"),
-                            output_path = here::here()){
+                            input_sel = here::here("data"),
+                            output_sel = here::here()){
 
   library(tidyverse)
   library(openxlsx)
   library(arrow)
 
   lookup <- nfsa::nfsa_sto_lookup
-  tst <- paste0(table_sel,type)
+  tst <- paste0(table,type)
 
   ###T0800----
   if (tst == "T0800new"){
@@ -89,11 +89,11 @@ nfsa_obs_status <- function(table_sel = "T0801",
             sto = obs_status_sto,
             year= obs_status_year)
 
-  write.xlsx(l, file = paste0(output_path,"/output/flags/",
+  write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                              as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"))
 
   } else if (tst == "T0800prev"){
   obs_status<- list.files(path = here::here("data","a", "prev"),
@@ -137,11 +137,11 @@ l <- list(country = obs_status_country,
           sto = obs_status_sto,
           year= obs_status_year)
 
-write.xlsx(l, file = paste0(output_path,"/output/flags/",
+write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                             as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_A_prev.xlsx"),
            overwrite = TRUE)
 
-cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_prev.xlsx"))
+cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_prev.xlsx"))
 } else if  (tst == "T0801new"){
   obs_status<- list.files(path = here::here("data","q", "new", "nsa"),
                           recursive = FALSE,
@@ -182,13 +182,13 @@ cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",a
 
   l <- list(country = obs_status_country,
             sto = obs_status_sto,
-            year= obs_status_quarter)
+            quarter= obs_status_quarter)
 
-  write.xlsx(l, file = paste0(output_path,"/output/flags/",
+  write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                               as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"))
 
   } else if (tst == "T0801prev"){
   obs_status<- list.files(path = here::here("data","q", "prev", "nsa"),
@@ -230,13 +230,13 @@ cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",a
 
   l <- list(country = obs_status_country,
             sto = obs_status_sto,
-            year= obs_status_quarter)
+            quarter= obs_status_quarter)
 
-  write.xlsx(l, file = paste0(output_path,"/output/flags/",
+  write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                               as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"))
   } else if  (tst == "T0801SAnew"){
     obs_status<- list.files(path = here::here("data","q", "new", "sca"),
                             recursive = FALSE,
@@ -279,11 +279,11 @@ cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",a
               sto = obs_status_sto,
               year= obs_status_quarter)
 
-    write.xlsx(l, file = paste0(output_path,"/output/flags/",
+    write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                                 as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"),
                overwrite = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"))
+    cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"))
 
   } else if (tst == "T0801SAprev"){
     obs_status<- list.files(path = here::here("data","q", "prev", "nsa"),
@@ -327,11 +327,11 @@ cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",a
               sto = obs_status_sto,
               year= obs_status_quarter)
 
-    write.xlsx(l, file = paste0(output_path,"/output/flags/",
+    write.xlsx(l, file = paste0(output_sel,"/output/flags/",
                                 as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"),
                overwrite = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ", output_path,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"))
+    cli::cli_alert_success(paste0("File created in ", output_sel,"/output/flags/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"))
   }
 }
 

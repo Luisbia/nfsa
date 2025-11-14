@@ -3,10 +3,10 @@
 #' @description This function takes T0801 data or revisions, formats the output, and exports it to an Excel file based on a
 #'   specified template. It processes data for selected countries and time periods.
 #'
-#' @param country_sel A character vector specifying the countries to process (e.g., "BE", "NL").
+#' @param country A character vector specifying the countries to process (e.g., "BE", "NL").
 #' @param time_min A numeric value specifying the minimum time period to consider (default: "2020-Q1").
 #' @param type Either "values" by default or "revisions"
-#' @param template_sel A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_Q.xlsx")`.
+#' @param template A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_Q.xlsx")`.
 #' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","revisions")`.
 #'
 #' @return None. The function saves an Excel file to the specified output directory.
@@ -26,18 +26,18 @@
 #' @examples
 #' \dontrun{
 #'   # Example usage with specific country and default settings
-#'   nfsa_sequence_T0801(country_sel = "BE", type = "values)
+#'   nfsa_sequence_T0801(country = "BE", type = "values)
 #'
 #'   # Example usage with multiple countries and custom time period
-#'   nfsa_sequence_T0801(country_sel = c("BE", "NL"), time_min = 2021, type = "revisions)
+#'   nfsa_sequence_T0801(country = c("BE", "NL"), time_min = 2021, type = "revisions)
 #'
 #' }
 #'
 #' @export
-nfsa_sequence_T0801 <- function(country_sel,
+nfsa_sequence_T0801 <- function(country,
                                 time_min = "2020-Q1",
                                 type = "values",
-                                template_sel = here("assets","seq_accounts_Q.xlsx"),
+                                template = here("assets","seq_accounts_Q.xlsx"),
                                 output_sel = here("output","sequence")) {
 
 library(tidyverse)
@@ -48,7 +48,7 @@ library(openxlsx)
 lookup <- nfsa::nfsa_sto_lookup
 
 
-nfsa_new_data <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "new") |>
+nfsa_new_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
   separate_wider_delim(cols = id,
                        delim = ".",
                        names = c("ref_sector", "sto", "accounting_entry")) |>
@@ -61,7 +61,7 @@ nfsa_new_data <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T08
   unite("id",c(time_period,ref_area,id),sep = ".") |>
   rename(new = obs_value)
 
-nfsa_prev_data <- nfsa::nfsa_get_data(country_sel = country_sel, table_sel = "T0801", type = "prev") |>
+nfsa_prev_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
   separate_wider_delim(cols = id,
                        delim = ".",
                        names = c("ref_sector", "sto", "accounting_entry")) |>
@@ -82,17 +82,17 @@ if (type == "values"){
     mutate(obs_value = round(obs_value,1)) |>
     mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value))
 
-  wb <- loadWorkbook(template_sel)
+  wb <- loadWorkbook(template)
   writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
 
-  if(length(country_sel) == 1) {
-    saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  if(length(country) == 1) {
+    saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
   }
 
-  if(length(country_sel) > 1) {
+  if(length(country) > 1) {
     saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
     cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
@@ -109,16 +109,16 @@ if (nrow(nfsa_data) == 0) {
   cli::cli_alert_success("No revisions in T0801!")}
 
 
-wb <- loadWorkbook(template_sel)
+wb <- loadWorkbook(template)
 writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
-if(length(country_sel) == 1) {
-  saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+if(length(country) == 1) {
+  saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country_sel,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 }
 
-if(length(country_sel) > 1) {
+if(length(country) > 1) {
   saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
   cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))

@@ -5,29 +5,29 @@
 \title{Analyze and Report Confidential Status}
 \usage{
 nfsa_conf_status(
-  table_sel = "T0801",
+  table = "T0801",
   type = "new",
-  path_sel = here::here("data"),
-  output_path = here::here()
+  input_sel = here::here("data"),
+  output_sel = here::here()
 )
 }
 \arguments{
-\item{table_sel}{Character string indicating the table to analyze.  Must be
+\item{table}{Character string indicating the table to analyze.  Must be
 "T0800" or "T0801".  Defaults to "T0801".}
 
 \item{type}{Character string indicating whether to process "new" or "prev"
 (previous) data. Defaults to "new".}
 
-\item{path_sel}{Character string specifying the base path to the data
+\item{input_sel}{Character string specifying the base path to the data
 directory. Defaults to \code{here::here("data")}.}
 
-\item{output_path}{Character string specifying the path to the output
+\item{output_sel}{Character string specifying the path to the output
 directory where the Excel file will be saved. Defaults to
 \code{here::here()}.}
 }
 \value{
 None. The function's primary effect is to write an Excel file
-containing the analysis results to the specified \code{output_path}.  It also
+containing the analysis results to the specified \code{output_sel}.  It also
 prints a success message to the console using \code{cli::cli_alert_success()}.
 }
 \description{
@@ -38,7 +38,7 @@ quarterly (T0801) datasets, as well as new and previous versions.
 }
 \details{
 The function reads data from arrow files located in subdirectories
-of the \code{path_sel} directory, based on the \code{table_sel} and \code{type}
+of the \code{input_sel} directory, based on the \code{table} and \code{type}
 parameters. It then joins the data with a lookup table (\code{nfsa::nfsa_sto_lookup}),
 performs aggregations, and writes the results to an Excel file. The file
 name includes a timestamp and indicates the dataset being analyzed.
@@ -46,9 +46,9 @@ name includes a timestamp and indicates the dataset being analyzed.
 \examples{
 \dontrun{
 # Analyze the new T0801 data and save the output to the default location
-nfsa_conf_status(table_sel = "T0801", type = "new")
+nfsa_conf_status(table = "T0801", type = "new")
 
 # Analyze the previous T0800 data and save the output to a specific folder
-nfsa_conf_status(table_sel = "T0800", type = "prev", output_path = here::here("my_output"))
+nfsa_conf_status(table = "T0800", type = "prev", output_sel = here::here("my_output"))
 }
 }
