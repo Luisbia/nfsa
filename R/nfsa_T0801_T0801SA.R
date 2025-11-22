@@ -4,7 +4,7 @@
 #' identifies discrepancies exceeding a specified threshold, and outputs the results to an Excel file.
 #'
 #' @param country A character string specifying the country code for the NFSA data.
-#' @param threshold A numeric value indicating the threshold for acceptable differences between T0801 and T0800 (default is 2).
+#' @param threshold A numeric value indicating the threshold expressed as % for acceptable differences between T0801 and T0800 (default is 2%).
 #' @param output_sel A character string specifying the directory where the output Excel file should be saved (default is "output/frequency" relative to the project root).
 #'
 #' @return This function primarily operates for its side effect of writing an Excel file.
@@ -50,14 +50,13 @@ nfsa_T0801_T0801SA <- function(country,
   qnfsa_qynfsa <- left_join(qy_nfsa_data,q_nfsa_data, by = join_by(ref_area, ref_sector, sto, accounting_entry,
                                                                    time_period)) |>
     mutate(diff = round(nsa-sca,2),
-           diff_p = 100*(nsa/sca)) |>
-    filter(diff_p > 100+ threshold,
-           diff_p > 100- threshold)
+           diff_p = 100*(nsa/sca)-100) |>
+    filter(abs(diff_p) > threshold)
 
 
 
   if (nrow(qnfsa_qynfsa) == 0) {
-    cli::cli_alert_success("T0801 and T0801SA are broadly consistent!")
+    cli::cli_alert_success("T0801 and T0801SA are consistent according to the threshold used!")
 
   } else {
 
@@ -65,7 +64,7 @@ nfsa_T0801_T0801SA <- function(country,
                          file = paste0(output_sel,"/T0801_T0801SA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                          overwrite = TRUE,
                          asTable = TRUE)
-    cli::cli_alert_success(paste0("File created in", paste0(output_sel,"/T0801_T0801SA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx")))
+    cli::cli_alert_success(paste0("File created in ", paste0(output_sel,"/T0801_T0801SA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx")))
   }
   return(qnfsa_qynfsa)
 }

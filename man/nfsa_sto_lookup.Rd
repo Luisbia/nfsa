@@ -5,7 +5,7 @@
 \alias{nfsa_sto_lookup}
 \title{nfsa_sto_lookup}
 \format{
-An object of class \code{data.frame} with 2386 rows and 10 columns.
+An object of class \code{data.frame} with 2396 rows and 10 columns.
 }
 \usage{
 nfsa_sto_lookup

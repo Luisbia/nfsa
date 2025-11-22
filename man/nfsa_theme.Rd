@@ -4,10 +4,7 @@
 \alias{nfsa_theme}
 \title{Default theme options for charts}
 \usage{
-nfsa_theme(font = "serif")
-}
-\arguments{
-\item{font}{Font to be used by default serif}
+nfsa_theme()
 }
 \value{
 a set of theme paremeters
@@ -17,5 +14,5 @@ Default theme options for charts
 }
 \examples{
 library(ggplot2)
-ggplot(mtcars, aes(mpg, cyl)) + geom_point() + nfsa_theme(font = "Open Sans")+ ggtitle("Test")
+ggplot(mtcars, aes(mpg, disp)) + geom_point() + nfsa_theme()+ ggtitle("Test")
 }
