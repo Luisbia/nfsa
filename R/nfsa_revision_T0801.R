@@ -79,5 +79,5 @@ if(length(unique(new_prev_db$ref_area)) > 1) {
 
   cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
-return(new_preb_db)
+return(new_prev_db)
 }

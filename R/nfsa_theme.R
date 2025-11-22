@@ -1,13 +1,12 @@
 #' Default theme options for charts
 #'
-#' @param font Font to be used by default serif
 #' @return a set of theme paremeters
-#' @export nfsa_theme
+#' @export
 #' @examples
 #' library(ggplot2)
-#' ggplot(mtcars, aes(mpg, cyl)) + geom_point() + nfsa_theme(font = "Open Sans")+ ggtitle("Test")
+#' ggplot(mtcars, aes(mpg, disp)) + geom_point() + nfsa_theme()+ ggtitle("Test")
 
-nfsa_theme <- function(font= "serif") {
+nfsa_theme <- function() {
 
   ggplot2::theme(
 
@@ -15,7 +14,6 @@ nfsa_theme <- function(font= "serif") {
     # This sets the font, size, type and colour
     # of text for the chart's title
     plot.title = ggplot2::element_text(
-      family = font,
       size = 16,
       face = "bold",
       color = "#262B38"
@@ -24,7 +22,6 @@ nfsa_theme <- function(font= "serif") {
     # of text for the chart's subtitle,
     # as well as setting a margin between the title and the subtitle
     plot.subtitle = ggplot2::element_text(
-      family = font,
       color = "#262B38",
       size = 12,
       margin = ggplot2::margin(9, 0, 9, 0)
@@ -32,7 +29,6 @@ nfsa_theme <- function(font= "serif") {
     # This leaves the caption text element empty,
     # because it is set elsewhere in the finalise plot function
     plot.caption = ggplot2::element_text(
-      family = font,
       color = "#262B38",
       size = 12),
 
@@ -48,7 +44,6 @@ nfsa_theme <- function(font= "serif") {
     legend.title = ggplot2::element_blank(),
     legend.key = ggplot2::element_blank(),
     legend.text = ggplot2::element_text(
-      family = font,
       size = 12,
       color = "#262B38"
     ),
@@ -61,11 +56,10 @@ nfsa_theme <- function(font= "serif") {
     # the cookbook shows examples of how to do so.
     axis.title = ggplot2::element_blank(),
     axis.text = ggplot2::element_text(
-      family = font,
       size = 12,
       color = "#262B38"
     ),
-    axis.text.x = ggplot2::element_text(margin = ggplot2::margin(5, b = 10),family=font),
+    axis.text.x = ggplot2::element_text(margin = ggplot2::margin(5, b = 10)),
     axis.ticks = ggplot2::element_blank(),
     axis.line = ggplot2::element_line(colour="#262B38"),
 
@@ -95,7 +89,7 @@ nfsa_theme <- function(font= "serif") {
     # removing the standard grey ggplot background colour and sets the
     # title size of the facet-wrap title to font size 22.
     strip.background = ggplot2::element_rect(fill = "#F3F6FC"),
-    strip.text = ggplot2::element_text(size = 14, hjust = 0.1, color="#262B38",face="bold", family=font),
+    strip.text = ggplot2::element_text(size = 14, hjust = 0.1, color="#262B38",face="bold"),
     panel.spacing = unit(2, "lines"),
     strip.placement = "outside"
   )
