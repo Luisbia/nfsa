@@ -28,59 +28,59 @@ nfsa_validation <- function(time_min,
                             time_max = lubridate::ymd(lubridate::today()),
                             output_sel = here::here("output", "logs")){
 
-library(tidyverse)
-library(data.table)
+  library(tidyverse)
+  library(data.table)
 
   options(warn = -1)
   cli::cli_progress_message("Searching for files in the server...")
-validated <- list.files("I:/econ/NFSA/VALID/results/",
-                  full.names = TRUE,
-                  pattern = "^valid_data2vintage_",
-                  recursive = FALSE) |>
-  as_tibble() |>
-  mutate(time = str_sub(value,-17,-12),
-         time = lubridate::ymd(time)) |>
-  filter(time >= time_min,
-         time <= time_max)
+  validated <- list.files("I:/econ/NFSA/VALID/results/",
+                          full.names = TRUE,
+                          pattern = "^valid_data2vintage_",
+                          recursive = FALSE) |>
+    as_tibble() |>
+    mutate(time = str_sub(value,-17,-12),
+           time = lubridate::ymd(time)) |>
+    filter(time >= time_min,
+           time <= time_max)
 
-if (nrow(validated) == 0) {
-  cli::cli_alert_warning("Nothing validated :(")
+  if (nrow(validated) == 0) {
+    cli::cli_alert_warning("Nothing validated :(")
 
-} else {
-  cli::cli_progress_message("Reading files...")
-  validated <- validated |>
-  mutate(data=map(value,~ data.table::fread(.x,header = FALSE))) |>
-  unnest(data) |>
-  separate_wider_delim(V1,delim = ".", names = c("drop1",
-                                                 "drop2",
-                                                 "table",
-                                                 "freq",
-                                                 "adjustment",
-                                                 "ref_area",
-                                                 "drop3",
-                                                 "drop4",
-                                                 "drop5",
-                                                 "drop6",
-                                                 "drop7",
-                                                 "drop8",
-                                                 "drop9",
-                                                 "drop10",
-                                                 "drop11",
-                                                 "drop12",
-                                                 "drop13",
-                                                 "drop14",
-                                                 "drop15",
-                                                 "drop16",
-                                                 "drop17"
-                                                 ),
-                       too_many = "drop") |>
-    select(time,table,freq,adjustment,ref_area) |>
-    distinct() |>
-  group_by(table,freq,adjustment,ref_area) |>
-  arrange(time,.by_group = TRUE) |>
-  slice_head(n = 1)
+  } else {
+    cli::cli_progress_message("Reading files...")
+    validated <- validated |>
+      mutate(data=map(value,~ data.table::fread(.x,header = FALSE))) |>
+      unnest(data) |>
+      separate_wider_delim(V1,delim = ".", names = c("drop1",
+                                                     "drop2",
+                                                     "table",
+                                                     "freq",
+                                                     "adjustment",
+                                                     "ref_area",
+                                                     "drop3",
+                                                     "drop4",
+                                                     "drop5",
+                                                     "drop6",
+                                                     "drop7",
+                                                     "drop8",
+                                                     "drop9",
+                                                     "drop10",
+                                                     "drop11",
+                                                     "drop12",
+                                                     "drop13",
+                                                     "drop14",
+                                                     "drop15",
+                                                     "drop16",
+                                                     "drop17"
+      ),
+      too_many = "drop") |>
+      select(time,table,freq,adjustment,ref_area) |>
+      distinct()
+    # group_by(table,freq,adjustment,ref_area) |>
+    # arrange(time,.by_group = TRUE) |>
+    # slice_head(n = 1)
 
-  cli::cli_progress_message("Creating file...")
+    cli::cli_progress_message("Creating file...")
 
 
 
@@ -92,7 +92,7 @@ if (nrow(validated) == 0) {
     cli::cli_alert_success(paste0("File created in ",output_sel,"/validation", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 
 
-}
-options(warn = 0)
-return(validated)
+  }
+  options(warn = 0)
+  return(validated)
 }
