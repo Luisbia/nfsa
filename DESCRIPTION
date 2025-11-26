@@ -1,6 +1,6 @@
 Package: nfsa
 Title: Set of utilities for NFSA workflows
-Version: 0.0.2
+Version: 0.0.3
 Author: Luis Biedma <luis.biedma@ec.europa.eu>
 Maintainer: Luis Biedma <luis.biedma@ec.europa.eu>
 Description: Collection of functions, dictionaries and other utilities to work interactively  with NFSA data or to embed them in particular workflows.
