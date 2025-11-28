@@ -6,3 +6,8 @@
 # nfsa 0.0.3
 
 * New function nfsa_internal_consistency() based on the work by Estela Kaja.
+
+# nfsa 0.0.4
+
+* Proper completeness report according to regulation
+* new function nfsa_comext() to download data from ITGS from Eurobase

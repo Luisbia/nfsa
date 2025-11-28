@@ -41,6 +41,7 @@ nfsa_completeness_regulation <- function(country  ,
   library(readxl)
   library(arrow)
   library(openxlsx)
+  library(here)
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
@@ -96,16 +97,14 @@ nfsa_completeness_regulation <- function(country  ,
                                    counterpart_sector, consolidation, accounting_entry,
                                    sto, instr_asset, maturity, expenditure,
                                    unit_measure, currency_denom, valuation, prices,
-                                   transformation, cust_breakdown, ref_area, time_period)) %>%
-      left_join(.,lookup,by = join_by(counterpart_area,
-                                      ref_sector, counterpart_sector, consolidation,
-                                      accounting_entry, sto, instr_asset, unit_measure,
-                                      prices)) |>
+                                   transformation, cust_breakdown, ref_area,time_period)) %>%
       select(ref_area,table_identifier,id,time_period,obs_value,obs_status) |>
       nfsa_separate_id()
 
     dat_missing <- dat |>
-      filter(is.na(obs_value))
+      filter(is.na(obs_value))|>
+      select(-obs_value)
+
 
 
     if (nrow(dat_missing) == 0) {
@@ -126,7 +125,6 @@ nfsa_completeness_regulation <- function(country  ,
   }
   if (table == "T0801SA"){
     requirements <- here::here("assets", "completeness_T0801SA.xlsx")
-
     req <- readxl::read_xlsx(requirements)
     req_time <- list.files(path = here("data", "q", "new", "sca"),
                            pattern = ".parquet",
@@ -152,7 +150,6 @@ nfsa_completeness_regulation <- function(country  ,
 
     rm(req_small,req_big, req_time)
 
-
     dat <- list.files(path = here("data", "q", "new", "sca"),
                       pattern = ".parquet",
                       full.names = TRUE) |>
@@ -177,15 +174,12 @@ nfsa_completeness_regulation <- function(country  ,
                                    sto, instr_asset, maturity, expenditure,
                                    unit_measure, currency_denom, valuation, prices,
                                    transformation, cust_breakdown, ref_area,time_period)) %>%
-      left_join(.,lookup,by = join_by(counterpart_area,
-                                      ref_sector, counterpart_sector, consolidation,
-                                      accounting_entry, sto, instr_asset, unit_measure,
-                                      prices)) |>
       select(ref_area,table_identifier,id,time_period,obs_value,obs_status) |>
       nfsa_separate_id()
 
     dat_missing <- dat |>
-      filter(is.na(obs_value))
+      filter(is.na(obs_value))|>
+      select(-obs_value)
 
 
     if (nrow(dat_missing) == 0) {
@@ -208,7 +202,13 @@ nfsa_completeness_regulation <- function(country  ,
   if (table == "T0800"){
     requirements <- here::here("assets", "completeness_T0800.xlsx")
 
-    req <- readxl::read_xlsx(requirements)
+    req_full <- readxl::read_xlsx(requirements) |>
+      filter(start == 1995) |>
+      select(-start)
+
+    req_2012 <- readxl::read_xlsx(requirements) |>
+      filter(start == 2012)|>
+      select(-start)
 
     req_time <- list.files(path = here("data", "a", "new"),
                            pattern = ".parquet",
@@ -219,10 +219,16 @@ nfsa_completeness_regulation <- function(country  ,
       distinct() |>
       collect()
 
-    req <- req %>%
+    req_full <- req_full %>%
       cross_join(.,data.frame(ref_area = country))%>%
       cross_join(., req_time)
 
+    req_2012 <- req_2012 %>%
+      cross_join(.,data.frame(ref_area = country))%>%
+      cross_join(., req_time) |>
+      filter(time_period >= 2012)
+
+    req <- bind_rows(req_full,req_2012)
 
 
     dat <- list.files(path = here("data", "a", "new"),
@@ -240,25 +246,20 @@ nfsa_completeness_regulation <- function(country  ,
       pull(value) |>
       open_dataset() |>
       select(-received, -embargo_date,-version) |>
-      filter(time_period >= "1995",
-             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M")) |>
+      filter(time_period >= 1995,
+             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S14", "S15", "S1M")) |>
       collect()  %>%
-      left_join(req,.,by = join_by(table_identifier, freq,
-                                   adjustment, counterpart_area, ref_sector,
-                                   counterpart_sector, consolidation, accounting_entry,
-                                   sto, instr_asset, maturity, expenditure,
-                                   unit_measure, currency_denom, valuation, prices,
-                                   transformation, cust_breakdown, ref_area,time_period)) %>%
-      left_join(.,lookup,by = join_by(counterpart_area,
-                                      ref_sector, counterpart_sector, consolidation,
-                                      accounting_entry, sto, instr_asset, unit_measure,
-                                      prices)) |>
-      select(ref_area,table_identifier,id,time_period,obs_value,obs_status) |>
+      left_join(req,.,by = join_by(ref_area,time_period,counterpart_area,
+                                   ref_sector, counterpart_sector, consolidation,
+                                   accounting_entry, sto, instr_asset, unit_measure,
+                                   prices)) |>
+      select(ref_area,id,time_period,obs_value,obs_status) |>
       nfsa_separate_id()
 
-    dat_missing <- dat |>
-      filter(is.na(obs_value))
 
+    dat_missing <- dat |>
+      filter(is.na(obs_value)) |>
+      select(-obs_value)
 
     if (nrow(dat_missing) == 0) {
       cli::cli_inform(paste0("Data requirements for ",table, " are fulfilled" ))

@@ -27,6 +27,7 @@ nfsa_completeness_aggregation <- function(country ,
   library(readxl)
   library(arrow)
   library(openxlsx)
+  library(here)
   lookup <- nfsa::nfsa_sto_lookup
 
   if (table == "T0801"){
