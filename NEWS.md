@@ -11,3 +11,4 @@
 
 * Proper completeness report according to regulation
 * new function nfsa_comext() to download data from ITGS from Eurobase
+] new convenience functions for reading matis,xml and xlsx.csv files
