@@ -8,7 +8,7 @@ nfsa_conf_status(
   table = "T0801",
   type = "new",
   input_sel = here::here("data"),
-  output_sel = here::here()
+  output_sel = here::here("output", "flags")
 )
 }
 \arguments{
