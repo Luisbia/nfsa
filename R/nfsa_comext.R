@@ -45,7 +45,19 @@ if(area == "EA20"){
            quarter = case_when(str_sub(time,6,7) %in% c("01", "02","03") ~ "Q1",
                                str_sub(time,6,7) %in% c("04", "05","06") ~ "Q2",
                                str_sub(time,6,7) %in% c("07", "08","09") ~ "Q3",
-                               str_sub(time,6,7) %in% c("10", "11","12") ~ "Q4")) |>
+                               str_sub(time,6,7) %in% c("10", "11","12") ~ "Q4"))
+
+  check <- ea20 |>
+    group_by(year,quarter,bclas_bec,stk_flow) |>
+    tally() |>
+    filter(n<3)
+
+  if (nrow(check) > 0) {
+
+    cli::cli_abort("A month is still missing to do the calculation of the quarter")
+  } else {
+
+    ea20 <- ea20 |>
     unite("time",c(year,quarter),sep="") |>
     filter(time <= quarter)|>
     summarise(values = sum(values)*1000000, .by = -c(values)) |>
@@ -76,7 +88,7 @@ if(area == "EA20"){
   cli::cli_alert_success(paste0("File created in ",output_sel, "EA20_", quarter,"_comext.csv"))
 
   return(ea20)
-}
+}  }
 
   if(area == "EU27"){
 
@@ -93,7 +105,18 @@ if(area == "EA20"){
              quarter = case_when(str_sub(time,6,7) %in% c("01", "02","03") ~ "Q1",
                                  str_sub(time,6,7) %in% c("04", "05","06") ~ "Q2",
                                  str_sub(time,6,7) %in% c("07", "08","09") ~ "Q3",
-                                 str_sub(time,6,7) %in% c("10", "11","12") ~ "Q4")) |>
+                                 str_sub(time,6,7) %in% c("10", "11","12") ~ "Q4"))
+
+    check <- eu27 |>
+      group_by(year,quarter,bclas_bec,stk_flow) |>
+      tally() |>
+      filter(n < 3)
+
+    if (nrow(check) > 0) {
+
+      cli::cli_abort("A month is still missing to do the calculation of the quarter")
+    } else {
+      eu27 <- eu27 |>
       unite("time",c(year,quarter),sep="") |>
       filter(time <= quarter)|>
       summarise(values = sum(values)*1000000, .by = -c(values)) |>
@@ -122,6 +145,7 @@ if(area == "EA20"){
     cli::cli_alert_success(paste0("File created in ",output_sel, "EU27_", quarter,"_comext.csv"))
 
     return(eu27)
+    }
   }
 }
 

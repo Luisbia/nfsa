@@ -49,6 +49,7 @@ nfsa_seas_level1 <- function(country ,
 
   data <- full_join(nsa, sca, by = join_by(ref_area, id,
                                            time_period)) |>
+    filter(time_period >= "1999-Q1") |>
     na.omit()
 
   ## Need to remove series entirely 0's or with several 0's
@@ -58,7 +59,7 @@ nfsa_seas_level1 <- function(country ,
     add_count() |>
     filter(n >10) |>
     select(ref_area,id) |>
-	ungroup() |>
+	  ungroup() |>
     distinct()
 
 
@@ -72,7 +73,9 @@ nfsa_seas_level1 <- function(country ,
            sca = map(data,~ts(.x$SCA,start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4)),
            level1_X13 = map2(.x = nsa,
                              .y = sca,
-                             .f=~SAvalidation::level1_validation(.x,.y,default_type = "X13")),
+                             .f=~SAvalidation::level1_validation(.x,.y,default_type = "X13",
+                                                                 default_spec_nsa_sel = "RSA1",
+                                                                 default_spec_sa_sel = "RSA2c")),
            level1_TS = map2(.x = nsa,
                             .y = sca,
                             .f=~SAvalidation::level1_validation(.x,.y,default_type = "TS", default_spec_sa = "RSA2"))) |>
