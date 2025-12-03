@@ -74,14 +74,13 @@ nfsa_seas_level1 <- function(country ,
            level1_X13 = map2(.x = nsa,
                              .y = sca,
                              .f=~SAvalidation::level1_validation(.x,.y,default_type = "X13",
-                                                                 default_spec_nsa_sel = "RSA1",
-                                                                 default_spec_sa_sel = "RSA2c")),
-           level1_TS = map2(.x = nsa,
-                            .y = sca,
-                            .f=~SAvalidation::level1_validation(.x,.y,default_type = "TS", default_spec_sa = "RSA2"))) |>
-    select(ref_area,id,level1_X13, level1_TS) |>
-    unnest(c(level1_X13, level1_TS)) |>
-    filter(level1_X13 == level1_TS) |>
+                                                                 default_spec_nsa = "RSA1",
+                                                                 default_spec_sa = "RSA2c"))) |>
+           # level1_TS = map2(.x = nsa,
+           #                  .y = sca,
+           #                  .f=~SAvalidation::level1_validation(.x,.y,default_type = "TS", default_spec_sa = "RSA2"))) |>
+    select(ref_area,id,level1_X13) |>
+    unnest(c(level1_X13)) |>
     select(ref_area, id,level1=level1_X13) |>
     filter(level1 == "FAIL: EVIDENCE OF RESIDUAL SEASONALITY OR CALENDAR EFFECTS IN SA SERIES" |
              level1 == "FAIL: NO EVIDENCE OF SEASONALITY IN NSA BUT SERIES ADJUSTED" |

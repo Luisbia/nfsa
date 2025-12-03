@@ -13,3 +13,4 @@
 * new function nfsa_comext() to download data from ITGS from Eurobase
 * new convenience functions for reading matis,xml and xlsx.csv files
 * nfsa_comext() now checks there are three months before calculating the quarter.
+* nfsa_seas_level1() only checks X13, no TS
