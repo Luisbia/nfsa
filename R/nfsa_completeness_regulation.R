@@ -46,6 +46,9 @@ nfsa_completeness_regulation <- function(country  ,
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
            "NL", "PL", "PT", "RO", "SE")
+  euro <- c( "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK",
+             "AT", "BE", "DE", "EL", "ES", "FI", "FR",  "IE", "IT",
+             "NL", "PT")
   if (table == "T0801"){
     requirements <- here::here("assets", "completeness_T0801.xlsx")
     req <- readxl::read_xlsx(requirements)
@@ -230,6 +233,15 @@ nfsa_completeness_regulation <- function(country  ,
 
     req <- bind_rows(req_full,req_2012)
 
+    tmp <- req |>
+      filter(ref_area %in% euro,
+             counterpart_area %in% c("I9", "J9"))
+
+    req <- req |>
+      filter(counterpart_area %in% c("I9", "J9")) %>%
+      bind_rows (.,tmp)
+
+    rm(tmp)
 
     dat <- list.files(path = here("data", "a", "new"),
                       pattern = ".parquet",
