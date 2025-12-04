@@ -238,7 +238,7 @@ nfsa_completeness_regulation <- function(country  ,
              counterpart_area %in% c("I9", "J9"))
 
     req <- req |>
-      filter(counterpart_area %in% c("I9", "J9")) %>%
+      filter(!counterpart_area %in% c("I9", "J9")) %>%
       bind_rows (.,tmp)
 
     rm(tmp)
