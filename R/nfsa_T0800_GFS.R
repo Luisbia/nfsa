@@ -119,7 +119,7 @@ nfsa_T0800_GFS <- function(country,
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0800_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
   options(warn=0)
-  return(gfsa_nfsa)
+  return(gfs_nfsa)
 }
 
 

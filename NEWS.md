@@ -14,3 +14,11 @@
 * new convenience functions for reading matis,xml and xlsx.csv files
 * nfsa_comext() now checks there are three months before calculating the quarter.
 * nfsa_seas_level1() only checks X13, no TS in order to be consistent between leve1 and level2/3
+
+# nfsa 0.0.5
+
+* Removed euro area requirements for non-EA countries in completeness_regulation()
+
+* Added /internal to nfsa_folders()
+
+* Output an excel file for all revisions

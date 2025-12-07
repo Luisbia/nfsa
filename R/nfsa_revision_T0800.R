@@ -82,11 +82,11 @@ if (nrow(new_prev_db) == 0) {
 
 if(length(unique(new_prev_db$ref_area)) == 1) {
     openxlsx::write.xlsx(new_prev_db,
-                         file = paste0(output_sel,"/revisions_T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                         file = paste0(output_sel,"/revisions_T0800_",unique(new_prev_db$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                          overwrite = TRUE,
                          asTable = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",unique(new_prev_db$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
 
 if(length(unique(new_prev_db$ref_area)) > 1) {

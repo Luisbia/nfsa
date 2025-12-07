@@ -8,7 +8,7 @@
 #' @param input_sel A character string specifying the path to the directory containing the Parquet files.
 #'   Defaults to `"data/q"` relative to the project root.
 #'
-#' @return An Excel workbook (created via `nfsa::nfsa_to_excel()`) containing the identified revisions,
+#' @return An Excel workbook containing the identified revisions,
 #'   with columns for the reference area, ID, time period, reference sector, STO, accounting entry,
 #'   and the changes between different versions of the data.
 #'
@@ -52,6 +52,22 @@ revisions <- list.files(path = input_sel,
   pivot_wider(names_from = version,
               values_from = change)
 
-  nfsa::nfsa_to_excel(revisions)
+if(length(unique(revisions$ref_area)) == 1) {
+  openxlsx::write.xlsx(revisions,
+                       file = paste0(output_sel,"/revisions_T0801_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                       overwrite = TRUE,
+                       asTable = TRUE)
+
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+}
+
+if(length(unique(revisions$ref_area)) > 1) {
+  openxlsx::write.xlsx(revisions,
+                       file = paste0(output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                       overwrite = TRUE,
+                       asTable = TRUE)
+
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+}
   return(revisions)
 }

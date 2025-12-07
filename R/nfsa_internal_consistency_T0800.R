@@ -53,11 +53,10 @@
 #' nfsa_internal_consistency_T0800(my_dataset, output_sel = "my_output_folder", threshold = 5)
 #' }
 #'
-#' @export
 nfsa_internal_consistency_T0800 <- function(dataset,
-                                      output_sel = here::here("output", "internal"),
-                                      threshold = 2,
-                                      rounding = 1) {
+                                            output_sel = here::here("output", "internal"),
+                                            threshold = 2,
+                                            rounding = 1) {
 
   library(tidyverse)
   library(arrow)
@@ -79,10 +78,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   ur01 <- data |>
     filter(
       sto %in% c(
-        "D1", "D11", "D12", "D4", "D41", "D4N", "D42", "D422", "D43", "D44",
-        "D441", "D442", "D443", "D45", "D41G", "D5", "D51", "D59", "D6",
-        "D611", "D612", "D613", "D614","D61SC","D61", "D62", "D7", "D71", "D72",
-        "D7N", "D74", "D75", "D8", "D9", "D91", "D9N", "D92", "D99"
+        "D1", "D11", "D12", "D4", "D41", "D42", "D421","D422", "D43", "D44",
+        "D441", "D442", "D443", "D45", "D41G", "D5", "D51", "D59", "D6", "D61",
+        "D611", "D612", "D613", "D614","D61SC", "D62", "D7", "D71", "D72",
+        "D74", "D75", "D9", "D91", "D92", "D99"
       ),
       ref_sector %in% c("S1", "S2")
     ) |>
@@ -138,7 +137,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     filter(abs(check) > threshold)
 
-
   ## UR04----
   ur04 <- data |>
     filter(
@@ -172,7 +170,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     mutate(check = round(S1.D - S2.D, rounding)) |>
     filter(abs(check) > threshold)
 
-
   ## UR06----
   ur06 <- data |>
     filter(
@@ -188,7 +185,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     rowwise() |>
     mutate(check = round(S1.D + S2.C, rounding)) |>
     filter(abs(check) > threshold)
-
 
   ## UR07----
   ur07 <- data |>
@@ -240,6 +236,21 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     mutate(`S1.D442.D+S2.D442.C` = round(S1.D442.D+S2.D442.C, rounding),
            `S1.D614.C+S2.D614.D` = round(S1.D614.C+S2.D614.D, rounding)) |>
     filter(`S1.D442.D+S2.D442.C` > `S1.D614.C+S2.D614.D`)
+
+  ## UR10----
+  ur10 <- data |>
+    filter(
+      sto %in% c("D43", "D74"),
+      ref_sector %in% c("S1", "S2"),
+      accounting_entry == "C"
+    ) |>
+    pivot_wider(
+      names_from = c(ref_sector,accounting_entry),
+      values_from = obs_value,
+      names_sep = "."
+    ) |>
+    select(ref_area,time_period, S1.C, S2.C) |>
+    filter(`S1.C` != `S2.C`)
 
   # S1 vs Sum of Sub-sectors----
   ## S1SS01----
@@ -510,6 +521,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       mutate(check = round(S12 - `S12K + S12P + S12Q`, rounding)) |>
       filter(abs(check) > threshold)
   }
+
   # SubItems vs Total----
 
   ## SIT01----
@@ -560,19 +572,17 @@ nfsa_internal_consistency_T0800 <- function(dataset,
         "S12001", "S120011", "S12002", "S120021", "S12003",
         "S13", "S1M", "S14", "S15"
       ),
-      sto %in% c("P5", "P51G", "P5M"),
+      sto %in% c("P5", "P51G", "P52", "P53"),
       accounting_entry == "D"
     ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
     pivot_wider(
       names_from = sto,
       values_from = obs_value
     ) |>
-    select(ref_area, ref_sector, time_period, P5.D, P51G.D, P5M.D) |>
+    select(ref_area, ref_sector, accounting_entry,time_period, P5, P51G, P52, P53) |>
     rowwise() |>
-    mutate(`P51G.D + P5M.D` = sum(c(P51G.D, P5M.D), na.rm = TRUE)) |>
-    filter(`P51G.D + P5M.D` != 0) |>
-    mutate(check = round(P5.D - `P51G.D + P5M.D`, rounding)) |>
+    mutate(`P51G + P52 + P53` = sum(c(P51G, P52, P53), na.rm = TRUE)) |>
+    mutate(check = round(P5 - `P51G + P52 + P53`, rounding)) |>
     filter(abs(check) > threshold)
 
   ## SIT04----
@@ -693,23 +703,18 @@ nfsa_internal_consistency_T0800 <- function(dataset,
         "S12", "S12K", "S12P", "S12Q", "S12001", "S120011", "S12002", "S120021",
         "S12003", "S13", "S1M", "S14", "S15", "S2"
       ),
-      sto %in% c("D4", "D41", "D4N", "D42", "D43", "D44", "D45"),
+      sto %in% c("D4", "D41", "D42", "D43", "D44", "D45"),
       accounting_entry == "D"
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     pivot_wider(names_from = sto, values_from = obs_value) |>
     rowwise() |>
     mutate(
-      sum_D42_D45 = sum(c_across(c("D42.D", "D43.D", "D44.D", "D45.D")), na.rm = TRUE),
-      sum_D41_D42_D45 = sum(c_across("D41.D"), na.rm = TRUE) + sum_D42_D45,
-      check1 = round(D4.D - sum_D41_D42_D45, rounding),
-      check2 = round(D4N.D - sum_D42_D45, rounding),
-      check3 = round(check1 - check2, rounding)
+      sum_D41_D45 = sum(c_across(c("D41.D","D42.D", "D43.D", "D44.D", "D45.D")), na.rm = TRUE),
+      check = round(D4.D - sum_D41_D45, rounding)
     ) |>
     filter(
-      abs(check1) > threshold |
-        abs(check2) > threshold |
-        abs(check3) > threshold
+      abs(check) > threshold
     )
 
   ## SIT11 ----
@@ -720,126 +725,120 @@ nfsa_internal_consistency_T0800 <- function(dataset,
         "S12", "S12K", "S12P", "S12Q", "S12001", "S120011", "S12002", "S120021",
         "S12003", "S13", "S1M", "S14", "S15", "S2"
       ),
-      sto %in% c("D4", "D41", "D4N", "D42", "D43", "D44", "D45"),
+      sto %in% c("D4", "D41", "D42", "D43", "D44", "D45"),
       accounting_entry == "C"
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     pivot_wider(names_from = sto, values_from = obs_value) |>
     rowwise() |>
     mutate(
-      sum_D42_D45 = sum(c_across(c("D42.C", "D43.C", "D44.C", "D45.C")), na.rm = TRUE),
-      sum_D41_D42_D45 = sum(c_across("D41.C"), na.rm = TRUE) + sum_D42_D45,
-      check1 = round(D4.C - sum_D41_D42_D45, rounding),
-      check2 = round(D4N.C - sum_D42_D45, rounding),
-      check3 = round(check1 - check2, rounding)
-    ) |>
+      sum_D41_D45 = sum(c_across(c("D41.C","D42.C", "D43.C", "D44.C", "D45.C")), na.rm = TRUE),
+      check = round(D4.C - sum_D41_D45, rounding))|>
     filter(
-      abs(check1) > threshold |
-        abs(check2) > threshold |
-        abs(check3) > threshold
+      abs(check) > threshold
     )
 
 
-  ## SIT12----
-
-  check <- data |>
-    filter(ref_sector == "S11", accounting_entry == "D", sto == "D44")
-
-  if(nrow(check)>0){
-
-    sit12 <- data |>
-      filter(
-        ref_sector %in% c(
-          "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
-          "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
-          "S12001", "S120011", "S12002", "S120021", "S12003"
-        ),
-        sto %in% c("D4N", "D42", "D43", "D44", "D45"),
-        accounting_entry == "D"
-      ) |>
-      unite("sto", c(sto, accounting_entry), sep = ".") |>
-      pivot_wider(names_from = sto, values_from = obs_value) |>
-      select(ref_area, ref_sector, time_period, D4N.D, D42.D, D43.D, D44.D, D45.D) |>
-      rowwise() |>
-      filter(D4N.D + D42.D + D43.D + D44.D + D45.D != 0) |>
-      mutate(`D42.D + D43.D + D44.D + D45.D` = sum(c(D42.D, D43.D, D44.D, D45.D), na.rm = TRUE)) |>
-      mutate(check = round(D4N.D - `D42.D + D43.D + D44.D + D45.D`, rounding)) |>
-      filter(abs(check) > threshold)}
-
-  rm(check)
+  # ## SIT12----
+  #
+  # check <- data |>
+  #   filter(ref_sector == "S11", accounting_entry == "D", sto == "D44")
+  #
+  # if(nrow(check)>0){
+  #
+  #   sit12 <- data |>
+  #     filter(
+  #       ref_sector %in% c(
+  #         "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
+  #         "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
+  #         "S12001", "S120011", "S12002", "S120021", "S12003"
+  #       ),
+  #       sto %in% c("D4N", "D42", "D43", "D44", "D45"),
+  #       accounting_entry == "D"
+  #     ) |>
+  #     unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #     pivot_wider(names_from = sto, values_from = obs_value) |>
+  #     select(ref_area, ref_sector, time_period, D4N.D, D42.D, D43.D, D44.D, D45.D) |>
+  #     rowwise() |>
+  #     filter(D4N.D + D42.D + D43.D + D44.D + D45.D != 0) |>
+  #     mutate(`D42.D + D43.D + D44.D + D45.D` = sum(c(D42.D, D43.D, D44.D, D45.D), na.rm = TRUE)) |>
+  #     mutate(check = round(D4N.D - `D42.D + D43.D + D44.D + D45.D`, rounding)) |>
+  #     filter(abs(check) > threshold)}
+  #
+  # rm(check)
 
   ## SIT13----
-  sit13 <- data |>
-    filter(
-      ref_sector %in% c("S13"),
-      accounting_entry == "D"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D4N.D, D44.D, D45.D) |>
-    rowwise() |>
-    mutate(`D44.D + D45.D` = sum(c(D44.D, D45.D), na.rm = TRUE)) |>
-    filter(`D44.D + D45.D` != 0) |>
-    mutate(check = round(D4N.D - `D44.D + D45.D`, rounding)) |>
-    filter(abs(check) > threshold)
+  # sit13 <- data |>
+  #   filter(
+  #     ref_sector %in% c("S13"),
+  #     accounting_entry == "D"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D4N.D, D44.D, D45.D) |>
+  #   rowwise() |>
+  #   mutate(`D44.D + D45.D` = sum(c(D44.D, D45.D), na.rm = TRUE)) |>
+  #   filter(`D44.D + D45.D` != 0) |>
+  #   mutate(check = round(D4N.D - `D44.D + D45.D`, rounding)) |>
+  #   filter(abs(check) > threshold)
 
   ## SIT14----
-  check <- data |>
-    filter(ref_sector == "S1M", accounting_entry == "D", sto == "D45")
-
-  if(nrow(check)>0){
-    sit14 <- data |>
-      filter(
-        ref_sector %in% c("S1M", "S14", "S15"),
-        sto %in% c("D4N", "D45"),
-        accounting_entry == "D"
-      ) |>
-      unite("sto", c(sto, accounting_entry), sep = ".") |>
-      pivot_wider(names_from = sto, values_from = obs_value) |>
-      select(ref_area, ref_sector, time_period, D4N.D, D45.D) |>
-      rowwise() |>
-      mutate(check = round(D4N.D - D45.D, rounding)) |>
-      filter(D45.D != 0) |>
-      filter(abs(check) > threshold)}
-  rm(check)
+  # check <- data |>
+  #   filter(ref_sector == "S1M", accounting_entry == "D", sto == "D45")
+  #
+  # if(nrow(check)>0){
+  #   sit14 <- data |>
+  #     filter(
+  #       ref_sector %in% c("S1M", "S14", "S15"),
+  #       sto %in% c("D4N", "D45"),
+  #       accounting_entry == "D"
+  #     ) |>
+  #     unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #     pivot_wider(names_from = sto, values_from = obs_value) |>
+  #     select(ref_area, ref_sector, time_period, D4N.D, D45.D) |>
+  #     rowwise() |>
+  #     mutate(check = round(D4N.D - D45.D, rounding)) |>
+  #     filter(D45.D != 0) |>
+  #     filter(abs(check) > threshold)}
+  # rm(check)
 
   ## SIT15----
-  sit15 <- data |>
-    filter(
-      ref_sector %in% c(
-        "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
-        "S110021", "S11003", "S12", "S12K", "S12P", "S12Q", "S12DO",
-        "S12001", "S120011", "S12002", "S120021", "S12003", "S13",
-        "S1M", "S14", "S15"
-      ),
-      sto %in% c("D4N", "D42", "D43", "D44", "D45"),
-      accounting_entry == "C"
-    ) %>%
-    unite("sto", c(sto, accounting_entry), sep = ".") %>%
-    pivot_wider(names_from = sto, values_from = obs_value) %>%
-    select(ref_area, ref_sector, time_period, D4N.C, D42.C, D43.C, D44.C, D45.C) %>%
-    rowwise() %>%
-    filter(D4N.C + D42.C + D43.C + D44.C + D45.C != 0) %>%
-    mutate(`D42.C + D43.C + D44.C + D45.C` = sum(c(D42.C, D43.C, D44.C, D45.C), na.rm = TRUE)) %>%
-    mutate(check = round(D4N.C - `D42.C + D43.C + D44.C + D45.C`, rounding)) %>%
-    filter(abs(check) > threshold)
-
+  # sit15 <- data |>
+  #   filter(
+  #     ref_sector %in% c(
+  #       "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
+  #       "S110021", "S11003", "S12", "S12K", "S12P", "S12Q", "S12DO",
+  #       "S12001", "S120011", "S12002", "S120021", "S12003", "S13",
+  #       "S1M", "S14", "S15"
+  #     ),
+  #     sto %in% c("D4N", "D42", "D43", "D44", "D45"),
+  #     accounting_entry == "C"
+  #   ) %>%
+  #   unite("sto", c(sto, accounting_entry), sep = ".") %>%
+  #   pivot_wider(names_from = sto, values_from = obs_value) %>%
+  #   select(ref_area, ref_sector, time_period, D4N.C, D42.C, D43.C, D44.C, D45.C) %>%
+  #   rowwise() %>%
+  #   filter(D4N.C + D42.C + D43.C + D44.C + D45.C != 0) %>%
+  #   mutate(`D42.C + D43.C + D44.C + D45.C` = sum(c(D42.C, D43.C, D44.C, D45.C), na.rm = TRUE)) %>%
+  #   mutate(check = round(D4N.C - `D42.C + D43.C + D44.C + D45.C`, rounding)) %>%
+  #   filter(abs(check) > threshold)
+  #
   ## SIT16----
-  sit16 <- data |>
-    filter(
-      ref_sector == "S2",
-      sto %in% c("D4N", "D42", "D43", "D44"),
-      accounting_entry == "C"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D4N.C, D42.C, D43.C, D44.C) |>
-    rowwise() |>
-    mutate(D4N.C = D42.C + D43.C + D44.C) |>
-    mutate(check = round(D4N.C - (D42.C + D43.C + D44.C), rounding)) |>
-    filter(D4N.C + D42.C + D43.C + D44.C != 0) |>
-    filter(abs(check) > threshold)
-
+  # sit16 <- data |>
+  #   filter(
+  #     ref_sector == "S2",
+  #     sto %in% c("D4N", "D42", "D43", "D44"),
+  #     accounting_entry == "C"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D4N.C, D42.C, D43.C, D44.C) |>
+  #   rowwise() |>
+  #   mutate(D4N.C = D42.C + D43.C + D44.C) |>
+  #   mutate(check = round(D4N.C - (D42.C + D43.C + D44.C), rounding)) |>
+  #   filter(D4N.C + D42.C + D43.C + D44.C != 0) |>
+  #   filter(abs(check) > threshold)
+  #
 
   ## SIT17----
   check <- data |>
@@ -983,111 +982,111 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     filter(abs(check) > threshold)
 
   ## SIT24----
-  sit24 <- data |>
-    filter(
-      ref_sector %in% c(
-        "S1", "S12", "S12K", "S12P", "S12Q", "S12DO",
-        "S12001", "S120011", "S12002", "S120021", "S12003",
-        "S13", "S2"
-      ),
-      sto %in% c("D7", "D71", "D72", "D7N"),
-      accounting_entry == "D"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D7.D, D71.D, D72.D, D7N.D) |>
-    rowwise() |>
-    filter(D7.D + D71.D + D72.D + D7N.D != 0) |>
-    mutate(`D71.D + D72.D + D7N.D` = sum(c(D71.D, D72.D, D7N.D), na.rm = TRUE)) |>
-    mutate(check = round(D7.D - `D71.D + D72.D + D7N.D`, rounding)) |>
-    filter(abs(check) > threshold)
+  # sit24 <- data |>
+  #   filter(
+  #     ref_sector %in% c(
+  #       "S1", "S12", "S12K", "S12P", "S12Q", "S12DO",
+  #       "S12001", "S120011", "S12002", "S120021", "S12003",
+  #       "S13", "S2"
+  #     ),
+  #     sto %in% c("D7", "D71", "D72"),
+  #     accounting_entry == "D"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D7.D, D71.D, D72.D, D7N.D) |>
+  #   rowwise() |>
+  #   filter(D7.D + D71.D + D72.D + D7N.D != 0) |>
+  #   mutate(`D71.D + D72.D + D7N.D` = sum(c(D71.D, D72.D, D7N.D), na.rm = TRUE)) |>
+  #   mutate(check = round(D7.D - `D71.D + D72.D + D7N.D`, rounding)) |>
+  #   filter(abs(check) > threshold)
 
   ## SIT25----
 
-  sit25 <- data |>
-    filter(
-      ref_sector %in% c(
-        "S1", "S12", "S12K", "S12P", "S12Q", "S12DO",
-        "S12001", "S120011", "S12002", "S120021",
-        "S12003", "S13", "S2"
-      ),
-      sto %in% c("D7", "D71", "D72", "D7N"),
-      accounting_entry == "C"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D7.C, D71.C, D72.C, D7N.C) |>
-    rowwise() |>
-    mutate(D7.C = D71.C + D72.C + D7N.C) |>
-    mutate(check = round(D7.C - (D71.C + D72.C + D7N.C), rounding)) |>
-    filter(D7.C + D71.C + D72.C + D7N.C != 0) |>
-    ungroup() |>
-    filter(abs(check) > threshold)
+  # sit25 <- data |>
+  #   filter(
+  #     ref_sector %in% c(
+  #       "S1", "S12", "S12K", "S12P", "S12Q", "S12DO",
+  #       "S12001", "S120011", "S12002", "S120021",
+  #       "S12003", "S13", "S2"
+  #     ),
+  #     sto %in% c("D7", "D71", "D72", "D7N"),
+  #     accounting_entry == "C"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D7.C, D71.C, D72.C, D7N.C) |>
+  #   rowwise() |>
+  #   mutate(D7.C = D71.C + D72.C + D7N.C) |>
+  #   mutate(check = round(D7.C - (D71.C + D72.C + D7N.C), rounding)) |>
+  #   filter(D7.C + D71.C + D72.C + D7N.C != 0) |>
+  #   ungroup() |>
+  #   filter(abs(check) > threshold)
 
   ## SIT26----
-  sit26 <- data |>
-    filter(
-      ref_sector %in% c("S1", "S13", "S2"),
-      sto %in% c("D7N", "D74", "D75", "D76"),
-      accounting_entry == "D"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D7N.D, D74.D, D75.D, D76.D) |>
-    rowwise() |>
-    mutate(D7N.D = D74.D + D75.D + D76.D) |>
-    mutate(check = round(D7N.D - (D74.D + D75.D + D76.D), rounding)) |>
-    filter(D7N.D + D74.D + D75.D + D76.D != 0) |>
-    ungroup() |>
-    filter(abs(check) > threshold)
-
+  # sit26 <- data |>
+  #   filter(
+  #     ref_sector %in% c("S1", "S13", "S2"),
+  #     sto %in% c("D7N", "D74", "D75", "D76"),
+  #     accounting_entry == "D"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D7N.D, D74.D, D75.D, D76.D) |>
+  #   rowwise() |>
+  #   mutate(D7N.D = D74.D + D75.D + D76.D) |>
+  #   mutate(check = round(D7N.D - (D74.D + D75.D + D76.D), rounding)) |>
+  #   filter(D7N.D + D74.D + D75.D + D76.D != 0) |>
+  #   ungroup() |>
+  #   filter(abs(check) > threshold)
+  #
   ## SIT27----
-  check <- data |>
-    filter(ref_sector == "S11", accounting_entry == "D", sto == "D75")
-
-  if(nrow(check)>0){
-    sit27 <- data |>
-      filter(
-        ref_sector %in% c(
-          "S11", "S11DO", "S11001", "S110011", "S11002",
-          "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
-          "S12DO", "S12001", "S120011", "S12002", "S120021",
-          "S12003", "S1M", "S14", "S15"
-        ),
-        sto %in% c("D7N", "D75"),
-        accounting_entry == "D"
-      ) |>
-      unite("sto", c(sto, accounting_entry), sep = ".") |>
-      pivot_wider(names_from = sto, values_from = obs_value) |>
-      select(ref_area, ref_sector, time_period, D7N.D, D75.D) |>
-      rowwise() |>
-      mutate(D7N.D = D75.D) |>
-      mutate(check = round(D7N.D - D75.D, rounding)) |>
-      filter(D7N.D + D75.D != 0) |>
-      ungroup() |>
-      filter(abs(check) > threshold)}
-  rm(check)
-
+  # check <- data |>
+  #   filter(ref_sector == "S11", accounting_entry == "D", sto == "D75")
+  #
+  # if(nrow(check)>0){
+  #   sit27 <- data |>
+  #     filter(
+  #       ref_sector %in% c(
+  #         "S11", "S11DO", "S11001", "S110011", "S11002",
+  #         "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
+  #         "S12DO", "S12001", "S120011", "S12002", "S120021",
+  #         "S12003", "S1M", "S14", "S15"
+  #       ),
+  #       sto %in% c("D7N", "D75"),
+  #       accounting_entry == "D"
+  #     ) |>
+  #     unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #     pivot_wider(names_from = sto, values_from = obs_value) |>
+  #     select(ref_area, ref_sector, time_period, D7N.D, D75.D) |>
+  #     rowwise() |>
+  #     mutate(D7N.D = D75.D) |>
+  #     mutate(check = round(D7N.D - D75.D, rounding)) |>
+  #     filter(D7N.D + D75.D != 0) |>
+  #     ungroup() |>
+  #     filter(abs(check) > threshold)}
+  # rm(check)
+  #
   ## SIT28----
 
-  sit28 <- data |>
-    filter(
-      ref_sector %in% c("S1", "S13", "S2"),
-      sto %in% c("D7N", "D74", "D75"),
-      accounting_entry == "C"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D7N.C, D74.C, D75.C) |>
-    rowwise() |>
-    filter(D7N.C + D74.C + D75.C != 0) |>
-    mutate(`D74.C + D75.C` = sum(c(D74.C, D75.C), na.rm = TRUE)) |>
-    mutate(check = round(D7N.C - `D74.C + D75.C`, rounding)) |>
-    filter(abs(check) > threshold)
-
-
-  ## SIT29----
-
+  # sit28 <- data |>
+  #   filter(
+  #     ref_sector %in% c("S1", "S13", "S2"),
+  #     sto %in% c("D7N", "D74", "D75"),
+  #     accounting_entry == "C"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D7N.C, D74.C, D75.C) |>
+  #   rowwise() |>
+  #   filter(D7N.C + D74.C + D75.C != 0) |>
+  #   mutate(`D74.C + D75.C` = sum(c(D74.C, D75.C), na.rm = TRUE)) |>
+  #   mutate(check = round(D7N.C - `D74.C + D75.C`, rounding)) |>
+  #   filter(abs(check) > threshold)
+  #
+  #
+  # ## SIT29----
+  #
   sit29 <- data |>
     filter(
       ref_sector %in% c("S1", "S13"),
@@ -1103,66 +1102,66 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
   ## SIT30----
-  check <- data |>
-    filter(ref_sector == "S1M", accounting_entry == "D", sto == "D91")
-
-  if(nrow(check)>0){
-    sit30 <- data |>
-      filter(
-        ref_sector %in% c(
-          "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
-          "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
-          "S12DO", "S12001", "S120011", "S12002", "S120021",
-          "S12003", "S1M", "S14", "S15", "S2"
-        ),
-        sto %in% c("D9", "D91", "D9N"),
-        accounting_entry == "D"
-      ) |>
-      unite("sto", c(sto, accounting_entry), sep = ".") |>
-      pivot_wider(names_from = sto, values_from = obs_value) |>
-      select(ref_area, ref_sector, time_period, D9.D, D91.D, D9N.D) |>
-      rowwise() |>
-      filter(D9.D + D91.D + D9N.D != 0) |>
-      mutate(`D91.D + D9N.D` = sum(c(D91.D, D9N.D), na.rm = TRUE)) |>
-      mutate(check = round(D9.D - `D91.D + D9N.D`, rounding)) |>
-      filter(abs(check) > threshold)}
-  rm(check)
-
+  # check <- data |>
+  #   filter(ref_sector == "S1M", accounting_entry == "D", sto == "D91")
+  #
+  # if(nrow(check)>0){
+  #   sit30 <- data |>
+  #     filter(
+  #       ref_sector %in% c(
+  #         "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
+  #         "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
+  #         "S12DO", "S12001", "S120011", "S12002", "S120021",
+  #         "S12003", "S1M", "S14", "S15", "S2"
+  #       ),
+  #       sto %in% c("D9", "D91", "D9N"),
+  #       accounting_entry == "D"
+  #     ) |>
+  #     unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #     pivot_wider(names_from = sto, values_from = obs_value) |>
+  #     select(ref_area, ref_sector, time_period, D9.D, D91.D, D9N.D) |>
+  #     rowwise() |>
+  #     filter(D9.D + D91.D + D9N.D != 0) |>
+  #     mutate(`D91.D + D9N.D` = sum(c(D91.D, D9N.D), na.rm = TRUE)) |>
+  #     mutate(check = round(D9.D - `D91.D + D9N.D`, rounding)) |>
+  #     filter(abs(check) > threshold)}
+  # rm(check)
+  #
   ## SIT31----
-  sit31 <- data |>
-    filter(
-      ref_sector == "S13",
-      sto %in% c("D9", "D9N"),
-      accounting_entry == "D"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D9.D, D9N.D) |>
-    rowwise() |>
-    filter(D9.D + D9N.D != 0) |>
-    mutate(check = round(D9.D - D9N.D, rounding)) |>
-    filter(abs(check) > threshold)
+  # sit31 <- data |>
+  #   filter(
+  #     ref_sector == "S13",
+  #     sto %in% c("D9", "D9N"),
+  #     accounting_entry == "D"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D9.D, D9N.D) |>
+  #   rowwise() |>
+  #   filter(D9.D + D9N.D != 0) |>
+  #   mutate(check = round(D9.D - D9N.D, rounding)) |>
+  #   filter(abs(check) > threshold)
 
   ## SIT32----
-  check <- data |>
-    filter(ref_sector == "S1", accounting_entry == "C", sto == "D91")
-
-  if(nrow(check)>0){
-    sit32 <- data |>
-      filter(
-        ref_sector %in% c("S1", "S13", "S2"),
-        sto %in% c("D9", "D91", "D9N"),
-        accounting_entry == "C"
-      ) |>
-      unite("sto", c(sto, accounting_entry), sep = ".") |>
-      pivot_wider(names_from = sto, values_from = obs_value) |>
-      select(ref_area, ref_sector, time_period, D9.C, D91.C, D9N.C) |>
-      rowwise() |>
-      filter(D9.C + D91.C + D9N.C != 0) |>
-      mutate(`D91.C + D9N.C` = sum(c(D91.C, D9N.C), na.rm = TRUE)) |>
-      mutate(check = round(D9.C - `D91.C + D9N.C`, rounding)) |>
-      filter(abs(check) > threshold)}
-  rm(check)
+  # check <- data |>
+  #   filter(ref_sector == "S1", accounting_entry == "C", sto == "D91")
+  #
+  # if(nrow(check)>0){
+  #   sit32 <- data |>
+  #     filter(
+  #       ref_sector %in% c("S1", "S13", "S2"),
+  #       sto %in% c("D9", "D91", "D9N"),
+  #       accounting_entry == "C"
+  #     ) |>
+  #     unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #     pivot_wider(names_from = sto, values_from = obs_value) |>
+  #     select(ref_area, ref_sector, time_period, D9.C, D91.C, D9N.C) |>
+  #     rowwise() |>
+  #     filter(D9.C + D91.C + D9N.C != 0) |>
+  #     mutate(`D91.C + D9N.C` = sum(c(D91.C, D9N.C), na.rm = TRUE)) |>
+  #     mutate(check = round(D9.C - `D91.C + D9N.C`, rounding)) |>
+  #     filter(abs(check) > threshold)}
+  # rm(check)
 
   ## SIT33----
   check <- data |>
@@ -1191,47 +1190,47 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
   ## SIT34----
-  sit34 <- data |>
-    filter(
-      ref_sector %in% c("S1", "S2", "S13"),
-      sto %in% c("D9N", "D92", "D99"),
-      accounting_entry == "D"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(names_from = sto, values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, D9N.D, D92.D, D99.D) |>
-    rowwise() |>
-    filter(D9N.D + D92.D + D99.D != 0) |>
-    mutate(`D92.D + D99.D` = sum(c(D92.D, D99.D), na.rm = TRUE)) |>
-    mutate(check = round(D9N.D - `D92.D + D99.D`, rounding)) |>
-    filter(abs(check) > threshold)
-
+  # sit34 <- data |>
+  #   filter(
+  #     ref_sector %in% c("S1", "S2", "S13"),
+  #     sto %in% c("D9N", "D92", "D99"),
+  #     accounting_entry == "D"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(names_from = sto, values_from = obs_value) |>
+  #   select(ref_area, ref_sector, time_period, D9N.D, D92.D, D99.D) |>
+  #   rowwise() |>
+  #   filter(D9N.D + D92.D + D99.D != 0) |>
+  #   mutate(`D92.D + D99.D` = sum(c(D92.D, D99.D), na.rm = TRUE)) |>
+  #   mutate(check = round(D9N.D - `D92.D + D99.D`, rounding)) |>
+  #   filter(abs(check) > threshold)
+  #
 
   ## SIT35----
 
-  sit35 <- data |>
-    filter(
-      ref_sector %in% c(
-        "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
-        "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
-        "S12DO", "S12001", "S120011", "S12002", "S120021",
-        "S12003", "S1M", "S14", "S15", "S2"
-      ),
-      sto %in% c("D9N", "D92", "D99"),
-      accounting_entry == "C"
-    ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    pivot_wider(
-      names_from = sto,
-      values_from = obs_value
-    ) |>
-    select(ref_area, ref_sector, time_period, D9N.C, D92.C, D99.C) |>
-    rowwise() |>
-    filter(D9N.C + D92.C + D99.C != 0) |>
-    mutate(`D92.C + D99.C` = sum(c(D92.C, D99.C), na.rm = TRUE)) |>
-    mutate(check = round(D9N.C - `D92.C + D99.C`, rounding)) |>
-    filter(abs(check) > threshold)
-
+  # sit35 <- data |>
+  #   filter(
+  #     ref_sector %in% c(
+  #       "S1", "S11", "S11DO", "S11001", "S110011", "S11002",
+  #       "S110021", "S11003", "S12", "S12K", "S12P", "S12Q",
+  #       "S12DO", "S12001", "S120011", "S12002", "S120021",
+  #       "S12003", "S1M", "S14", "S15", "S2"
+  #     ),
+  #     sto %in% c("D9N", "D92", "D99"),
+  #     accounting_entry == "C"
+  #   ) |>
+  #   unite("sto", c(sto, accounting_entry), sep = ".") |>
+  #   pivot_wider(
+  #     names_from = sto,
+  #     values_from = obs_value
+  #   ) |>
+  #   select(ref_area, ref_sector, time_period, D9N.C, D92.C, D99.C) |>
+  #   rowwise() |>
+  #   filter(D9N.C + D92.C + D99.C != 0) |>
+  #   mutate(`D92.C + D99.C` = sum(c(D92.C, D99.C), na.rm = TRUE)) |>
+  #   mutate(check = round(D9N.C - `D92.C + D99.C`, rounding)) |>
+  #   filter(abs(check) > threshold)
+  #
   ## SIT36----
 
   sit36 <- data |>
@@ -2203,6 +2202,3 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
   cli::cli_alert_success(paste0("File created at: ", output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"))
 }
-
-
-
