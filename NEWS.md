@@ -18,7 +18,6 @@
 # nfsa 0.0.5
 
 * Removed euro area requirements for non-EA countries in completeness_regulation()
-
 * Added /internal to nfsa_folders()
-
 * Output an excel file for all revisions
+* You can spercify the staring quarter for nfsa_seas_levelx() functions

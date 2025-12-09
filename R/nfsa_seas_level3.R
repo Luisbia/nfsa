@@ -7,6 +7,7 @@
 #' @param series Path to an Excel file containing a list of series to process.
 #'   Defaults to `here("assets", "seas_level1.xlsx")`. This file should contain
 #'   at least `ref_area` and `id` columns.
+#' @param time_min from which quarter the analysis starts
 #' @param input_sel Path to the directory where input data is stored. Defaults
 #'   to `here::here("data")`.
 #' @param output_sel Path to the directory where output reports should be
@@ -72,7 +73,7 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
     rename(SCA = obs_value)
 
   nsa_sca <- full_join(nsa,sca,by = join_by(ref_area, id, time_period) ) |>
-    filter(time_period >= "1995-Q1")
+    filter(time_period >= time_min)
   nsa_sca <- left_join(series_list, nsa_sca,by = join_by(ref_area, id) ) |>
     mutate(time_period = lubridate::yq(time_period)) |>
     arrange(time_period) |>
@@ -131,8 +132,8 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
   }
 
   for (i in seq_along(nsa_sca$id)) {
-    level3_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(1999,1),frequency = 4),
-                               ts(nsa_sca$data[[i]][[3]], start = c(1999,1),frequency = 4),
+    level3_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4),
+                               ts(nsa_sca$data[[i]][[3]], start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4),
                                nsa_sca$id[i])
   }
 }

@@ -4,6 +4,7 @@
 #'   It identifies series with potential issues like residual seasonality, over-adjustment, or inconsistencies between NSA and SCA data.
 #'
 #' @param country A character vector specifying the countries to process (e.g., "BE", "IT", "FR").  Defaults to c("BE","IT", "FR", "FI", "PL", "EE", "SK", "SI").
+#' @param time_min From which quarter the series are analysed, by default "1999-Q1"
 #' @param input_sel The path to the directory containing the input data files. Defaults to `here::here("data")`.
 #' @param output_sel The path to the directory where the output Excel file will be saved. Defaults to `here::here("output", "seas")`.
 #'
@@ -24,6 +25,7 @@
 #'
 #' @export
 nfsa_seas_level1 <- function(country ,
+                             time_min = "1999-Q1",
                              input_sel = here::here("data"),
                              output_sel = here::here("output", "seas")){
 
@@ -49,7 +51,7 @@ nfsa_seas_level1 <- function(country ,
 
   data <- full_join(nsa, sca, by = join_by(ref_area, id,
                                            time_period)) |>
-    filter(time_period >= "1999-Q1") |>
+    filter(time_period >= time_min) |>
     na.omit()
 
   ## Need to remove series entirely 0's or with several 0's

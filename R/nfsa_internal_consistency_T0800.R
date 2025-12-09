@@ -53,6 +53,7 @@
 #' nfsa_internal_consistency_T0800(my_dataset, output_sel = "my_output_folder", threshold = 5)
 #' }
 #'
+#' @export
 nfsa_internal_consistency_T0800 <- function(dataset,
                                             output_sel = here::here("output", "internal"),
                                             threshold = 2,
