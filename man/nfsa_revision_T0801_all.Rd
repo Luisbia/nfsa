@@ -4,16 +4,22 @@
 \alias{nfsa_revision_T0801_all}
 \title{Identify and extract revisions in NASEC T0801 data across different versions.}
 \usage{
-nfsa_revision_T0801_all(country, input_sel = here::here("data", "q"))
+nfsa_revision_T0801_all(
+  country,
+  input_sel = here::here("data", "q"),
+  output_sel = here::here("output", "revisions")
+)
 }
 \arguments{
 \item{country}{A character string specifying the country code to filter the data.}
 
 \item{input_sel}{A character string specifying the path to the directory containing the Parquet files.
 Defaults to \code{"data/q"} relative to the project root.}
+
+\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
 }
 \value{
-An Excel workbook (created via \code{nfsa::nfsa_to_excel()}) containing the identified revisions,
+An Excel workbook containing the identified revisions,
 with columns for the reference area, ID, time period, reference sector, STO, accounting entry,
 and the changes between different versions of the data.
 }

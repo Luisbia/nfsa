@@ -109,7 +109,7 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
 
 
 
-    check_nsa_sa_ts(nsa,sa)
+
 
     ts_start <- stats::start(nsa)
     ts_freq <- stats::frequency(nsa)

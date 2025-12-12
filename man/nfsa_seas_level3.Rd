@@ -35,6 +35,8 @@ saved. Defaults to \code{here::here("output", "seas")}.}
 
 \item{default_spec_sa_sel}{Default specification for SA series. Defaults to
 \code{"RSA2c"}.}
+
+\item{time_min}{from which quarter the analysis starts}
 }
 \value{
 This function does not explicitly return a value.  It generates

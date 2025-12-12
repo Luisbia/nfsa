@@ -7,7 +7,6 @@
 nfsa_sequence_T0801_reg(
   country,
   time_min = "2020-Q1",
-  type = "values",
   template = here("assets", "seq_accounts_T0801_reg.xlsx"),
   output_sel = here("output", "sequence")
 )

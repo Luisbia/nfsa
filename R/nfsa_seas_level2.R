@@ -45,11 +45,11 @@
 #' }
 #'
 #' @export
-nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
+nfsa_seas_level2 <- function(series = here("assets", "seas_level1.xlsx"),
                              time_min = "1999-Q1",
                              input_sel = here::here("data"),
                              output_sel = here::here("output", "seas"),
-                             dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
+                             dashboard_sel = here::here("assets", "level2_eurostat_short.qmd"),
                              default_type_sel = "X13",
                              default_spec_nsa_sel = "RSA1",
                              default_spec_sa_sel = "RSA2c"){
@@ -83,7 +83,7 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
     group_by(id) |>
     nest()
 
-  level3_validation_eurostat <- function(nsa,sa,series_name,
+  level2_validation_eurostat <- function(nsa,sa,series_name,
                                          dataset_name = "Quarterly non-financial sector accounts",
                                          title = series_name,
                                          output_directory = output_sel,
@@ -98,20 +98,19 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
 
 
     if (dashboard_template == "skeleton.qmd"){
-      dashboard_template_to_copy <- file.path(system.file("rmarkdown/templates/level3_report/skeleton3",
+      dashboard_template_to_copy <- file.path(system.file("rmarkdown/templates/level2_report/skeleton3",
                                                           package="SAvalidation"),dashboard_template)
     } else {
       dashboard_template_to_copy <- dashboard_template
     }
 
 
-    dashboard_to_create <- file.path(paste0(output_directory,"/level3_",series_name,"_",default_type_sel,".qmd"))
+    dashboard_to_create <- file.path(paste0(output_directory,"/level2_",series_name,"_",default_type_sel,".qmd"))
 
     file.copy(dashboard_template_to_copy,dashboard_to_create,overwrite = TRUE)
 
 
 
-    check_nsa_sa_ts(nsa,sa)
 
     ts_start <- stats::start(nsa)
     ts_freq <- stats::frequency(nsa)
@@ -134,7 +133,7 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
   }
 
   for (i in seq_along(nsa_sca$id)) {
-    level3_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
+    level2_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
                                                                     str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
                                   frequency = 4),
                                ts(nsa_sca$data[[i]][[3]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),

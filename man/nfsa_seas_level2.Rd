@@ -2,10 +2,11 @@
 % Please edit documentation in R/nfsa_seas_level2.R
 \name{nfsa_seas_level2}
 \alias{nfsa_seas_level2}
-\title{Level 2 Seasonal Adjustment Validation}
+\title{Perform Level 3 Seasonal Adjustment Validation for Eurostat Data}
 \usage{
 nfsa_seas_level2(
   series = here("assets", "seas_level1.xlsx"),
+  time_min = "1999-Q1",
   input_sel = here::here("data"),
   output_sel = here::here("output", "seas"),
   dashboard_sel = here::here("assets", "level2_eurostat_short.qmd"),
@@ -17,45 +18,56 @@ nfsa_seas_level2(
 \arguments{
 \item{series}{Path to an Excel file containing a list of series to process.
 Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
-at least columns named \code{ref_area} and \code{id} to identify the series.}
+at least \code{ref_area} and \code{id} columns.}
 
-\item{input_sel}{Path to the input data directory. Defaults to \code{here::here("data")}.
-Not currently used in the function's logic.}
+\item{time_min}{from which quarter the analysis starts}
 
-\item{output_sel}{Path to the output directory where the generated dashboard
-reports will be saved. Defaults to \code{here::here("output", "seas")}.}
+\item{input_sel}{Path to the directory where input data is stored. Defaults
+to \code{here::here("data")}.}
 
-\item{dashboard_sel}{Path to the Quarto dashboard template file. Defaults to
-\code{here::here("assets", "level2_eurostat_short.qmd")}.}
+\item{output_sel}{Path to the directory where output reports should be
+saved. Defaults to \code{here::here("output", "seas")}.}
 
-\item{default_type_sel}{Default seasonal adjustment type. Defaults to \code{"X13"}.
-This parameter is passed to the Quarto report.}
+\item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to
+\code{here::here("assets", "level3_eurostat.qmd")}.}
 
-\item{default_spec_nsa_sel}{Default specification for the non-seasonally adjusted (NSA)
-series. Defaults to \code{"RSA1"}. This parameter is passed to the Quarto report.}
+\item{default_type_sel}{Default seasonal adjustment type. Defaults to \code{"X13"}.}
 
-\item{default_spec_sa_sel}{Default specification for the seasonally adjusted (SA)
-series. Defaults to \code{"RSA2c"}. This parameter is passed to the Quarto report.}
+\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults to
+\code{"RSA1"}.}
+
+\item{default_spec_sa_sel}{Default specification for SA series. Defaults to
+\code{"RSA2c"}.}
 }
 \value{
-This function does not return a value. It generates Quarto dashboard
-reports in the specified output directory.
+This function does not explicitly return a value.  It generates
+Quarto dashboard reports and saves them to the \code{output_sel} directory.
 }
 \description{
-This function performs level 2 validation of seasonally adjusted data, generating
-a dashboard report using a Quarto template. It reads time series data, performs
-checks, and renders a report with specified parameters.
+This function performs Level 3 seasonal adjustment validation on Eurostat
+data. It retrieves data, joins NSA and SCA series, and generates validation
+reports using a Quarto dashboard.
+}
+\details{
+The function performs the following steps:
+\enumerate{
+\item Reads the list of series from the Excel file specified by \code{series}.
+\item Retrieves Non-Seasonally Adjusted (NSA) and Seasonally Adjusted (SCA)
+data from Eurostat using \code{nfsa_get_data}.
+\item Joins the NSA and SCA series based on \code{ref_area}, \code{id}, and
+\code{time_period}.
+\item Creates time series objects from the joined data.
+\item Generates Level 3 validation reports for each series using the
+specified Quarto dashboard template.
+}
 }
 \examples{
 \dontrun{
-# Example usage:
-nfsa_seas_level2(
-  series = here::here("assets", "seas_level1.xlsx"),
-  output_sel = here::here("output", "seas"),
-  dashboard_sel = here::here("assets", "level2_eurostat_short.qmd"),
-  default_type_sel = "X13",
-  default_spec_nsa_sel = "RSA1",
-  default_spec_sa_sel = "RSA2c"
-)
+# Example usage with default parameters
+nfsa_seas_level3()
+
+# Example usage with custom output directory
+nfsa_seas_level3(output_sel = here::here("my_output"))
 }
+
 }

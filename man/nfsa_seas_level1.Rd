@@ -6,12 +6,15 @@
 \usage{
 nfsa_seas_level1(
   country,
+  time_min = "1999-Q1",
   input_sel = here::here("data"),
   output_sel = here::here("output", "seas")
 )
 }
 \arguments{
 \item{country}{A character vector specifying the countries to process (e.g., "BE", "IT", "FR").  Defaults to c("BE","IT", "FR", "FI", "PL", "EE", "SK", "SI").}
+
+\item{time_min}{From which quarter the series are analysed, by default "1999-Q1"}
 
 \item{input_sel}{The path to the directory containing the input data files. Defaults to \code{here::here("data")}.}
 
