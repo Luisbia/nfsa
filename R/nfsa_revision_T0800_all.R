@@ -7,7 +7,7 @@
 #' @param country A character string specifying the country code to filter the data.
 #' @param input_sel A character string specifying the path to the directory containing the Parquet files.
 #'   Defaults to `"data/a"` relative to the project root.
-#'
+#' @param output_sel Path to the directory where the output Excel file containing the revisions will be saved. Defaults to `here("output", "revisions")`.
 #' @return An Excel workbook containing the identified revisions,
 #'   with columns for the reference area, ID, time period, reference sector, STO, accounting entry,
 #'   and the changes between different versions of the data.
@@ -25,7 +25,8 @@
 #'
 #' @export
 nfsa_revision_T0800_all <- function(country,
-                                    input_sel = here::here("data", "a")){
+                                    input_sel = here::here("data", "a"),
+                                    output_sel = here::here("output", "revisions")){
 
   library(arrow)
   library(tidyverse)
@@ -68,7 +69,7 @@ nfsa_revision_T0800_all <- function(country,
                          overwrite = TRUE,
                          asTable = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
     return(revisions)
 }
