@@ -4,33 +4,10 @@
 #' including folders for data, assets, output, and various subfolders within them.
 #' The directory structure is created relative to the current working directory.
 #'
-#' @details The function uses the `fs` package to create the following directory structure:
-#' \itemize{
-#'   \item{\code{data/}}
-#'   \item{\code{data/a/new/}}
-#'   \item{\code{data/a/prev/}}
-#'   \item{\code{data/q/new/}}
-#'   \item{\code{data/q/prev/}}
-#'   \item{\code{data/q/new/nsa/}}
-#'   \item{\code{data/q/prev/nsa/}}
-#'   \item{\code{data/q/new/sca/}}
-#'   \item{\code{data/q/prev/sca/}}
-#'   \item{\code{assets/}}
-#'   \item{\code{output/}}
-#'   \item{\code{output/completeness/}}
-#'   \item{\code{output/frequency/}}
-#'   \item{\code{output/inter_domain/}}
-#'   \item{\code{output/logs/}}
-#'   \item{\code{output/negatives_zeroes/}}
-#'   \item{\code{output/plots/}}
-#'   \item{\code{output/revisions/}}
-#'   \item{\code{output/seas/}}
-#'   \item{\code{output/sequence/}}
-#' }
+#' @details The function uses the `fs` package to create the the directory structure:
 #'
 #' @return None. This function creates directories and does not return any value.
 #'
-
 #' @examples
 #' \dontrun{
 #' nfsa_folders()
@@ -54,6 +31,7 @@ dir_create(path= paste0(getwd(),"/data/q/prev/sca"))
 dir_create(path= paste0(getwd(),"/assets"))
 dir_create(path= paste0(getwd(),"/output"))
 dir_create(path= paste0(getwd(),"/output/completeness"))
+dir_create(path= paste0(getwd(),"/output/excel_template"))
 dir_create(path= paste0(getwd(),"/output/flags"))
 dir_create(path= paste0(getwd(),"/output/frequency"))
 dir_create(path= paste0(getwd(),"/output/internal"))

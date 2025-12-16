@@ -91,11 +91,11 @@ nfsa_obs_status <- function(table = "T0801",
 
 
 
-  write.xlsx(l, file = paste0(output_sel,
+  write.xlsx(l, file = paste0(output_sel,"/",
                              as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"))
 
   } else if (tst == "T0800prev"){
   obs_status<- list.files(path = here::here("data","a", "prev"),
@@ -139,11 +139,11 @@ l <- list(country = obs_status_country,
           sto = obs_status_sto,
           year= obs_status_year)
 
-write.xlsx(l, file = paste0(output_sel,
+write.xlsx(l, file = paste0(output_sel,"/",
                             as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_A_prev.xlsx"),
            overwrite = TRUE)
 
-cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_prev.xlsx"))
+cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_prev.xlsx"))
 } else if  (tst == "T0801new"){
   obs_status<- list.files(path = here::here("data","q", "new", "nsa"),
                           recursive = FALSE,
@@ -186,11 +186,11 @@ cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format
             sto = obs_status_sto,
             quarter= obs_status_quarter)
 
-  write.xlsx(l, file = paste0(output_sel,
+  write.xlsx(l, file = paste0(output_sel,"/",
                               as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"))
 
   } else if (tst == "T0801prev"){
   obs_status<- list.files(path = here::here("data","q", "prev", "nsa"),
@@ -234,11 +234,11 @@ cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format
             sto = obs_status_sto,
             quarter= obs_status_quarter)
 
-  write.xlsx(l, file = paste0(output_sel,
+  write.xlsx(l, file = paste0(output_sel,"/",
                               as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"),
              overwrite = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"))
+  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"))
   } else if  (tst == "T0801SAnew"){
     obs_status<- list.files(path = here::here("data","q", "new", "sca"),
                             recursive = FALSE,
@@ -281,11 +281,11 @@ cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format
               sto = obs_status_sto,
               year= obs_status_quarter)
 
-    write.xlsx(l, file = paste0(output_sel,
+    write.xlsx(l, file = paste0(output_sel,"/",
                                 as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"),
                overwrite = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"))
+    cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"))
 
   } else if (tst == "T0801SAprev"){
     obs_status<- list.files(path = here::here("data","q", "prev", "nsa"),
@@ -329,11 +329,11 @@ cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format
               sto = obs_status_sto,
               year= obs_status_quarter)
 
-    write.xlsx(l, file = paste0(output_sel,
+    write.xlsx(l, file = paste0(output_sel,"/",
                                 as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"),
                overwrite = TRUE)
 
-    cli::cli_alert_success(paste0("File created in ", output_sel,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"))
+    cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"))
   }
   return(l)
 }

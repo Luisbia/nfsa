@@ -24,3 +24,7 @@
 # nfsa 0.0.6
 
 * You can specify the staring quarter for nfsa_seas_levelx() functions
+* Better alignment of codes with the ones in the VR tool.
+* Fix missing / in the output of conf/obs status.
+* Internal consistency T0800/T0801 using Conval rules (whichj I think need to be reviewed!).
+* New functions to read (not from Famex!) and write excel templates. 

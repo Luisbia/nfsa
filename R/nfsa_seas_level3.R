@@ -46,6 +46,7 @@
 #'
 #' @export
 nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
+                             time_min = "1999-Q1",
                              input_sel = here::here("data"),
                              output_sel = here::here("output", "seas"),
                              dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
@@ -132,8 +133,12 @@ nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
   }
 
   for (i in seq_along(nsa_sca$id)) {
-    level3_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4),
-                               ts(nsa_sca$data[[i]][[3]], start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4),
+    level3_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
+                                                                    str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+                                  frequency = 4),
+                               ts(nsa_sca$data[[i]][[3]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
+                                                                    str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+                                  frequency = 4),
                                nsa_sca$id[i])
   }
 }

@@ -15,29 +15,7 @@ including folders for data, assets, output, and various subfolders within them.
 The directory structure is created relative to the current working directory.
 }
 \details{
-The function uses the \code{fs} package to create the following directory structure:
-\itemize{
-\item{\code{data/}}
-\item{\code{data/a/new/}}
-\item{\code{data/a/prev/}}
-\item{\code{data/q/new/}}
-\item{\code{data/q/prev/}}
-\item{\code{data/q/new/nsa/}}
-\item{\code{data/q/prev/nsa/}}
-\item{\code{data/q/new/sca/}}
-\item{\code{data/q/prev/sca/}}
-\item{\code{assets/}}
-\item{\code{output/}}
-\item{\code{output/completeness/}}
-\item{\code{output/frequency/}}
-\item{\code{output/inter_domain/}}
-\item{\code{output/logs/}}
-\item{\code{output/negatives_zeroes/}}
-\item{\code{output/plots/}}
-\item{\code{output/revisions/}}
-\item{\code{output/seas/}}
-\item{\code{output/sequence/}}
-}
+The function uses the \code{fs} package to create the the directory structure:
 }
 \examples{
 \dontrun{

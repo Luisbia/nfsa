@@ -6,6 +6,7 @@
 \usage{
 nfsa_seas_level3(
   series = here("assets", "seas_level1.xlsx"),
+  time_min = "1999-Q1",
   input_sel = here::here("data"),
   output_sel = here::here("output", "seas"),
   dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
@@ -18,6 +19,8 @@ nfsa_seas_level3(
 \item{series}{Path to an Excel file containing a list of series to process.
 Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
 at least \code{ref_area} and \code{id} columns.}
+
+\item{time_min}{from which quarter the analysis starts}
 
 \item{input_sel}{Path to the directory where input data is stored. Defaults
 to \code{here::here("data")}.}
@@ -35,8 +38,6 @@ saved. Defaults to \code{here::here("output", "seas")}.}
 
 \item{default_spec_sa_sel}{Default specification for SA series. Defaults to
 \code{"RSA2c"}.}
-
-\item{time_min}{from which quarter the analysis starts}
 }
 \value{
 This function does not explicitly return a value.  It generates

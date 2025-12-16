@@ -7,8 +7,8 @@
 nfsa_internal_consistency_T0800(
   dataset,
   output_sel = here::here("output", "internal"),
-  threshold = 2,
-  rounding = 1
+  threshold = 0,
+  rounding = 2
 )
 }
 \arguments{
