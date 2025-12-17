@@ -324,8 +324,8 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       "D71.D", "D75.D", "D8.D", "D9.D", "D99.D", "P51.C", "NP.D", "P1.C", "P11.C", "P12.C",
       "D39.C", "D4.C", "D41.C", "D42.C", "D421.C", "D422.C", "D43.C", "D44.C", "D441.C", "D442.C",
       "D443.C", "D45.C", "D41G.C", "D6.C", "D61.C", "D611.C", "D612.C", "D613.C", "D614.C",
-      "D61SC.C", "D7.C", "D72.C", "D75.C", "D9.C", "D92.C", "D99.C", "P51C.C", "B2A3G.B", "B2G.B",
-      "B4G.B", "B5G.B", "B6G.B", "B7G.B", "B8G.B", "B101.B", "B9.B", "B9X9F", "EMP.PS", "EMP.HW"
+      "D61SC.C", "D7.C", "D72.C", "D75.C", "D9.C", "D92.C", "D99.C", "P51C.C", "B2A3G.B",
+      "B4G.B", "B5G.B", "B6G.B",  "B8G.B", "B101.B", "B9.B", "B9X9F", "EMP.PS", "EMP.HW"
     )) |>
     pivot_wider(
       names_from = ref_sector,
@@ -518,7 +518,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       "P12.C", "D3.C", "D39.C", "D4.C", "D41.C", "D42.C", "D421.C", "D422.C", "D43.C",
       "D44.C", "D441.C", "D442.C", "D443.C", "D45.C", "D41G.C", "D6.C", "D61.C", "D611.C",
       "D612.C", "D613.C", "D614.C", "D61SC.C", "D7.C", "D72.C", "D75.C", "D9.C", "D92.C",
-      "D99.C", "P51C.C", "B2A3G.B", "B2G.B", "B4G.B", "B5G.B", "B6G.B", "B7G.B", "B8G.B",
+      "D99.C", "P51C.C", "B2A3G.B",  "B4G.B", "B5G.B", "B6G.B", "B7G.B", "B8G.B",
       "B101.B", "B9.B", "B9X9F._Z", "B1G.B", "B1N.B", "EMP.PS", "EMP.HW"
     )) |>
     pivot_wider(
@@ -1119,7 +1119,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   sit35 <- data |>
     filter(
       sto %in% c("D3", "D39"),
-      !ref_sector %in% c("S1", "S2"),
+      !ref_sector %in% c("S1", "S2", "S1N"),
       accounting_entry == "C"
     ) |>
     pivot_wider(
@@ -1153,7 +1153,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   sit37 <- data |>
     filter(
       sto %in% c("D7", "D72", "D75"),
-      ref_sector %in% c("S11", "S12", "S1M", "S14", "S15"),
+      ref_sector %in% c("S11", "S1M", "S14", "S15"),
       accounting_entry == "C"
     ) |>
     pivot_wider(
@@ -2035,12 +2035,15 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
   list_ir <- c(list_ur, list_s1ss, list_sit, list_BI)
 
+if(length(list_ir) == 0){
 
+  cli::cli_inform("All consistent!")
+} else {
   openxlsx::write.xlsx(list_ir,
                        file = paste0(paste0(output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
                        asTable = TRUE,
                        overwrite = TRUE
   )
-
+}
   cli::cli_alert_success(paste0("File created at: ", output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"))
 }

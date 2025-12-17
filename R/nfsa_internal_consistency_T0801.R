@@ -1247,7 +1247,7 @@ nfsa_internal_consistency_T0801 <- function(dataset,
     sit55 <- data |>
       filter(
         sto %in% c("D9", "D9N"),
-        ref_sector != "S2"
+        !ref_sector %in% c("S1", "S2", "S13")
       ) |>
       pivot_wider(
         names_from = sto,
@@ -1272,11 +1272,12 @@ nfsa_internal_consistency_T0801 <- function(dataset,
     rowwise() |>
     mutate(`D92 +D99` = sum(c(D92,  D99), na.rm = TRUE),
            check = round(D9N - `D92 +D99`, rounding)) |>
-    filter(abs(check) > threshold)
+    filter(abs(check) > threshold)|>
+    filter(if_all(c(D92,D99), ~ !is.na(.x )))
 
   ## SIT57----------------------------------------------------------------------------------------
   check <- data |>
-    filter(sto == "D99", ref_sector == "S1")
+    filter(sto == "D99", !ref_sector %in% c("S1", "S2"))
 
   if(nrow(check) > 0){
 
@@ -1284,7 +1285,7 @@ nfsa_internal_consistency_T0801 <- function(dataset,
       filter(
         sto %in% c("D9N", "D99"),
         accounting_entry == "D",
-        !ref_sector %in% c("S13", "S2")
+        !ref_sector %in% c("S13", "S2", "S1")
       ) |>
       pivot_wider(
         names_from = sto,
@@ -2123,7 +2124,10 @@ nfsa_internal_consistency_T0801 <- function(dataset,
 
   list_ir <- c(list_ur, list_s1ss, list_sit, list_BI)
 
+  if(length(list_ir) == 0){
 
+    cli::cli_inform("All consistent!")
+  } else {
   openxlsx::write.xlsx(list_ir,
                        file = paste0(paste0(output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
                        asTable = TRUE,
@@ -2131,4 +2135,5 @@ nfsa_internal_consistency_T0801 <- function(dataset,
   )
 
   cli::cli_alert_success(paste0("File created at: ", output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"))
+  }
 }
