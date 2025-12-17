@@ -923,8 +923,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     rowwise() |>
     mutate(`sum_D7` = sum(c(D71, D72,  D74, D75, D76), na.rm = TRUE),
            check = round(D7 - `sum_D7`, rounding)) |>
-    filter(abs(check) > threshold) |>
-    filter(if_all(c(D631,D632), ~ !is.na(.x )))
+    filter(abs(check) > threshold)
 
   ## SIT25----------------------------------------------------------------------------------------
 
@@ -1254,21 +1253,25 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     filter(P72F > P72)
 
   ## SIT43----------------------------------------------------------------------------------------
+  check <- data |>
+    filter(sto == "D43_I9")
 
-  sit43 <- data |>
-    filter(
-      sto %in% c("D43", "D43_I9", "D43_J9")
-    ) |>
-    pivot_wider(
-      names_from = sto,
-      values_from = obs_value
-    ) |>
-    select(ref_area, ref_sector, accounting_entry,time_period, D43, D43_I9, D43_J9) |>
-    rowwise() |>
-    mutate(`D43_I9 + D43_J9` = sum(c(D43_I9, D43_J9), na.rm = TRUE),
-           check = round(D43 - `D43_I9 + D43_J9`, rounding)) |>
-    filter(abs(check) > threshold) |>
-    filter(if_all(c(D43_I9,D43_J9), ~ !is.na(.x )))
+  if(nrow(check) > 0){
+    sit43 <- data |>
+      filter(
+        sto %in% c("D43", "D43_I9", "D43_J9")
+      ) |>
+      pivot_wider(
+        names_from = sto,
+        values_from = obs_value
+      ) |>
+      select(ref_area, ref_sector, accounting_entry,time_period, D43, D43_I9, D43_J9) |>
+      rowwise() |>
+      mutate(`D43_I9 + D43_J9` = sum(c(D43_I9, D43_J9), na.rm = TRUE),
+             check = round(D43 - `D43_I9 + D43_J9`, rounding)) |>
+      filter(abs(check) > threshold) |>
+      filter(if_all(c(D43_I9,D43_J9), ~ !is.na(.x )))}
+  rm(check)
 
   ## SIT44----------------------------------------------------------------------------------------
 
@@ -1646,10 +1649,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     pivot_wider(names_from = sto,
                 values_from = obs_value) |>
-    select(ref_area, ref_sector, time_period, B5G.B,D5.C,D5.D,D61.C,D62.D,D7.C,D7.D,B6G.B) |>
+    select(ref_area, ref_sector, time_period, B5G.B,D5.D,D5.D,D61.C,D61.D,D62.C,D62.D,D7.C,D7.D,B6G.B) |>
     rowwise() |>
     mutate(
-      `B6G_cal` = sum(c(B5G.B,D5.C,-D5.D,D61.C,-D62.D,D7.C,-D7.D),na.rm = TRUE),
+      `B6G_cal` = sum(c(B5G.B,-D5.D,D61.C,-D61.D,D62.C,-D62.D,D7.C,-D7.D),na.rm = TRUE),
       check = round(B6G.B - `B6G_cal`, rounding)
     ) |>
     filter(abs(check) > threshold)
