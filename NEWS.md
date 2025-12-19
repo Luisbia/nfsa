@@ -28,3 +28,7 @@
 * Fix missing / in the output of conf/obs status.
 * Internal consistency T0800/T0801 using Conval rules (whichj I think need to be reviewed!).
 * New functions to read (not from Famex!) and write excel templates. 
+
+
+# nfsa 0.0.7
+* Internal consistency T0800/T0801 nor handles the case when transactions are missing
