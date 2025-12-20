@@ -49,7 +49,6 @@ nfsa_T0800_ANA <- function(country,
   ## NAMA -----
   cli::cli_progress_message("Collecting ANA...")
 
-
   nama_files <- list.files(path = paste0("M:/nas/ASA10/Production/",year,"/(1) ASA/(1_2) Validation in progress/(1_2_4) Consistency checks - ASA vs ANA/Input"),
                            pattern = "xml$",
                            full.names = TRUE,

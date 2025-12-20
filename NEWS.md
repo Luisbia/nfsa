@@ -31,4 +31,5 @@
 
 
 # nfsa 0.0.7
-* Internal consistency T0800/T0801 nor handles the case when transactions are missing
+* Internal consistency T0800/T0801 now handles the case when transactions are missing.
+# Delete some not so useful functions (nfsa_transmissions,nfsa_completeness_regulation)

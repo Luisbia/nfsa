@@ -7,8 +7,8 @@
 nfsa_internal_consistency_T0801(
   dataset,
   output_sel = here::here("output", "internal"),
-  threshold = 0,
-  rounding = 2
+  threshold = 1,
+  rounding = 1
 )
 }
 \arguments{
@@ -67,7 +67,7 @@ missing data to avoid errors in Excel.
 \examples{
 \dontrun{
 # Example usage:
-nfsa_internal_consistency_T0800(my_dataset, output_sel = "my_output_folder", threshold = 5)
+nfsa_internal_consistency_T0801(my_dataset, output_sel = "my_output_folder", threshold = 5)
 }
 
 }

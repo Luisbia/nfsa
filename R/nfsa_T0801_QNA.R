@@ -45,7 +45,6 @@ nfsa_T0801_QNA <- function(country,
   ## NAMA -----
   cli::cli_progress_message("Collecting QNA...")
 
-
   nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input"),
                            pattern = "xml$",
                            full.names = TRUE,
@@ -120,5 +119,6 @@ nfsa_T0801_QNA <- function(country,
   options(warn=0)
   return(nama_nfsa)
 }
+
 
 
