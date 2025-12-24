@@ -54,7 +54,7 @@
 #' }
 #'
 #' @export
-nfsa_internal_consistency_T0800 <- function(dataset,
+nfsa_internal_consistency_T0800_test <- function(dataset,
                                             output_sel = here::here("output", "internal"),
                                             threshold = 0,
                                             rounding = 2) {
@@ -68,6 +68,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   lookup <- nfsa::nfsa_sto_lookup
 
   data <- dataset |>
+    data <- nfsa_get_data(country = "CZ", table = "T0800") |>
     mutate(obs_value = round_half_up(obs_value, rounding)) |>
     nfsa::nfsa_separate_id()
 
@@ -262,7 +263,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       names_from = c(ref_sector,sto,accounting_entry),
       values_from = obs_value,
       names_sep = "."
-    ) |>
+    )
+
+    if(ncol(ur09) == 14){
+  ur09 <- ur09 |>
     select(ref_area, time_period, S1.D12.D, S2.D12.C,S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D) |>
     rowwise() |>
     mutate(
@@ -272,6 +276,9 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     filter(abs(check) > threshold)
 
+    } else {
+      rm(ur09)
+    }
   ## UR10---------------------------------------------------------------------
 
   ur10 <- data |>
@@ -381,13 +388,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     pivot_wider(
       names_from = ref_sector,
       values_from = obs_value
-    ) |>
+    )
+  if(nrow(s1ss05) == 6){
     select(ref_area, sto, time_period, S11, S12,  S1) |>
     rowwise() |>
     mutate(`S11 + S12` = sum(c(S11, S12), na.rm = TRUE)) |>
     mutate(check = round(S1 - `S11 + S12`, rounding)) |>
     filter(abs(check) > threshold)
-
+  } else {
+    rm(s1ss05)
+  }
   ## S1SS06-------------------------------------------------------------------
   s1ss06 <- data |>
     filter(ref_sector %in% c("S1", "S12", "S13")) |>
@@ -734,13 +744,19 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     pivot_wider(
       names_from = sto,
       values_from = obs_value
-    ) |>
+    )
+
+  if(ncol(sit12) == 9){
+    sit12 <- sit12 |>
     select(ref_area, ref_sector, accounting_entry,time_period, D41, D43, D44, D45, D4) |>
     rowwise() |>
     mutate(`D41 + D43 + D44 + D45` = sum(c(D41, D43,  D44, D45), na.rm = TRUE),
            check = round(D4 - `D41 + D43 + D44 + D45`, rounding)) |>
     filter(abs(check) > threshold)
 
+  } else {
+    rm(sit12)
+  }
   ## SIT15----------------------------------------------------------------------------------------
 
   sit15 <- data |>
@@ -1771,7 +1787,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                values_from = obs_value)
+
+  if(ncol(BI30) == 7){
+    BI30 <- BI30 |>
     select(ref_area, ref_sector, time_period, B6G.B,D8.D,P3.D,B8G.B) |>
     rowwise() |>
     mutate(
@@ -1780,6 +1799,9 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     filter(abs(check) > threshold)
 
+  } else {
+    rm(BI30)
+  }
   ## BI32-----------------------------------------------------------------------------------------
   BI32 <- data |>
     filter(
@@ -2047,3 +2069,5 @@ if(length(list_ir) == 0){
 }
   cli::cli_alert_success(paste0("File created at: ", output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"))
 }
+
+

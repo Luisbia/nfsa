@@ -50,7 +50,9 @@ if(area == "EA20"){
   check <- ea20 |>
     group_by(year,quarter,bclas_bec,stk_flow) |>
     tally() |>
-    filter(n<3)
+    filter(n<3) |>
+    unite("quarter_sel",c(year,quarter),sep="") |>
+    filter(quarter_sel == quarter)
 
   if (nrow(check) > 0) {
 
@@ -83,9 +85,9 @@ if(area == "EA20"){
 
 
   ## Write the file
-  write_csv(ea20,paste0(output_sel, "EA20_", quarter,"_comext.csv") )
+  write_csv(ea20,paste0(output_sel, "/EA20_", quarter,"_comext.csv") )
 
-  cli::cli_alert_success(paste0("File created in ",output_sel, "EA20_", quarter,"_comext.csv"))
+  cli::cli_alert_success(paste0("File created in ",output_sel, "/EA20_", quarter,"_comext.csv"))
 
   return(ea20)
 }  }
@@ -110,7 +112,9 @@ if(area == "EA20"){
     check <- eu27 |>
       group_by(year,quarter,bclas_bec,stk_flow) |>
       tally() |>
-      filter(n < 3)
+      filter(n<3) |>
+      unite("quarter_sel",c(year,quarter),sep="") |>
+      filter(quarter == quarter)
 
     if (nrow(check) > 0) {
 
@@ -140,9 +144,9 @@ if(area == "EA20"){
 
 
     ## Write the file
-    write_csv(eu27,paste0(output_sel, "EU27_", quarter,"_comext.csv") )
+    write_csv(eu27,paste0(output_sel, "/EU27_", quarter,"_comext.csv") )
 
-    cli::cli_alert_success(paste0("File created in ",output_sel, "EU27_", quarter,"_comext.csv"))
+    cli::cli_alert_success(paste0("File created in ",output_sel, "/EU27_", quarter,"_comext.csv"))
 
     return(eu27)
     }
