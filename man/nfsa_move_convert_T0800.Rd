@@ -8,7 +8,7 @@ nfsa_move_convert_T0800(
   country,
   year,
   input_sel = "M:/nas/Incoming_SDMX_files/",
-  output_sel = here("data", "a", "new")
+  output_sel = "M:/nas/Rprod/data/a/new/"
 )
 }
 \arguments{
@@ -20,7 +20,7 @@ nfsa_move_convert_T0800(
 Defaults to "M:/nas/Incoming_SDMX_files/".}
 
 \item{output_sel}{A character string specifying the output directory where the Parquet files should be saved.
-Defaults to "data/a/new" relative to the project root using \code{here::here()}.}
+Defaults to "M:/nas/Rprod/data/a/new/".}
 }
 \value{
 This function primarily operates for side effects (writing Parquet files).  It prints messages
@@ -42,6 +42,6 @@ directory.
 nfsa_move_convert_T0800(country= "BE",
 year = "2024_0000",
 input_sel = "M:/nas/Incoming_SDMX_files/",
-output_sel = "C:/users/biedmlu/data/a/new/")
+output_sel = "M:/nas/Rprod/data/a/new/")
 
 }

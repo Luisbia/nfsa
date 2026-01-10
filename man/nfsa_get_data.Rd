@@ -5,14 +5,14 @@
 \title{Get NFSA Data}
 \usage{
 nfsa_get_data(
-  input_sel = here::here("data"),
+  input_sel = "M:/nas/Rprod/data",
   country,
   table = "T0801",
   type = "new"
 )
 }
 \arguments{
-\item{input_sel}{Character string specifying the path to the data directory. Default is \code{here("data")}.}
+\item{input_sel}{Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data"}.}
 
 \item{country}{Character vector specifying the country or countries to retrieve data for.}
 

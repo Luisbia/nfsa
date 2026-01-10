@@ -32,4 +32,8 @@
 
 # nfsa 0.0.7
 * Internal consistency T0800/T0801 now handles the case when transactions are missing.
-# Delete some not so useful functions (nfsa_transmissions,nfsa_completeness_regulation)
+* Delete some not so useful functions (nfsa_transmissions,nfsa_completeness_regulation)
+
+# nfsa 0.0.8
+* Default data directory is M:
+* Added argument to plots to choose the line colours

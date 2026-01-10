@@ -1,63 +1,13 @@
-#' Read NFSA T0801 Excel template
+
+#' Read excel template where T0801 is estimates
 #'
-#' Imports and reshapes all sector sheets from an NFSA T0801 Excel template
-#' into a single tidy data frame with one row per time-period/sector/item.
+#' @param file
 #'
-#' The function expects the workbook structure of the NFSA T0801 template:
-#' sheets `S1`, `S1N`, `S11`, `S12`, `S13`, `S1M`, and `S2` with data starting
-#' at row 30 and specific column ranges for each sheet.
-#'
-#' @param file Path to the NFSA T0801 Excel workbook (character string),
-#'   typically ending in `.xlsx`.
-#'
-#' @return A tibble with the following columns:
-#' \describe{
-#'   \item{time_period}{Period in `YYYY-MM` format derived from the
-#'   `TIME ▼` column.}
-#'   \item{ref_sector}{Reference sector code (e.g. `"S1"`, `"S1N"`, `"S11"`,
-#'   `"S12"`, `"S13"`, `"S1M"`, `"S2"`).}
-#'   \item{sto}{Short transaction/series code parsed from the column names
-#'   before the `.` separator.}
-#'   \item{accounting_entry}{Accounting entry suffix parsed from the column
-#'   names after the `.` separator (e.g. `"D"`, `"C"`, `"_Z"`).}
-#'   \item{obs_value}{Numeric observation value for the corresponding
-#'   time-period, sector, and item.}
-#' }
-#'
-#' @details
-#' For each sector sheet, the function:
-#' \itemize{
-#'   \item Reads the specified cell range with \code{readxl::read_xlsx}.
-#'   \item Renames the `TIME ▼` column to \code{time_period} and coerces all
-#'   other selected columns to numeric.
-#'   \item Pivots the data to long format with \code{tidyr::pivot_longer},
-#'   parsing column names into \code{sto} and \code{accounting_entry} using
-#'   \code{tidyr::separate_wider_delim(".")}.
-#'   \item Converts the period codes from `YYYYMM` to `YYYY-MM` using
-#'   \code{stringr::str_sub}.
-#'   \item Adds a sector identifier \code{ref_sector} corresponding to the
-#'   sheet name and drops rows with missing values.
-#' }
-#' All processed sector tables are combined with \code{dplyr::bind_rows}.
-#'
-#' @seealso
-#'   \code{\link[readxl]{read_xlsx}},
-#'   \code{\link[tidyr]{pivot_longer}},
-#'   \code{\link[tidyr]{separate_wider_delim}},
-#'   \code{\link[dplyr]{bind_rows}}.
+#' @returns a data frame
+#' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Path to an NFSA T0801 Excel template
-#' t0801_path <- "data-raw/T0801_template.xlsx"
-#'
-#' # Read and tidy all sector sheets
-#' t0801_data <- nfsa_read_excel_template_T0801(t0801_path)
-#'
-#' # Inspect the first rows
-#' dplyr::glimpse(t0801_data)
-#' }
-#'
+#' nfsa_read_excel_template_T0801("C:/Users/biedmlu/OneDrive - European Commission/NFSA/EE1_2025Q3_F.xlsx")
 nfsa_read_excel_template_T0801 <- function (file){
 library(tidyverse)
 library(readxl)

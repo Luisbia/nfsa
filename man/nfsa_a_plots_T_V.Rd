@@ -8,7 +8,8 @@ nfsa_a_plots_T_V(
   country,
   output_sel = here("output", "plots"),
   time_min = 1995,
-  my_theme = ggthemes::theme_fivethirtyeight()
+  my_theme = ggthemes::theme_fivethirtyeight(),
+  my_colours = c("#B656BD", "#208486")
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ nfsa_a_plots_T_V(
 \item{time_min}{A character string specifying the earliest time period to include in the plots, in the format "YYYY-QX" (e.g., "1999-Q1"). Defaults to "1999-Q1".}
 
 \item{my_theme}{A ggplot2 theme object to use for the plots. Defaults to \code{ggthemes::theme_fivethirtyeight()}.}
+
+\item{my_colours}{Choose the colours for the lines, for example c("darkred","grey60")}
 }
 \value{
 None. The function generates and saves a PDF file containing the plots.

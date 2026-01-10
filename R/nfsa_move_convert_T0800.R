@@ -7,7 +7,7 @@
 #' @param input_sel A character string specifying the input directory where the SDMX files are located.
 #'   Defaults to "M:/nas/Incoming_SDMX_files/".
 #' @param output_sel A character string specifying the output directory where the Parquet files should be saved.
-#'   Defaults to "data/a/new" relative to the project root using `here::here()`.
+#'   Defaults to "M:/nas/Rprod/data/a/new/".
 #'
 #' @returns This function primarily operates for side effects (writing Parquet files).  It prints messages
 #'   to the console indicating whether a new file was processed, if no file was found, or if no new file exists.
@@ -24,12 +24,12 @@
 #' nfsa_move_convert_T0800(country= "BE",
 #' year = "2024_0000",
 #' input_sel = "M:/nas/Incoming_SDMX_files/",
-#' output_sel = "C:/users/biedmlu/data/a/new/")
+#' output_sel = "M:/nas/Rprod/data/a/new/")
 #'
 nfsa_move_convert_T0800 <- function(country,
                            year,
                            input_sel = "M:/nas/Incoming_SDMX_files/",
-                           output_sel = here("data","a","new")){
+                           output_sel = "M:/nas/Rprod/data/a/new/"){
   options(warn=-1)
 
   library(tidyverse)

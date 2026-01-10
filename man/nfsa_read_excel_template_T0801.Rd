@@ -2,69 +2,19 @@
 % Please edit documentation in R/nfsa_read_excel_template_T0801.R
 \name{nfsa_read_excel_template_T0801}
 \alias{nfsa_read_excel_template_T0801}
-\title{Read NFSA T0801 Excel template}
+\title{Read excel template where T0801 is estimates}
 \usage{
 nfsa_read_excel_template_T0801(file)
 }
 \arguments{
-\item{file}{Path to the NFSA T0801 Excel workbook (character string),
-typically ending in \code{.xlsx}.}
+\item{file}{}
 }
 \value{
-A tibble with the following columns:
-\describe{
-\item{time_period}{Period in \code{YYYY-MM} format derived from the
-\verb{TIME ▼} column.}
-\item{ref_sector}{Reference sector code (e.g. \code{"S1"}, \code{"S1N"}, \code{"S11"},
-\code{"S12"}, \code{"S13"}, \code{"S1M"}, \code{"S2"}).}
-\item{sto}{Short transaction/series code parsed from the column names
-before the \code{.} separator.}
-\item{accounting_entry}{Accounting entry suffix parsed from the column
-names after the \code{.} separator (e.g. \code{"D"}, \code{"C"}, \code{"_Z"}).}
-\item{obs_value}{Numeric observation value for the corresponding
-time-period, sector, and item.}
-}
+a data frame
 }
 \description{
-Imports and reshapes all sector sheets from an NFSA T0801 Excel template
-into a single tidy data frame with one row per time-period/sector/item.
-}
-\details{
-The function expects the workbook structure of the NFSA T0801 template:
-sheets \code{S1}, \code{S1N}, \code{S11}, \code{S12}, \code{S13}, \code{S1M}, and \code{S2} with data starting
-at row 30 and specific column ranges for each sheet.
-
-For each sector sheet, the function:
-\itemize{
-\item Reads the specified cell range with \code{readxl::read_xlsx}.
-\item Renames the \verb{TIME ▼} column to \code{time_period} and coerces all
-other selected columns to numeric.
-\item Pivots the data to long format with \code{tidyr::pivot_longer},
-parsing column names into \code{sto} and \code{accounting_entry} using
-\code{tidyr::separate_wider_delim(".")}.
-\item Converts the period codes from \code{YYYYMM} to \code{YYYY-MM} using
-\code{stringr::str_sub}.
-\item Adds a sector identifier \code{ref_sector} corresponding to the
-sheet name and drops rows with missing values.
-}
-All processed sector tables are combined with \code{dplyr::bind_rows}.
+Read excel template where T0801 is estimates
 }
 \examples{
-\dontrun{
-# Path to an NFSA T0801 Excel template
-t0801_path <- "data-raw/T0801_template.xlsx"
-
-# Read and tidy all sector sheets
-t0801_data <- nfsa_read_excel_template_T0801(t0801_path)
-
-# Inspect the first rows
-dplyr::glimpse(t0801_data)
-}
-
-}
-\seealso{
-\code{\link[readxl]{read_xlsx}},
-\code{\link[tidyr]{pivot_longer}},
-\code{\link[tidyr]{separate_wider_delim}},
-\code{\link[dplyr]{bind_rows}}.
+nfsa_read_excel_template_T0801("C:/Users/biedmlu/OneDrive - European Commission/NFSA/EE1_2025Q3_F.xlsx")
 }

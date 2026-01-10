@@ -8,7 +8,7 @@ nfsa_move_convert_T0801SA(
   country,
   yearquarter,
   input_sel = "M:/nas/Incoming_SDMX_files/",
-  output_sel = here("data", "q", "new", "sca")
+  output_sel = "M:/nas/Rprod/data/q/new/sca/"
 )
 }
 \arguments{
@@ -20,7 +20,7 @@ nfsa_move_convert_T0801SA(
 Defaults to "M:/nas/Incoming_SDMX_files/".}
 
 \item{output_sel}{A character string specifying the output directory where the Parquet files should be saved.
-Defaults to "data/q/new/sca" relative to the project root using \code{here::here()}.}
+Defaults to "M:/nas/Rprod/data/q/new/sca/".}
 }
 \value{
 This function primarily operates for side effects (writing Parquet files).  It prints messages
@@ -42,5 +42,5 @@ directory.
 nfsa_move_convert_T0801_SA(country= "BE",
 yearquarter = "2025_0002",
 input_sel = "M:/nas/Incoming_SDMX_files/",
-output_sel = "C:/users/biedmlu/data/q/new/sca")
+output_sel = "M:/nas/Rprod/data/q/new/sca/")
 }
