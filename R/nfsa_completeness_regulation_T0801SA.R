@@ -32,7 +32,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
            "NL", "PL", "PT", "RO", "SE")
     requirements <- here::here("assets", "completeness_T0801SA.xlsx")
     req <- readxl::read_xlsx(requirements)
-    req_time <- list.files(path = here("data", "q", "new", "sca"),
+    req_time <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
       open_dataset() |>
@@ -56,7 +56,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
 
     rm(req_small,req_big, req_time)
 
-    dat <- list.files(path = here("data", "q", "new", "sca"),
+    dat <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
                       pattern = ".parquet",
                       full.names = TRUE) |>
       as_tibble() |>

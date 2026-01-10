@@ -17,17 +17,6 @@
 #' @export
 nfsa_folders <- function(){
 library(fs)
-dir_create(path= paste0(getwd(),"/data"))
-dir_create(path= paste0(getwd(),"/data/a"))
-dir_create(path= paste0(getwd(),"/data/a/new"))
-dir_create(path= paste0(getwd(),"/data/a/prev"))
-dir_create(path= paste0(getwd(),"/data/q"))
-dir_create(path= paste0(getwd(),"/data/q/new"))
-dir_create(path= paste0(getwd(),"/data/q/prev"))
-dir_create(path= paste0(getwd(),"/data/q/new/nsa"))
-dir_create(path= paste0(getwd(),"/data/q/prev/nsa"))
-dir_create(path= paste0(getwd(),"/data/q/new/sca"))
-dir_create(path= paste0(getwd(),"/data/q/prev/sca"))
 dir_create(path= paste0(getwd(),"/assets"))
 dir_create(path= paste0(getwd(),"/output"))
 dir_create(path= paste0(getwd(),"/output/completeness"))

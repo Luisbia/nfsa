@@ -10,7 +10,7 @@
 #' @param type Character string indicating whether to process "new" or "prev"
 #'   (previous) data. Defaults to "new".
 #' @param input_sel Character string specifying the base path to the data
-#'   directory. Defaults to `here::here("data")`.
+#'   directory. Defaults to `"M:/nas/Rprod/data"`.
 #' @param output_sel Character string specifying the path to the output
 #'   directory where the Excel file will be saved. Defaults to
 #'   `here::here()`.
@@ -36,7 +36,7 @@
 #' @export
 nfsa_conf_status <- function(table = "T0801",
                             type = "new",
-                            input_sel = here::here("data"),
+                            input_sel = "M:/nas/Rprod/data/",
                             output_sel = here::here("output", "flags")){
 
   library(tidyverse)
@@ -48,7 +48,7 @@ nfsa_conf_status <- function(table = "T0801",
 
   ###T0800----
   if (tst == "T0800new"){
-    conf_status<- list.files(path = here::here("data","a", "new"),
+    conf_status<- list.files(path = paste0(input_sel,"/a/new/"),
                                  recursive = FALSE,
                                  full.names = TRUE) |>
     as_tibble() |>
@@ -96,7 +96,7 @@ nfsa_conf_status <- function(table = "T0801",
   cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_conf_status_T0800_new.xlsx"))
 
   } else if (tst == "T0800prev"){
-  conf_status<- list.files(path = here::here("data","a", "prev"),
+  conf_status<- list.files(path = paste0(input_sel,"/a/prev/"),
                           recursive = FALSE,
                           full.names = TRUE) |>
     as_tibble() |>
@@ -143,7 +143,7 @@ write.xlsx(l, file = paste0(output_sel,"/",
 
 cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_conf_status_T0800_prev.xlsx"))
 } else if  (tst == "T0801new"){
-  conf_status<- list.files(path = here::here("data","q", "new", "nsa"),
+  conf_status<- list.files(path = paste0(input_sel,"/q/new/nsa/"),
                           recursive = FALSE,
                           full.names = TRUE) |>
     as_tibble() |>
@@ -191,7 +191,7 @@ cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(fo
   cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_conf_status_T0801_new.xlsx"))
 
   } else if (tst == "T0801prev"){
-  conf_status<- list.files(path = here::here("data","q", "prev", "nsa"),
+  conf_status<- list.files(path = paste0(input_sel,"/q/prev/nsa/"),
                           recursive = FALSE,
                           full.names = TRUE) |>
     as_tibble() |>
@@ -240,7 +240,7 @@ cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(fo
 
   cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_conf_status_T0801_prev.xlsx"))
   } else if  (tst == "T0801SAnew"){
-    conf_status<- list.files(path = here::here("data","q", "new", "sca"),
+    conf_status<- list.files(path = paste0(input_sel,"/q/new/sca/"),
                             recursive = FALSE,
                             full.names = TRUE) |>
       as_tibble() |>
@@ -288,7 +288,7 @@ cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(fo
     cli::cli_alert_success(paste0("File created in ",output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_conf_status_T0801SA_new.xlsx"))
 
   } else if (tst == "T0801SAprev"){
-    conf_status<- list.files(path = here::here("data","q", "prev", "nsa"),
+    conf_status<- list.files(path = paste0(input_sel,"/q/prev/sca/"),
                             recursive = FALSE,
                             full.names = TRUE) |>
       as_tibble() |>

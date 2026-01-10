@@ -2157,7 +2157,8 @@ nfsa_internal_consistency_T0801 <- function(dataset,
       `B9_calc` = sum(c(B8G.B,D9.C,-D9.D,-P5.D,-NP.D),na.rm = TRUE),
       check = round(B9.B - `B9_calc`, rounding)
     ) |>
-    filter(abs(check) > threshold)
+    filter(abs(check) > threshold)|>
+      filter(if_all(c(D9.C,D9.D), ~ !is.na(.x )))
   } else {
     rm(BI35)
   }

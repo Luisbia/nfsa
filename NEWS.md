@@ -36,4 +36,4 @@
 
 # nfsa 0.0.8
 * Default data directory is M:
-* Added argument to plots to choose the line colours
+* Added argument to plots to choose the line colours.

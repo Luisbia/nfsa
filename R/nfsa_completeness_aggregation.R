@@ -4,7 +4,7 @@
 #'   comparing it against predefined data requirements. It identifies missing data points and
 #'   exports them to an Excel file.
 #'
-#' @param country A character vector specifying the country code (e.g., "BE").
+#' @param country A character vector specifying the country(ies) codes (e.g., "BE").
 #' @param table A character string specifying the table identifier ("T0801" or "T0800").  Defaults to "T0801".
 #' @param output_sel A character string specifying the output directory for the completeness report.
 #'   Defaults to `here::here("output", "completeness")`.
@@ -33,7 +33,7 @@ nfsa_completeness_aggregation <- function(country ,
   if (table == "T0801"){
     requirements <- here::here("assets", "completeness_aggregation_Q.xlsx")
 
-    req_time <- list.files(path = here("data", "q", "new", "nsa"),
+    req_time <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
       open_dataset() |>
@@ -45,7 +45,7 @@ nfsa_completeness_aggregation <- function(country ,
     req <- readxl::read_xlsx(requirements)%>%
       cross_join(.,req_time)
 
-    dat <- list.files(path = here("data", "q", "new", "nsa"),
+    dat <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
                       pattern = ".parquet",
                       full.names = TRUE) |>
       as_tibble() |>
@@ -93,7 +93,7 @@ nfsa_completeness_aggregation <- function(country ,
   }
   if (table == "T0800"){
     requirements <- here::here("assets", "completeness_aggregation_A.xlsx")
-    req_time <- list.files(path = here("data", "a", "new"),
+    req_time <- list.files(path = "M:/nas/Rprod/data/a/new/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
       open_dataset() |>
@@ -105,7 +105,7 @@ nfsa_completeness_aggregation <- function(country ,
     req <- readxl::read_xlsx(requirements)%>%
       cross_join(.,req_time)
 
-    dat <- list.files(path = here("data", "a", "new"),
+    dat <- list.files(path = "M:/nas/Rprod/data/a/new/",
                       pattern = ".parquet",
                       full.names = TRUE) |>
       as_tibble() |>
