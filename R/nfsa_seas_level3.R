@@ -9,7 +9,7 @@
 #'   at least `ref_area` and `id` columns.
 #' @param time_min from which quarter the analysis starts
 #' @param input_sel Path to the directory where input data is stored. Defaults
-#'   to `here::here("data")`.
+#'   to `"M:/nas/Rprod/data/"`.
 #' @param output_sel Path to the directory where output reports should be
 #'   saved. Defaults to `here::here("output", "seas")`.
 #' @param dashboard_sel Path to the Quarto dashboard template. Defaults to
@@ -47,7 +47,7 @@
 #' @export
 nfsa_seas_level3 <- function(series = here("assets", "seas_level1.xlsx"),
                              time_min = "1999-Q1",
-                             input_sel = here::here("data"),
+                             input_sel = "M:/nas/Rprod/data/",
                              output_sel = here::here("output", "seas"),
                              dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
                              default_type_sel = "X13",

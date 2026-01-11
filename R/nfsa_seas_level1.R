@@ -5,7 +5,7 @@
 #'
 #' @param country A character vector specifying the countries to process (e.g., "BE", "IT", "FR").  Defaults to c("BE","IT", "FR", "FI", "PL", "EE", "SK", "SI").
 #' @param time_min From which quarter the series are analysed, by default "1999-Q1"
-#' @param input_sel The path to the directory containing the input data files. Defaults to `here::here("data")`.
+#' @param input_sel The path to the directory containing the input data files. Defaults to `"M:/nas/Rprod/data/"`.
 #' @param output_sel The path to the directory where the output Excel file will be saved. Defaults to `here::here("output", "seas")`.
 #'
 #' @return A data frame containing the results of the level 1 seasonality checks, including the `ref_area` (country), `id`, and the `level1` result (either "PASS" or a specific "FAIL" or "WARNING" message).  Also saves the data frame as an Excel file in the `output_sel` directory.
@@ -26,7 +26,7 @@
 #' @export
 nfsa_seas_level1 <- function(country ,
                              time_min = "1999-Q1",
-                             input_sel = here::here("data"),
+                             input_sel = "M:/nas/Rprod/data/",
                              output_sel = here::here("output", "seas")){
 
   library(nfsa)

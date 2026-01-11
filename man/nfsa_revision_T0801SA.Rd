@@ -2,10 +2,11 @@
 % Please edit documentation in R/nfsa_revision_T0801SA.R
 \name{nfsa_revision_T0801SA}
 \alias{nfsa_revision_T0801SA}
-\title{Identify and report revisions in T0801SA data.}
+\title{Detects and reports revisions in T0801sa data between two versions of the database.}
 \usage{
 nfsa_revision_T0801SA(
   country,
+  type = "vintage",
   abs_threshold = 10,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
@@ -14,26 +15,28 @@ nfsa_revision_T0801SA(
 \arguments{
 \item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
 
-\item{abs_threshold}{A numeric value specifying the absolute threshold for revisions. Defaults to 10.}
+\item{type}{Either to compare with the last version of the previous quarter ("vintage") or with the previous version of this period ("version")}
 
-\item{rel_threshold}{A numeric value specifying the relative threshold (as \% of GDP) for revisions. Defaults to 0.}
+\item{abs_threshold}{A numeric value specifying the absolute threshold for revision detection. Revisions with an absolute difference greater than this threshold are flagged. Defaults to 10.}
 
-\item{output_sel}{A character string specifying the path to the directory where the revision report should be saved.}
+\item{rel_threshold}{A numeric value specifying the relative threshold (percentage of GDP) for revision detection. Revisions with a relative difference greater than this threshold are flagged. Defaults to 0.}
+
+\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
 }
 \value{
-This function does not return a value, but it saves an Excel file containing the identified revisions to the \code{output_sel} directory.  It also prints a success message to the console indicating the location of the file. If no revisions are found, a corresponding message is printed to the console.
+This function does not return a value. It generates an Excel file containing the identified revisions in the specified output directory.  A success message is printed to the console indicating the file name and location.
 }
 \description{
-This function compares new and previous versions of T0801SA data, identifies
-revisions exceeding specified thresholds, and generates an Excel report.
+This function compares new and previous versions of T0801 data, identifies revisions based on absolute and relative thresholds,
+and exports the revisions to an Excel file.  It utilizes \code{arrow} for efficient data handling and \code{openxlsx} for Excel output.
 }
 \examples{
 \dontrun{
-# Example usage:
-nfsa_revision_T0801SA(country = c("IE", "ES"),
-                      abs_threshold = 5,
-                      rel_threshold = 0.1,
-                      output_sel = here("output", "revisions"))
+# Example usage with default thresholds:
+nfsa_revision_T0801SA(country = c("ES", "IT"))
+
+# Example usage with custom thresholds:
+nfsa_revision_T0801SA(country = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
 }
 
 }

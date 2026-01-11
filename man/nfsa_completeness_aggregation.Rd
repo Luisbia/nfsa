@@ -11,7 +11,7 @@ nfsa_completeness_aggregation(
 )
 }
 \arguments{
-\item{country}{A character vector specifying the country code (e.g., "BE").}
+\item{country}{A character vector specifying the country(ies) codes (e.g., "BE").}
 
 \item{table}{A character string specifying the table identifier ("T0801" or "T0800").  Defaults to "T0801".}
 

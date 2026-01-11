@@ -6,7 +6,7 @@
 #'
 #' @param country A character string specifying the country code to filter the data.
 #' @param input_sel A character string specifying the path to the directory containing the Parquet files.
-#'   Defaults to `"data/a"` relative to the project root.
+#'   Defaults to `"M:/nas/Rprod/data/a/"`.
 #' @param output_sel Path to the directory where the output Excel file containing the revisions will be saved. Defaults to `here("output", "revisions")`.
 #' @return An Excel workbook containing the identified revisions,
 #'   with columns for the reference area, ID, time period, reference sector, STO, accounting entry,
@@ -25,7 +25,7 @@
 #'
 #' @export
 nfsa_revision_T0800_all <- function(country,
-                                    input_sel = here::here("data", "a"),
+                                    input_sel = "M:/nas/Rprod/data/a",
                                     output_sel = here::here("output", "revisions")){
 
   library(arrow)

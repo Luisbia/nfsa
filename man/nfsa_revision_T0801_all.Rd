@@ -6,7 +6,7 @@
 \usage{
 nfsa_revision_T0801_all(
   country,
-  input_sel = here::here("data", "q"),
+  input_sel = "M:/nas/Rprod/data/q/",
   output_sel = here::here("output", "revisions")
 )
 }
@@ -14,7 +14,7 @@ nfsa_revision_T0801_all(
 \item{country}{A character string specifying the country code to filter the data.}
 
 \item{input_sel}{A character string specifying the path to the directory containing the Parquet files.
-Defaults to \code{"data/q"} relative to the project root.}
+Defaults to \code{"M:/nas/Rprod/data/q/"}.}
 
 \item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
 }

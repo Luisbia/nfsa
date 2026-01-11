@@ -7,7 +7,7 @@
 nfsa_conf_status(
   table = "T0801",
   type = "new",
-  input_sel = here::here("data"),
+  input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "flags")
 )
 }
@@ -19,7 +19,7 @@ nfsa_conf_status(
 (previous) data. Defaults to "new".}
 
 \item{input_sel}{Character string specifying the base path to the data
-directory. Defaults to \code{here::here("data")}.}
+directory. Defaults to \code{"M:/nas/Rprod/data"}.}
 
 \item{output_sel}{Character string specifying the path to the output
 directory where the Excel file will be saved. Defaults to

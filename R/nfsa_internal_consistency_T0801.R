@@ -686,7 +686,7 @@ nfsa_internal_consistency_T0801 <- function(dataset,
   }
 
 
-  ## SIT04----------------------------------------------------------------------------------------
+  ## SIT03----------------------------------------------------------------------------------------
 
   sit03 <- data |>
     filter(
@@ -705,7 +705,8 @@ nfsa_internal_consistency_T0801 <- function(dataset,
     rowwise() |>
     mutate(`P51G.D + P5M.D` = sum(P51G.D,P5M.D, na.rm = TRUE),
            check = round(P5.D - `P51G.D + P5M.D`, rounding)) |>
-    filter(abs(check) > threshold)
+    filter(abs(check) > threshold)|>
+      filter(if_all(c(P51G.D,P5M.D), ~ !is.na(.x )))
   } else {
     rm(sit03)
   }

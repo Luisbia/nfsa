@@ -6,6 +6,7 @@
 \usage{
 nfsa_revision_T0801(
   country,
+  type = "vintage",
   abs_threshold = 10,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
@@ -13,6 +14,8 @@ nfsa_revision_T0801(
 }
 \arguments{
 \item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
+
+\item{type}{Either to compare with the last version of the previous quarter ("vintage") or with the previous version of this period ("version")}
 
 \item{abs_threshold}{A numeric value specifying the absolute threshold for revision detection. Revisions with an absolute difference greater than this threshold are flagged. Defaults to 10.}
 

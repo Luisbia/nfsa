@@ -5,9 +5,7 @@
 \title{Check for Negative Values in T0801SA when T0801 is all Positive}
 \usage{
 nfsa_negatives_T0801_T0801SA(
-  country = c("AL", "AT", "BE", "CY", "CZ", "DE", "DK", "EE", "EL", "ES", "FI", "FR",
-    "HR", "HU", "IE", "IT", "IS", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO",
-    "SE", "SI", "SK", "TR", "CH", "RS", "ME", "MK"),
+  country,
   output_sel = here::here("output", "negatives_zeroes")
 )
 }

@@ -6,6 +6,7 @@
 \usage{
 nfsa_revision_T0800(
   country,
+  type = "vintage",
   abs_threshold = 100,
   rel_threshold = 0,
   output_sel = here("output", "revisions")
@@ -13,7 +14,8 @@ nfsa_revision_T0800(
 }
 \arguments{
 \item{country}{A character vector specifying the country or countries to analyze.
-This should correspond to the country codes used in the input file names.}
+This should correspond to the country codes used in the input file names.
+#' @param type Either to compare with the last version of the previous year ("vintage") or with the previous version of this year ("version")}
 
 \item{abs_threshold}{A numeric value specifying the minimum absolute revision value to consider.
 Revisions with an absolute value less than this threshold will be filtered out. Defaults to 100.}

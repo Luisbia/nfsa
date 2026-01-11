@@ -1,4 +1,4 @@
-#' Identify and extract revisions in NASEC T0801 data across different versions.
+#' Identify and extract revisions in NASEC T0801sa data across different versions.
 #'
 #' This function identifies and extracts revisions in the NASEC T0801 data for a specified country,
 #' comparing different versions of the data stored as Parquet files. It joins the data with a lookup table,
@@ -16,15 +16,15 @@
 #' \dontrun{
 #' # Example usage: Identify and extract revisions for country code "IT"
 #' # from Parquet files located in the default "data/q" directory.
-#' nfsa_revision_T0801_all(country = "IT")
+#' nfsa_revision_T0801SA_all(country = "IT")
 #'
 #' # Example usage: Identify and extract revisions for country code "BE"
 #' # from Parquet files located in a custom directory.
-#' nfsa_revision_T0801_all(country = "BE", input_sel = "path/to/my/data")
+#' nfsa_revision_T0801SA_all(country = "BE", input_sel = "path/to/my/data")
 #' }
 #'
 #' @export
-nfsa_revision_T0801_all <- function(country,
+nfsa_revision_T0801SA_all <- function(country,
                                     input_sel = "M:/nas/Rprod/data/q/",
                                     output_sel = here::here("output", "revisions")){
 
@@ -33,7 +33,7 @@ library(tidyverse)
 lookup <- nfsa::nfsa_sto_lookup
 
 revisions <- list.files(path = input_sel,
-                        pattern = paste0("^NASEC_T0801_Q_", country, "_.*\\.parquet$"),
+                        pattern = paste0("^NASEC_T0801SA_Q_", country, "_.*\\.parquet$"),
                         full.names = TRUE,
                         recursive = TRUE) |>
   open_dataset() |>
@@ -55,20 +55,20 @@ revisions <- list.files(path = input_sel,
 
 if(length(unique(revisions$ref_area)) == 1) {
   openxlsx::write.xlsx(revisions,
-                       file = paste0(output_sel,"/revisions_T0801_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                       file = paste0(output_sel,"/revisions_T0801SA_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                        overwrite = TRUE,
                        asTable = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801SA_all_",unique(revisions$ref_area),"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
 
 if(length(unique(revisions$ref_area)) > 1) {
   openxlsx::write.xlsx(revisions,
-                       file = paste0(output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                       file = paste0(output_sel,"/revisions_T0801SA_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                        overwrite = TRUE,
                        asTable = TRUE)
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801SA_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
   return(revisions)
 }

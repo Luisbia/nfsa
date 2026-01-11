@@ -22,7 +22,7 @@
 #' }
 #'
 #' @export
-nfsa_negatives_T0801_T0801SA <- function(country ,
+nfsa_negatives_T0801_T0801SA <- function(country,
                                          output_sel = here::here("output", "negatives_zeroes")){
 
   pacman::p_load(tidyverse, arrow, here)

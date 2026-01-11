@@ -7,7 +7,7 @@
 nfsa_seas_level1(
   country,
   time_min = "1999-Q1",
-  input_sel = here::here("data"),
+  input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "seas")
 )
 }
@@ -16,7 +16,7 @@ nfsa_seas_level1(
 
 \item{time_min}{From which quarter the series are analysed, by default "1999-Q1"}
 
-\item{input_sel}{The path to the directory containing the input data files. Defaults to \code{here::here("data")}.}
+\item{input_sel}{The path to the directory containing the input data files. Defaults to \code{"M:/nas/Rprod/data/"}.}
 
 \item{output_sel}{The path to the directory where the output Excel file will be saved. Defaults to \code{here::here("output", "seas")}.}
 }

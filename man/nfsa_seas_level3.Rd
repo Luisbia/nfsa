@@ -7,7 +7,7 @@
 nfsa_seas_level3(
   series = here("assets", "seas_level1.xlsx"),
   time_min = "1999-Q1",
-  input_sel = here::here("data"),
+  input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "seas"),
   dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
   default_type_sel = "X13",
@@ -23,7 +23,7 @@ at least \code{ref_area} and \code{id} columns.}
 \item{time_min}{from which quarter the analysis starts}
 
 \item{input_sel}{Path to the directory where input data is stored. Defaults
-to \code{here::here("data")}.}
+to \code{"M:/nas/Rprod/data/"}.}
 
 \item{output_sel}{Path to the directory where output reports should be
 saved. Defaults to \code{here::here("output", "seas")}.}

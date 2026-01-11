@@ -6,6 +6,7 @@
 #'
 #' @param country A character vector specifying the country or countries to analyze.
 #'        This should correspond to the country codes used in the input file names.
+#'        #' @param type Either to compare with the last version of the previous year ("vintage") or with the previous version of this year ("version")
 #' @param abs_threshold A numeric value specifying the minimum absolute revision value to consider.
 #'        Revisions with an absolute value less than this threshold will be filtered out. Defaults to 100.
 #' @param rel_threshold A numeric value specifying the minimum relative revision value (as a percentage of GDP) to consider.
@@ -43,6 +44,7 @@
 #'
 #' @export
 nfsa_revision_T0800 <- function(country,
+                                type = "vintage",
                                 abs_threshold = 100,
                                 rel_threshold = 0,
                                 output_sel = here("output", "revisions")){
@@ -54,11 +56,37 @@ new_db <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "new") 
   nfsa::nfsa_separate_id() |>
   na.omit()
 
+if (type == "vintage"){
 prev_db <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "prev") |>
   select(ref_area,id,time_period,prev = obs_value)  |>
   nfsa::nfsa_separate_id() |>
   na.omit()
+}
 
+if (type == "version"){
+  prev_db <- list.files(path = "M:/nas/Rprod/data/a/new",
+                               recursive = FALSE,
+                               full.names = TRUE) |>
+    as_tibble() |>
+    mutate(version = as.numeric(str_extract(value, "(?<=_A_..............).{4}")),
+           countries = str_extract(value, "(?<=_A_)..")) |>
+    filter(countries %in% country) |>
+    group_by(countries) |>
+    arrange(version) |>
+    slice_tail(n=2) |>
+    slice_head(n=1) |>
+    pull(value) |>
+    open_dataset() |>
+    select(-embargo_date,-received) |>
+    collect() %>%
+    left_join(.,nfsa_sto_lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
+                                             consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
+    na.omit() |>
+    select(ref_area,id,time_period,prev = obs_value) |>
+    separate_wider_delim(cols = id,
+                         delim = ".",
+                         names = c("ref_sector", "sto", "accounting_entry"))
+}
 
 new_prev_db <- full_join(new_db,prev_db,by = join_by(ref_area, ref_sector, sto, accounting_entry,
                                                      time_period)) |>
