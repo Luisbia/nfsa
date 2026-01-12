@@ -20,7 +20,7 @@ nfsa_T0801_T0800 <- function(country,
                              threshold = 2,
                              output_sel = here::here("output", "frequency")){
 
-  pacman::p_load(tidyverse,here,arrow,openxlsx, readsdmx, janitor)
+  pacman::p_load(tidyverse,here,arrow,openxlsx, janitor)
 
   # T0801
   q_nfsa_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new")  |>
