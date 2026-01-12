@@ -40,3 +40,4 @@
 * Possibility to choose in revisions vintage or version.
 * GFS SA now checked with internal files from dir D.
 * New function to convert euro fixed to euro.
+* New function to copy locally parquet files from server.

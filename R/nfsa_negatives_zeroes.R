@@ -22,11 +22,7 @@
 #' }
 #' @export
 nfsa_negatives_zeroes <- function(table = "T0801",
-                                  country = c("AL", "AT", "BE", "CY", "CZ", "DE", "DK", "EE",
-                                              "EL", "ES", "FI", "FR", "HR", "HU", "IE", "IT",
-                                              "IS","LT", "LU","LV", "MT", "NL", "NO", "PL",
-                                              "PT", "RO", "SE", "SI", "SK", "TR", "CH", "RS",
-                                              "ME", "MK"),
+                                  country ,
                                   time_min = "1999-Q1",
                                   output_sel = here::here("output", "negatives_zeroes")) {
 
