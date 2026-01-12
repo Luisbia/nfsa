@@ -13,7 +13,7 @@ nfsa_T0801_T0801SA(
 \arguments{
 \item{country}{A character string specifying the country code for the NFSA data.}
 
-\item{threshold}{A numeric value indicating the threshold expressed as \% for acceptable differences between T0801 and T0800 (default is 2\%).}
+\item{threshold}{A numeric value indicating the threshold expressed as \% for acceptable differences between T0801 and T0800 (default is 3\%).}
 
 \item{output_sel}{A character string specifying the directory where the output Excel file should be saved (default is "output/frequency" relative to the project root).}
 }

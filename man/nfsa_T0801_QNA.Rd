@@ -8,7 +8,7 @@ nfsa_T0801_QNA(
   country,
   quarter,
   threshold = 1,
-  input_sel = here::here("data", "q", "new", "nsa"),
+  input_sel = "M:/nas/Rprod/data/q/new/nsa/",
   output_sel = here::here("output", "inter_domain")
 )
 }
@@ -19,7 +19,7 @@ nfsa_T0801_QNA(
 
 \item{threshold}{A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.}
 
-\item{input_sel}{A character string specifying the directory containing the NFSA data. Default is \code{here::here("data", "q", "new", "nsa")}.}
+\item{input_sel}{A character string specifying the directory containing the NFSA data. Default is \code{"M:/nas/Rprod/data/q/new/nsa/"}.}
 
 \item{output_sel}{A character string specifying the directory to save the output Excel file. Default is \code{here::here("output", "inter_domain")}.}
 }

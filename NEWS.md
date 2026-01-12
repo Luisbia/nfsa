@@ -37,3 +37,6 @@
 # nfsa 0.0.8
 * Default data directory is M:
 * Added argument to plots to choose the line colours.
+* Possibility to choose in revisions vintage or version.
+* GFS SA now checked with internal files from dir D.
+* New function to convert euro fixed to euro.

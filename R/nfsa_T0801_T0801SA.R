@@ -4,7 +4,7 @@
 #' identifies discrepancies exceeding a specified threshold, and outputs the results to an Excel file.
 #'
 #' @param country A character string specifying the country code for the NFSA data.
-#' @param threshold A numeric value indicating the threshold expressed as % for acceptable differences between T0801 and T0800 (default is 2%).
+#' @param threshold A numeric value indicating the threshold expressed as % for acceptable differences between T0801 and T0800 (default is 3%).
 #' @param output_sel A character string specifying the directory where the output Excel file should be saved (default is "output/frequency" relative to the project root).
 #'
 #' @return This function primarily operates for its side effect of writing an Excel file.

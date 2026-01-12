@@ -8,7 +8,7 @@ nfsa_T0800_GFS(
   country,
   year,
   threshold = 1,
-  input_sel = here::here("data", "a", "new"),
+  input_sel = "M:/nas/Rprod/data/a/new/",
   output_sel = here::here("output", "inter_domain")
 )
 }
@@ -17,7 +17,7 @@ nfsa_T0800_GFS(
 
 \item{threshold}{A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 1.}
 
-\item{input_sel}{A character string specifying the file path for the NFSA input data directory. Defaults to \code{here::here("data", "q", "new", "nsa")}.}
+\item{input_sel}{A character string specifying the file path for the NFSA input data directory. Defaults to \code{"M:/nas/Rprod/data/a/new/"}.}
 
 \item{output_sel}{A character string specifying the file path for the output directory. Defaults to \code{here::here("output", "inter_domain")}.}
 

@@ -8,7 +8,7 @@ nfsa_T0800_ANA(
   country,
   year,
   threshold = 1,
-  input_sel = here::here("data", "a", "new"),
+  input_sel = "M:/nas/Rprod/data/a/new/",
   output_sel = here::here("output", "inter_domain")
 )
 }
@@ -20,7 +20,7 @@ nfsa_T0800_ANA(
 \item{threshold}{A numeric value specifying the threshold for acceptable differences between NFSA and ANA data.
 Defaults to 1.}
 
-\item{input_sel}{A file path to the directory containing NFSA data. Defaults to \code{"data/a/new"} relative to the project root.}
+\item{input_sel}{A file path to the directory containing NFSA data. Defaults to \code{"M:/nas/Rprod/data/a/new"} relative to the project root.}
 
 \item{output_sel}{A file path to the directory where the output Excel file will be saved. Defaults to \code{"output/inter_domain"} relative to the project root.}
 }

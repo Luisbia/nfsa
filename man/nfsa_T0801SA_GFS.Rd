@@ -6,17 +6,20 @@
 \usage{
 nfsa_T0801SA_GFS(
   country,
+  quarter,
   threshold = 1,
-  input_sel = here::here("data", "q", "new", "sca"),
+  input_sel = "M:/nas/Rprod/q/new/sca/",
   output_sel = here::here("output", "inter_domain")
 )
 }
 \arguments{
 \item{country}{A character string representing the country code (e.g., "DE").}
 
+\item{quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
+
 \item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 1.}
 
-\item{input_sel}{A file path to the location of the 'sca' dataset. Default is here::here("data", "q", "new", "sca").}
+\item{input_sel}{A file path to the location of the 'sca' dataset. Default is "M:/nas/Rprod/q/new/sca/".}
 
 \item{output_sel}{A file path to the directory where the output Excel file will be saved. Default is here::here("output", "inter_domain").}
 }
@@ -32,10 +35,8 @@ and identifies discrepancies exceeding a specified threshold.
 \examples{
 \dontrun{
   # Compare NFSA and GFS data for Germany with a threshold of 10
-  result <- nfsa_T0801SA_GFS(country = "DE", threshold = 10)
+  result <- nfsa_T0801SA_GFS(country = "DE", quarter = "2025Q3")
 
-  # Compare NFSA and GFS data for France with default threshold
-  result <- nfsa_T0801SA_GFS(country = "FR")
 }
 
 }

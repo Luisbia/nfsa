@@ -31,7 +31,7 @@ nfsa_completeness_aggregation <- function(country ,
   lookup <- nfsa::nfsa_sto_lookup
 
   if (table == "T0801"){
-    requirements <- here::here("assets", "completeness_aggregation_Q.xlsx")
+    requirements <- here::here("assets", "completeness_aggregation.xlsx")
 
     req_time <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
                            pattern = ".parquet",
@@ -92,7 +92,7 @@ nfsa_completeness_aggregation <- function(country ,
     }
   }
   if (table == "T0800"){
-    requirements <- here::here("assets", "completeness_aggregation_A.xlsx")
+    requirements <- here::here("assets", "completeness_aggregation.xlsx")
     req_time <- list.files(path = "M:/nas/Rprod/data/a/new/",
                            pattern = ".parquet",
                            full.names = TRUE) |>

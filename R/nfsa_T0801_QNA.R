@@ -5,7 +5,7 @@
 #' @param country A character vector specifying the country or countries to process (ISO2 code).
 #' @param quarter A character string specifying the quarter in "YYYYQQ" format (e.g., "2023Q1").
 #' @param threshold A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.
-#' @param input_sel A character string specifying the directory containing the NFSA data. Default is `here::here("data", "q", "new", "nsa")`.
+#' @param input_sel A character string specifying the directory containing the NFSA data. Default is `"M:/nas/Rprod/data/q/new/nsa/"`.
 #' @param output_sel A character string specifying the directory to save the output Excel file. Default is `here::here("output", "inter_domain")`.
 #'
 #' @return None. The function generates an Excel file in the `output_sel` directory with the comparison results.  It also prints a success message to the console indicating where the file was saved or that the data is consistent.
@@ -30,7 +30,7 @@
 nfsa_T0801_QNA <- function(country,
                            quarter,
                            threshold = 1,
-                           input_sel = here::here("data", "q", "new", "nsa"),
+                           input_sel = "M:/nas/Rprod/data/q/new/nsa/",
                            output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,readxl,writexl,here,readsdmx)
   options(warn=-1)

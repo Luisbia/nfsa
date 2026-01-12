@@ -5,7 +5,7 @@
 #' @param country A character vector specifying the country code(s) to process.
 #' @param quarter A character string specifying the quarter in the format "YYYY" (e.g., 2023).
 #' @param threshold A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 1.
-#' @param input_sel A character string specifying the file path for the NFSA input data directory. Defaults to `here::here("data", "q", "new", "nsa")`.
+#' @param input_sel A character string specifying the file path for the NFSA input data directory. Defaults to `"M:/nas/Rprod/data/a/new/"`.
 #' @param output_sel A character string specifying the file path for the output directory. Defaults to `here::here("output", "inter_domain")`.
 #'
 #' @return This function does not return a value. It generates an Excel file containing the comparison results in the specified output directory if discrepancies are found. If no discrepancies are found, a success message is displayed.
@@ -32,9 +32,10 @@
 nfsa_T0800_GFS <- function(country,
                            year,
                            threshold = 1,
-                           input_sel = here::here("data", "a", "new"),
+                           input_sel = "M:/nas/Rprod/data/a/new/",
                            output_sel = here::here("output", "inter_domain")){
 
+  pacman::p_load(tidyverse,here,arrow,openxlsx, readsdmx, readxl,janitor,cli)
 
   limit_validation <- paste0(as.numeric(str_sub(year,1,4)) -4)
 

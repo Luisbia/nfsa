@@ -52,7 +52,7 @@ nfsa_validation <- function(time_min,
       mutate(data=map(value,~ data.table::fread(.x,header = FALSE))) |>
       unnest(data) |>
       separate_wider_delim(V1,delim = ".", names = c("drop1",
-                                                     "drop2",
+                                                     "type",
                                                      "table",
                                                      "freq",
                                                      "adjustment",
@@ -74,7 +74,7 @@ nfsa_validation <- function(time_min,
                                                      "drop17"
       ),
       too_many = "drop") |>
-      select(time,table,freq,adjustment,ref_area) |>
+      select(time,table,type,freq,adjustment,ref_area) |>
       distinct()
     # group_by(table,freq,adjustment,ref_area) |>
     # arrange(time,.by_group = TRUE) |>

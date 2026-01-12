@@ -8,7 +8,7 @@
 #' @param year A numeric value specifying the year for which to compare the data.
 #' @param threshold A numeric value specifying the threshold for acceptable differences between NFSA and ANA data.
 #'                  Defaults to 1.
-#' @param input_sel A file path to the directory containing NFSA data. Defaults to `"data/a/new"` relative to the project root.
+#' @param input_sel A file path to the directory containing NFSA data. Defaults to `"M:/nas/Rprod/data/a/new"` relative to the project root.
 #' @param output_sel A file path to the directory where the output Excel file will be saved. Defaults to `"output/inter_domain"` relative to the project root.
 #'
 #' @return This function does not explicitly return a value. It generates an Excel file containing the comparison results
@@ -34,7 +34,7 @@
 nfsa_T0800_ANA <- function(country,
                            year,
                            threshold = 1,
-                           input_sel = here::here("data", "a", "new"),
+                           input_sel = "M:/nas/Rprod/data/a/new/",
                            output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,readxl,writexl,here,readsdmx)
   options(warn=-1)

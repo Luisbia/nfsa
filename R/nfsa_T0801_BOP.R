@@ -10,7 +10,7 @@
 #'   between NFSA and BOP data.  Differences exceeding this threshold are flagged.
 #'   Default is 5.
 #' @param input_sel A character string specifying the directory containing the input
-#'   NFSA data. Default is `here::here("data", "q", "new", "nsa")`.
+#'   NFSA data. Default is `M:/nas/Rprod/data/q/new/nsa/`.
 #' @param output_sel A character string specifying the directory where the output
 #'   Excel file will be saved. Default is `here::here("output", "inter_domain")`.
 #'
@@ -35,7 +35,7 @@
 nfsa_T0801_BOP <- function(country,
                            quarter,
                            threshold = 5,
-                           input_sel = here::here("data", "q", "new", "nsa"),
+                           input_sel = "M:/nas/Rprod/data/q/new/nsa/",
                            output_sel = here::here("output", "inter_domain")
 ){
 

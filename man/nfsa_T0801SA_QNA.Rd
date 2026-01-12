@@ -7,7 +7,7 @@
 nfsa_T0801SA_QNA(
   country,
   threshold = 1,
-  input_sel = here::here("data", "q", "new", "sca"),
+  input_sel = "M:/nas/Rprod/data/q/new/sca/",
   output_sel = here::here("output", "inter_domain")
 )
 }
@@ -16,7 +16,7 @@ nfsa_T0801SA_QNA(
 
 \item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and QNA values for a discrepancy to be flagged. Default is 1.}
 
-\item{input_sel}{A character string specifying the directory path where input data is stored. The default path is "data/q/new/sca" relative to the project directory.  Note that this parameter is not used in the function.}
+\item{input_sel}{A character string specifying the directory path where input data is stored. The default path is M:/nas/Rprod/data/q/new/sca/".  Note that this parameter is not used in the function.}
 
 \item{output_sel}{A character string specifying the directory path where the output Excel file will be saved. The default path is "output/inter_domain" relative to the project directory.}
 }

@@ -8,7 +8,7 @@ nfsa_T0801_BOP(
   country,
   quarter,
   threshold = 5,
-  input_sel = here::here("data", "q", "new", "nsa"),
+  input_sel = "M:/nas/Rprod/data/q/new/nsa/",
   output_sel = here::here("output", "inter_domain")
 )
 }
@@ -22,7 +22,7 @@ between NFSA and BOP data.  Differences exceeding this threshold are flagged.
 Default is 5.}
 
 \item{input_sel}{A character string specifying the directory containing the input
-NFSA data. Default is \code{here::here("data", "q", "new", "nsa")}.}
+NFSA data. Default is \verb{M:/nas/Rprod/data/q/new/nsa/}.}
 
 \item{output_sel}{A character string specifying the directory where the output
 Excel file will be saved. Default is \code{here::here("output", "inter_domain")}.}

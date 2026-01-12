@@ -6,7 +6,7 @@
 #'
 #' @param country A character string specifying the country code (e.g., "DE" for Germany).
 #' @param threshold A numeric value specifying the minimum absolute difference between NFSA and QNA values for a discrepancy to be flagged. Default is 1.
-#' @param input_sel A character string specifying the directory path where input data is stored. The default path is "data/q/new/sca" relative to the project directory.  Note that this parameter is not used in the function.
+#' @param input_sel A character string specifying the directory path where input data is stored. The default path is M:/nas/Rprod/data/q/new/sca/".  Note that this parameter is not used in the function.
 #' @param output_sel A character string specifying the directory path where the output Excel file will be saved. The default path is "output/inter_domain" relative to the project directory.
 #'
 #' @return A data frame containing the comparison results, including the NFSA value, QNA value, the difference between them (`diff`), the difference as a percentage of GDP (`as_GDP`), and a logical flag (`threshold`) indicating if the absolute percentage difference exceeds 0.3.  Returns `nama_nfsa` data frame that contains comparison data.
@@ -23,7 +23,7 @@
 #' @export
 nfsa_T0801SA_QNA <- function(country,
                              threshold = 1,
-                             input_sel = here::here("data", "q", "new", "sca"),
+                             input_sel = "M:/nas/Rprod/data/q/new/sca/",
                              output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,writexl,here,restatapi)
   options(warn=-1)
