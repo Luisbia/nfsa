@@ -19,23 +19,38 @@
 #' }
 #'
 #' @export
-nfsa_read_matis <- function(file) {
-library(tidyverse)
-data <-read_csv(file, show_col_types = FALSE) |>
-  pivot_longer(cols = 2:last_col(),
-               names_to = "time_period",
-               values_to = "obs_value") |>
-  separate_wider_delim(cols = 1,
-                       delim = ".",
-                       names = c("d1","type","table_identifier", "freq", "adjustment", "ref_area",
-                                 "counterpart_area","ref_sector", "counterpart_sector",
-                                 "consolidation", "accounting_entry", "sto", "instr_asset",
-                                 "maturity", "expenditure","unit_measure","currency_denom",
-                                 "valuation", "prices", "transformation", "cust_breakdown"),
-                       too_many = "merge") |>
-mutate(obs_value = as.numeric(obs_value))
+nfsa_read_matis_test <- function(file) {
 
-return(data)
+  # 1. Read the data
+  # Using col_types = cols(.default = "c") reads everything as character
+  # initially to prevent the pivot from failing due to type mismatches.
+  raw_data <- readr::read_csv(file, show_col_types = FALSE, col_types = readr::cols(.default = "c"))
+
+  # 2. Pivot and Split
+  data <- raw_data |>
+    # Pivot everything EXCEPT the first column (the ID column)
+    tidyr::pivot_longer(
+      cols = -1,
+      names_to = "time_period",
+      values_to = "obs_value"
+    ) |>
+    # 3. Split the complex ID string
+    tidyr::separate_wider_delim(
+      cols = 1,
+      delim = ".",
+      names = c(
+        "d1", "type", "table_identifier", "freq", "adjustment", "ref_area",
+        "counterpart_area", "ref_sector", "counterpart_sector",
+        "consolidation", "accounting_entry", "sto", "instr_asset",
+        "maturity", "expenditure", "unit_measure", "currency_denom",
+        "valuation", "prices", "transformation", "cust_breakdown"
+      ),
+      too_many = "merge"
+    ) |>
+    # 4. Convert values to numeric at the end
+    dplyr::mutate(obs_value = readr::parse_number(obs_value))
+
+  return(data)
 }
 
 

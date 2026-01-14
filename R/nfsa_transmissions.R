@@ -20,46 +20,68 @@
 #' }
 #' @export
 nfsa_transmissions <- function(time_min,
-                               time_max = lubridate::ymd(lubridate::today()),
+                               time_max = lubridate::now(),
                                input_sel = "M:/nas/incoming_SDMX_files/",
                                output_sel = here::here("output", "logs"),
-                               recursive = FALSE){
-  library(tidyverse)
-  library(cli)
-  library(here)
+                               recursive = FALSE) {
 
-  cli::cli_inform("Looking for files in the server...")
-  received <- list.files(path = input_sel,
-                         pattern = "NASEC_",
-                         full.names = TRUE,
-                         recursive = recursive) |>
-    as_tibble()
+  # Ensure output directory exists
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
 
-  cli::cli_inform("Processing info...")
+  cli::cli_inform("Scanning server for NASEC files...")
 
-  received <- received |>
-    mutate(received = lubridate::ymd_hms(file.mtime(value))) |>
-    filter(received >= time_min,
-           received <= time_max) |>
-    mutate(value = str_remove_all(value,input_sel)) |>
-    separate_wider_delim(value,
-                         delim = "_",
-                         names = c("NASEC", "table", "freq", "ref_area","year", "quarter","version"),
-                         cols_remove = FALSE) |>
-    mutate(version = stringr::str_remove_all(version,".xml"),
-           period = paste0(year,"-Q", str_sub(quarter,4,4)),
-           period = str_replace_all(period,"Q0", "A")) |>
-    select(ref_area,file=value,table, period,version,received)
+  # 1. Get files and metadata together
+  files <- list.files(path = input_sel, pattern = "NASEC_",
+                      full.names = TRUE, recursive = recursive)
 
+  if (length(files) == 0) {
+    cli::cli_alert_warning("No NASEC files found in the source folder.")
+    return(NULL)
+  }
 
+  # 2. Process Metadata
+  received_df <- tibble::tibble(full_path = files) |>
+    # Get modification time once for all files
+    dplyr::mutate(received = lubridate::as_datetime(file.mtime(full_path))) |>
+    # Filter by date BEFORE parsing strings to save memory
+    dplyr::filter(received >= time_min, received <= time_max)
 
-  openxlsx::write.xlsx(received,
-                       file = paste0(output_sel,"/received_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                       overwrite = TRUE,
-                       asTable = TRUE)
+  if (nrow(received_df) == 0) {
+    cli::cli_alert_info("No files found within the specified time range.")
+    return(NULL)
+  }
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/received", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_inform("Processing information for {nrow(received_df)} files...")
 
-  return(received)
+  # 3. Parse Filenames
+  received_df <- received_df |>
+    dplyr::mutate(file_name = basename(full_path)) |>
+    tidyr::separate_wider_delim(
+      cols = file_name,
+      delim = "_",
+      names = c("nasec", "table", "freq", "ref_area", "year", "quarter", "version"),
+      cols_remove = FALSE
+    ) |>
+    dplyr::mutate(
+      version = stringr::str_remove(version, "\\.xml$"),
+      # Clean logic for Period (Annual vs Quarterly)
+      q_num = stringr::str_extract(quarter, "\\d+"),
+      period = dplyr::if_else(q_num == "0",
+                              as.character(year),
+                              paste0(year, "-Q", q_num))
+    ) |>
+    dplyr::select(ref_area, file = file_name, table, period, version, received) |>
+    dplyr::arrange(desc(received))
+
+  # 4. Export to Excel
+  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  file_out <- file.path(output_sel, paste0("received_", ts, ".xlsx"))
+
+  openxlsx::write.xlsx(received_df, file = file_out, overwrite = TRUE, asTable = TRUE)
+
+  cli::cli_alert_success("Transmission log created: {.file {file_out}}")
+  nfsa::nfsa_to_excel(received_df)
+  return(received_df)
 }
+
 

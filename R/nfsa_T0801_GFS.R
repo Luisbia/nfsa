@@ -33,92 +33,102 @@ nfsa_T0801_GFS <- function(country,
                            quarter,
                            threshold = 1,
                            input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-                           output_sel = here::here("output", "inter_domain")){
+                           output_sel = here::here("output", "inter_domain")) {
 
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
 
-  limit_validation <- paste0(as.numeric(str_sub(quarter,1,4)) -4,"-",str_sub(quarter,5,6))
+  # Robust date logic
+  q_year <- as.numeric(stringr::str_extract(quarter, "^\\d{4}"))
+  q_sub  <- stringr::str_extract(quarter, "Q\\d{2}$")
+  limit_validation <- paste0(q_year - 4, "-", q_sub)
 
-  cli::cli_progress_message("Collecting NFSA...")
-
-  nfsa_data <- nfsa_get_data(country = country,table = "T0801", type = "new") |>
-    select(ref_area,id,time_period,nfsa = obs_value)  |>
+  # 1. Collect NFSA Data
+  cli::cli_progress_message("Collecting NFSA (T0801)...")
+  nfsa_data <- nfsa_get_data(country = country, table = "T0801", type = "new") |>
+    dplyr::select(ref_area, id, time_period, nfsa = obs_value) |>
     nfsa::nfsa_separate_id()
 
-  ## GFS -----
-  cli::cli_progress_message("Collecting GFS...")
-  options(warn=-1)
-  gfs_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input"),
-                                        pattern = "xml$",
-                                        full.names = TRUE,
-                                        recursive = TRUE) |>
-    as_tibble() |>
-    mutate(ref_area = str_sub(value,-21,-20),
-           update = as.numeric(str_sub(value,-16,-5))) |>
-    filter(ref_area %in% country) |>
-    group_by(ref_area) |>
-    arrange(update,.by_group = TRUE) |>
-    slice_tail(n=1) |>
-    ungroup() |>
-    select(value) |>
-    pull(value)
+  # 2. Identify latest GFS XML Files
+  cli::cli_progress_message("Locating latest GFS XML files...")
+  base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input")
 
-  read_gfs_files <- function(file){
-    gfs_data <- read_sdmx(file) |>
+  gfs_files <- list.files(path = base_path, pattern = "\\.xml$", full.names = TRUE, recursive = TRUE) |>
+    tibble::enframe(name = NULL, value = "path") |>
+    dplyr::mutate(
+      file_name = basename(path),
+      # Extract 2-letter country code from filename
+      file_ref_area = stringr::str_extract(file_name, "(?<=_)[A-Z]{2}(?=_)"),
+      # Extract 12-14 digit timestamp
+      update_ts = as.numeric(stringr::str_extract(file_name, "\\d{12,14}"))
+    ) |>
+    dplyr::filter(file_ref_area %in% country) |>
+    dplyr::group_by(file_ref_area) |>
+    dplyr::slice_max(update_ts, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup() |>
+    dplyr::pull(path)
+
+  # 3. Read GFS Data
+  read_gfs <- function(file) {
+    readsdmx::read_sdmx(file) |>
       janitor::clean_names() |>
-      filter(adjustment == "N") |>
-      select(ref_area,ref_sector,sto,accounting_entry,time_period,gfs = obs_value) |>
-      mutate(gfs = as.numeric(gfs)) |>
-      distinct()
+      dplyr::filter(adjustment == "N") |>
+      dplyr::transmute(
+        ref_area, ref_sector, sto, accounting_entry, time_period,
+        gfs = as.numeric(obs_value)
+      ) |>
+      dplyr::distinct()
   }
 
-  gfs_data <- map(gfs_files,read_gfs_files) |>
-    list_rbind()
+  gfs_data <- purrr::map(gfs_files, read_gfs) |> dplyr::bind_rows()
 
-  gfs_nfsa <- full_join(gfs_data, nfsa_data,by = join_by(ref_area, ref_sector, sto, accounting_entry,
-                                                         time_period)) |>
-    na.omit() |>
-    mutate(diff = round(nfsa-gfs,2)) |>
-    filter(abs(diff)> threshold)
+  # 4. Join and Logic
+  # We join and filter out rows that don't exist in BOTH datasets (consistency check)
+  gfs_nfsa <- dplyr::inner_join(gfs_data, nfsa_data,
+                                by = c("ref_area", "ref_sector", "sto", "accounting_entry", "time_period")) |>
+    dplyr::mutate(diff = round(nfsa - gfs, 2)) |>
+    dplyr::filter(abs(diff) > threshold)
 
-  tmp <- nfsa_data |>
-    filter(sto == "B1GQ") |>
-    select(ref_area,time_period,gdp=nfsa)
+  # GDP Lookup from NFSA (using B1GQ)
+  gdp_lookup <- nfsa_data |>
+    dplyr::filter(sto == "B1GQ") |>
+    dplyr::select(ref_area, time_period, gdp = nfsa)
 
-  gfs_nfsa <- left_join(gfs_nfsa,tmp, by = join_by(ref_area, time_period)) |>
-    mutate(as_GDP = round(diff*100/gdp,3)) |>
-    #select(-gdp) |>
-    mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE)) |>
-    mutate(validate = ifelse(threshold == TRUE &
-                               sto == "B9" &
-                               time_period>= limit_validation,
-                             "NOT VALIDATED",""))
+  gfs_nfsa <- gfs_nfsa |>
+    dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
+    dplyr::mutate(
+      as_gdp = round(diff * 100 / gdp, 3),
+      high_diff = abs(as_gdp) > 0.3,
+      # GFS validation usually focuses on B9 (Net Lending/Borrowing)
+      validate = dplyr::if_else(high_diff & sto == "B9" & time_period >= limit_validation,
+                                "NOT VALIDATED", "OK")
+    )
 
-
-
+  # 5. Reporting
   if (nrow(gfs_nfsa) == 0) {
     cli::cli_alert_success("T0801 and GFS fully consistent!")
-
+    return(NULL)
   }
 
-  if (length(unique(gfs_nfsa$ref_area)) == 1) {
-    openxlsx::write.xlsx(gfs_nfsa,
-                         file = paste0(output_sel,"/T0801_GFS_",unique(gfs_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
+  # Console Summary Table
+  summary_stats <- gfs_nfsa |>
+    dplyr::group_by(ref_area) |>
+    dplyr::summarise(
+      total_flags = n(),
+      b9_not_validated = sum(validate == "NOT VALIDATED"),
+      .groups = "drop"
+    )
 
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_GFS_",unique(gfs_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_h1("GFS vs QSA Consistency Summary")
+  print(summary_stats)
 
-  }
+  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  unique_areas <- unique(gfs_nfsa$ref_area)
+  country_tag <- if(length(unique_areas) == 1) unique_areas else "Multi"
+  file_out <- file.path(output_sel, paste0("T0801_GFS_", country_tag, "_", ts, ".xlsx"))
 
-  if (length(unique(gfs_nfsa$ref_area)) > 1) {
-    openxlsx::write.xlsx(gfs_nfsa,
-                         file = paste0(output_sel,"/T0801_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
+  openxlsx::write.xlsx(gfs_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
+  cli::cli_alert_success("Validation report created: {.file {file_out}}")
 
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-  }
-  options(warn=0)
   return(gfs_nfsa)
 }
 

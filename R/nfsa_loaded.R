@@ -28,101 +28,96 @@
 #' }
 #' @export
 nfsa_loaded <- function(time_min,
-                        time_max = lubridate::ymd(lubridate::today()),
-                        output_sel = here("output", "logs"),
-                        recursive = FALSE){
+                        time_max = lubridate::today(),
+                        output_sel = here::here("output", "logs"),
+                        recursive = FALSE) {
 
-  library(tidyverse)
-  library(cli)
-  library(here)
+  # 1. Setup Fields & Pattern
+  fields <- c("nameproc", "InputFile", "CheckFile", "TypeOfFile", "TypeOfSer",
+              "tableL", "freqL", "adjustL", "countryL", "CP_Area",
+              "Ref_Sector", "Sto", "instr_assetsL", "unitL", "nb_series", "feedRC")
+  search_pattern <- paste0("(", paste(fields, collapse = "|"), ") =")
 
-  read_loaded_log <- function(file){
-    tmp <- read_lines(file) |>
-      enframe() |>
-      select(-name) |>
-      filter(str_detect(value, "nameproc =")|
-               str_detect(value, "InputFile =")|
-               str_detect(value, "CheckFile =")|
-               str_detect(value, "TypeOfFile =")|
-               str_detect(value, "TypeOfSer =")|
-               str_detect(value, "tableL =")|
-               str_detect(value, "freqL =")|
-               str_detect(value, "adjustL =")|
-               str_detect(value, "countryL =")|
-               str_detect(value, "CP_Area =")|
-               str_detect(value, "Ref_Sector =")|
-               str_detect(value, "Sto =")|
-               str_detect(value, "instr_assetsL =")|
-               str_detect(value, "unitL =")|
-               str_detect(value, "nb_series =")|
-               str_detect(value, "feedRC="))
-    return(tmp)
+  # 2. Define a Robust Reader
+  # 'safely' ensures that if a file fails, it returns NULL instead of an error
+  safe_read <- purrr::safely(function(file) {
+    readr::read_lines(file) |>
+      tibble::enframe(name = NULL) |>
+      dplyr::filter(stringr::str_detect(value, search_pattern))
+  })
+
+  cli::cli_inform("Scanning server for log files...")
+
+  # 3. Filter files by date FIRST
+  all_files <- list.files("I:/econ/NFSA/LOG/", pattern = ".*txt$",
+                          full.names = TRUE, recursive = recursive)
+
+  loaded_files <- tibble::tibble(file = all_files) |>
+    dplyr::mutate(file_date = lubridate::ymd_hm(stringr::str_sub(file, -14, -5))) |>
+    dplyr::filter(file_date >= time_min, file_date <= time_max)
+
+  if (nrow(loaded_files) == 0) {
+    cli::cli_alert_warning("No files found for the selected period!")
+    return(NULL)
   }
 
-  cli::cli_inform("Collecting files from server...")
+  cli::cli_inform("Processing {nrow(loaded_files)} files...")
 
-  loaded <- list.files("I:/econ/NFSA/LOG/",
-                       pattern = ".*txt$",
-                       full.names = TRUE,
-                       recursive = recursive) |>
-    as_tibble()
+  # 4. Apply the safe reader
+  # This creates a 'result' (the data) and an 'error' (the message if it failed)
+  processed_list <- purrr::map(loaded_files$file, safe_read)
 
+  # Check for errors and notify user
+  errors <- purrr::map(processed_list, "error")
+  failed_count <- sum(!purrr::map_lgl(errors, is.null))
 
-  if (nrow(loaded) == 0) {
-    cli::cli_alert_success("No files loaded on the period selected!")
-
-  } else {
-  cli::cli_inform("Processing files...")
-
-    loaded<- loaded |>
-      mutate(loaded = lubridate::ymd_hm(str_sub(value,-14,-5))) |>
-      filter(loaded >= time_min,
-             loaded <= time_max) |>
-      rename(file = value) |>
-      mutate(data = map(file,read_loaded_log)) |>
-      unnest(cols=c(data)) |>
-      mutate(value = str_remove_all(value,"0=OK 2=Warning 4=Rejection 5=Error"),
-             value = str_replace_all(value, "feedRC=", "feedRC = "),
-             value = str_replace_all(value, "\\(\\)","")) |>
-      #filter(!str_detect(value, "feedRC = 4 ")) |>
-      separate_wider_delim(cols = value,
-                           delim = " = ",
-                           names = c("field", "result")) |>
-      distinct() |>
-      pivot_wider(names_from = field,
-                  values_from = result) |>
-      janitor::clean_names() |>
-      select(country =country_l,
-             loaded,
-             input_file,
-             table =table_l,
-             type_of_series=type_of_ser,
-             check_file,
-             type_of_file,
-             freq = freq_l,
-             adjustment =adjust_l,
-             sto,
-             cp_area,
-             ref_sector,
-             instr_asset = instr_assets_l,
-             unit = unit_l,
-             nb_series,
-             result = feed_rc) |>
-      mutate(result = case_when(result == "0 " ~ "OK",
-                                result == "2 " ~ "Warning",
-                                result == "4 " ~ "Rejection",
-                                result == "5 " ~ "Error"))
-
-
-
-
-    openxlsx::write.xlsx(loaded,
-                         file = here(paste0(output_sel,"/loaded_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx")),
-                         overwrite = TRUE,
-                         asTable = TRUE)
-
-    cli::cli_alert_success(paste0("File created in output/logs/loaded_","_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  if (failed_count > 0) {
+    cli::cli_alert_danger("{failed_count} file(s) could not be read (they may be locked or corrupt).")
   }
 
-  return(loaded)
+  # 5. Extract successful results and clean
+  final_data <- loaded_files |>
+    dplyr::mutate(data = purrr::map(processed_list, "result")) |>
+    tidyr::unnest(data) |>
+    dplyr::mutate(
+      value = stringr::str_remove_all(value, "0=OK 2=Warning 4=Rejection 5=Error|\\(\\)"),
+      value = stringr::str_replace(value, "feedRC=", "feedRC = ")
+    ) |>
+    tidyr::separate_wider_delim(value, delim = " = ", names = c("field", "result"), too_many = "merge") |>
+    dplyr::mutate(result = stringr::str_trim(result)) |>
+    dplyr::distinct() |>
+    tidyr::pivot_wider(names_from = field, values_from = result) |>
+    janitor::clean_names() |>
+    dplyr::transmute(
+      country = country_l,
+      loaded = file_date,
+      input_file,
+      table = table_l,
+      type_of_series = type_of_ser,
+      check_file,
+      type_of_file,
+      freq = freq_l,
+      adjustment = adjust_l,
+      sto,
+      cp_area,
+      ref_sector,
+      instr_asset = instr_assets_l,
+      unit = unit_l,
+      nb_series,
+      result = dplyr::case_match(feed_rc,
+                                 "0" ~ "OK", "2" ~ "Warning",
+                                 "4" ~ "Rejection", "5" ~ "Error",
+                                 .default = feed_rc)
+    )
+
+  # 6. Export
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
+
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  file_out <- file.path(output_sel, paste0("loaded_", timestamp, ".xlsx"))
+
+  openxlsx::write.xlsx(final_data, file = file_out, overwrite = TRUE, asTable = TRUE)
+  cli::cli_alert_success("Log report created: {.file {file_out}}")
+
+  return(final_data)
 }

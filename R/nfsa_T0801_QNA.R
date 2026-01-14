@@ -31,94 +31,102 @@ nfsa_T0801_QNA <- function(country,
                            quarter,
                            threshold = 1,
                            input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-                           output_sel = here::here("output", "inter_domain")){
-  pacman::p_load(tidyverse,arrow,readxl,writexl,here,readsdmx)
-  options(warn=-1)
-  limit_validation <- paste0(as.numeric(str_sub(quarter,1,4)) -4,"-",str_sub(quarter,5,6))
+                           output_sel = here::here("output", "inter_domain")) {
 
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
 
-  cli::cli_progress_message("Collecting NFSA...")
-  nfsa_data <- nfsa_get_data(country = country,table = "T0801", type = "new") |>
-    select(ref_area,id,time_period,nfsa = obs_value)  |>
+  # Robust date logic
+  q_year <- as.numeric(stringr::str_extract(quarter, "^\\d{4}"))
+  q_sub  <- stringr::str_extract(quarter, "Q\\d{2}$")
+  limit_validation <- paste0(q_year - 4, "-", q_sub)
+
+  # 1. Collect NFSA Data
+  cli::cli_progress_message("Collecting NFSA (T0801)...")
+  nfsa_data <- nfsa_get_data(country = country, table = "T0801", type = "new") |>
+    dplyr::select(ref_area, id, time_period, nfsa = obs_value) |>
     nfsa::nfsa_separate_id()
 
-  ## NAMA -----
-  cli::cli_progress_message("Collecting QNA...")
+  # 2. Identify latest QNA XML Files
+  cli::cli_progress_message("Locating latest QNA XML files...")
+  base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input")
 
-  nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input"),
-                           pattern = "xml$",
-                           full.names = TRUE,
-                           recursive = TRUE) |>
-    as_tibble() |>
-    mutate(ref_area = str_sub(value,-32,-31),
-           update = as.numeric(str_sub(value,-18,-5))) |>
-    filter(ref_area %in% country) |>
-    group_by(ref_area) |>
-    arrange(update,.by_group = TRUE) |>
-    slice_tail(n=1) |>
-    ungroup() |>
-    select(value) |>
-    pull(value)
+  nama_files <- list.files(path = base_path, pattern = "\\.xml$", full.names = TRUE, recursive = TRUE) |>
+    tibble::enframe(name = NULL, value = "path") |>
+    dplyr::mutate(
+      file_name = basename(path),
+      file_ref_area = stringr::str_extract(file_name, "(?<=_)[A-Z]{2}(?=_)"),
+      update_ts = as.numeric(stringr::str_extract(file_name, "\\d{14}"))
+    ) |>
+    dplyr::filter(file_ref_area %in% country) |>
+    dplyr::group_by(file_ref_area) |>
+    dplyr::slice_max(update_ts, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup() |>
+    dplyr::pull(path)
 
-
-  read_nama_files <- function(file){
-    nama_data <- read_sdmx(file) |>
+  # 3. Read NAMA Data
+  read_nama <- function(file) {
+    readsdmx::read_sdmx(file) |>
       janitor::clean_names() |>
-      select(ref_area,ref_sector,sto,unit_measure,accounting_entry,counterpart_area,time_period,nama = obs_value) |>
-      mutate(accounting_entry = if_else(sto =="EMP" & unit_measure =="PS"& counterpart_area == "W2","PS",accounting_entry),
-             accounting_entry = if_else(sto =="EMP" & unit_measure =="HW"& counterpart_area == "W2","HW",accounting_entry)) |>
-      select(-unit_measure,-counterpart_area) |>
-      mutate(nama = as.numeric(nama)) |>
-      distinct()
-    return(nama_data)
+      dplyr::transmute(
+        ref_area, ref_sector, sto, accounting_entry, time_period,
+        accounting_entry = dplyr::case_when(
+          sto == "EMP" & unit_measure == "PS" & counterpart_area == "W2" ~ "PS",
+          sto == "EMP" & unit_measure == "HW" & counterpart_area == "W2" ~ "HW",
+          TRUE ~ accounting_entry
+        ),
+        nama = as.numeric(obs_value)
+      ) |>
+      dplyr::distinct()
   }
 
-  nama_data <- map(nama_files,read_nama_files) |>
-    list_rbind()
+  nama_data <- purrr::map(nama_files, read_nama) |> dplyr::bind_rows()
 
+  # 4. Join and Calculate Consistency
+  # Creating a GDP lookup ensures we don't lose rows if GDP is missing for some periods
+  gdp_lookup <- nama_data |>
+    dplyr::filter(ref_sector == "S1", sto == "B1GQ", accounting_entry == "B") |>
+    dplyr::select(ref_area, time_period, gdp = nama)
 
-  nama_nfsa <- full_join(nama_data, nfsa_data,by = join_by(ref_area, ref_sector, sto, accounting_entry,
-                                                           time_period)) |>
-    na.omit() |>
-    mutate(diff = round(nfsa-nama,2)) |>
-    group_by(ref_area,time_period) |>
-    mutate(as_GDP = round(diff*100/nama[ref_sector == "S1" & sto == "B1GQ" & accounting_entry == "B"],3)) |>
-    ungroup() |>
-    filter(abs(diff)>threshold) |>
-    mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE)) |>
-    mutate(validate = ifelse(threshold == TRUE &
-                               sto == "B1GQ" &
-                               time_period>= limit_validation,
-                             "NOT VALIDATED",""))
+  nama_nfsa <- dplyr::inner_join(nama_data, nfsa_data,
+                                 by = c("ref_area", "ref_sector", "sto", "accounting_entry", "time_period")) |>
+    dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
+    dplyr::mutate(
+      diff = round(nfsa - nama, 2),
+      as_gdp = round(diff * 100 / gdp, 3)
+    ) |>
+    dplyr::filter(abs(diff) > threshold) |>
+    dplyr::mutate(
+      high_diff = abs(as_gdp) > 0.3,
+      validate = dplyr::if_else(high_diff & sto == "B1GQ" & time_period >= limit_validation,
+                                "NOT VALIDATED", "OK")
+    )
 
-
-
+  # 5. Summary and Export
   if (nrow(nama_nfsa) == 0) {
-    cli::cli_alert_success("T0801 and QNA fully consistent!")
-
+    cli::cli_alert_success("T0801 and QNA are fully consistent!")
+    return(NULL)
   }
 
-  if (length(unique(nama_nfsa$ref_area)) == 1) {
-    openxlsx::write.xlsx(nama_nfsa,
-                         file = paste0(output_sel,"/T0801_QNA_",unique(nama_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
+  # --- New Summary Section ---
+  summary_stats <- nama_nfsa |>
+    dplyr::group_by(ref_area) |>
+    dplyr::summarise(
+      total_diffs = n(),
+      not_validated = sum(validate == "NOT VALIDATED"),
+      .groups = "drop"
+    )
 
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_QNA_",unique(nama_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_h1("Consistency Check Summary")
+  print(summary_stats)
+  # ---------------------------
 
-  }
+  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  country_tag <- if(length(unique(nama_nfsa$ref_area)) == 1) unique(nama_nfsa$ref_area) else "Multi"
+  file_out <- file.path(output_sel, paste0("T0801_QNA_", country_tag, "_", ts, ".xlsx"))
 
-  if (length(unique(nama_nfsa$ref_area)) > 1) {
-    openxlsx::write.xlsx(nama_nfsa,
-                         file = paste0(output_sel,"/T0801_QNA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
-
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_QNA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-  }
-  options(warn=0)
+  openxlsx::write.xlsx(nama_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
+  cli::cli_alert_success("Validation report created: {.file {file_out}}")
+  nfsa::nfsa_to_excel(nama_nfsa)
   return(nama_nfsa)
 }
-
-
 
