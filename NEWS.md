@@ -41,3 +41,7 @@
 * GFS SA now checked with internal files from dir D.
 * New function to convert euro fixed to euro.
 * New function to copy locally parquet files from server.
+
+# nfsa 0.0.9 dev
+* adding some code suggestions from Gemini
+* option to have revision of versions in sequence of accounts
