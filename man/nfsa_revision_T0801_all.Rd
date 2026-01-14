@@ -11,7 +11,7 @@ nfsa_revision_T0801_all(
 )
 }
 \arguments{
-\item{country}{A character string specifying the country code to filter the data.}
+\item{country}{A character string specifying the country code to filter the data.Only one country!}
 
 \item{input_sel}{A character string specifying the path to the directory containing the Parquet files.
 Defaults to \code{"M:/nas/Rprod/data/q/"}.}

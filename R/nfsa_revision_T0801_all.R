@@ -4,7 +4,7 @@
 #' comparing different versions of the data stored as Parquet files. It joins the data with a lookup table,
 #' calculates the changes between versions, and prepares the data for export to Excel.
 #'
-#' @param country A character string specifying the country code to filter the data.
+#' @param country A character string specifying the country code to filter the data.Only one country!
 #' @param input_sel A character string specifying the path to the directory containing the Parquet files.
 #'   Defaults to `"M:/nas/Rprod/data/q/"`.
 #' @param output_sel Path to the directory where the output Excel file containing the revisions will be saved. Defaults to `here("output", "revisions")`.
