@@ -128,7 +128,7 @@ nfsa_T0801_GFS <- function(country,
 
   openxlsx::write.xlsx(gfs_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
   cli::cli_alert_success("Validation report created: {.file {file_out}}")
-
+  nfsa::nfsa_to_excel(gfs_nama)
   return(gfs_nfsa)
 }
 

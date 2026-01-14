@@ -118,6 +118,6 @@ nfsa_loaded <- function(time_min,
 
   openxlsx::write.xlsx(final_data, file = file_out, overwrite = TRUE, asTable = TRUE)
   cli::cli_alert_success("Log report created: {.file {file_out}}")
-
+  nfsa::nfsa_to_excel(final_data)
   return(final_data)
 }
