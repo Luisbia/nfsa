@@ -23,16 +23,16 @@
 
 # nfsa 0.0.6
 
-* You can specify the staring quarter for nfsa_seas_levelx() functions
+* You can specify the starting quarter for nfsa_seas_levelx() functions
 * Better alignment of codes with the ones in the VR tool.
 * Fix missing / in the output of conf/obs status.
-* Internal consistency T0800/T0801 using Conval rules (whichj I think need to be reviewed!).
+* Internal consistency T0800/T0801 using Conval rules (which I think need to be reviewed!).
 * New functions to read (not from Famex!) and write excel templates. 
 
 
 # nfsa 0.0.7
 * Internal consistency T0800/T0801 now handles the case when transactions are missing.
-* Delete some not so useful functions (nfsa_transmissions,nfsa_completeness_regulation)
+* Delete some not so useful functions (nfsa_completeness_regulation)
 
 # nfsa 0.0.8
 * Default data directory is M:
