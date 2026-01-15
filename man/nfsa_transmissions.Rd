@@ -6,7 +6,7 @@
 \usage{
 nfsa_transmissions(
   time_min,
-  time_max = lubridate::ymd(lubridate::today()),
+  time_max = lubridate::now(),
   input_sel = "M:/nas/incoming_SDMX_files/",
   output_sel = here::here("output", "logs"),
   recursive = FALSE

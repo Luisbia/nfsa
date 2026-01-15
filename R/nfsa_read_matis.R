@@ -19,7 +19,7 @@
 #' }
 #'
 #' @export
-nfsa_read_matis_test <- function(file) {
+nfsa_read_matis <- function(file) {
 
   # 1. Read the data
   # Using col_types = cols(.default = "c") reads everything as character

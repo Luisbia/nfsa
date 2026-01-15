@@ -6,8 +6,8 @@
 \usage{
 nfsa_loaded(
   time_min,
-  time_max = lubridate::ymd(lubridate::today()),
-  output_sel = here("output", "logs"),
+  time_max = lubridate::today(),
+  output_sel = here::here("output", "logs"),
   recursive = FALSE
 )
 }
