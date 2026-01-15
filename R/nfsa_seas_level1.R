@@ -99,6 +99,7 @@ nfsa_seas_level1 <- function(country ,
                        overwrite = TRUE)
 
   cli::cli_inform(paste0("File created at ",output_sel,"/level1_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  nfsa::nfsa_to_excel(data)
   return(data)}
 
 }

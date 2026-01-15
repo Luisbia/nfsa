@@ -94,5 +94,6 @@ nfsa_validation <- function(time_min,
 
   }
   options(warn = 0)
+  nfsa_to_excel(validated)
   return(validated)
 }

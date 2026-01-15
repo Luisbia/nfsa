@@ -106,6 +106,7 @@ nfsa_revision_T0801SA <- function(country,
 
     cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801SA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
+  nfsa::nfsa_to_excel(new_prev_db)
   return(new_prev_db)
 }
 

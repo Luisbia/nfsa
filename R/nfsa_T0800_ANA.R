@@ -120,6 +120,7 @@ nfsa_T0800_ANA <- function(country,
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0800_ANA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
+  nfsa::nfsa_to_excel(nama_nfsa)
   return(nama_nfsa)
   options(warn=0)
 }

@@ -62,6 +62,7 @@ nfsa_negatives_T0801_T0801SA <- function(country,
                          asTable = TRUE)
     cli::cli_alert_success(paste0("File created in ",  output_sel, "/_T0801_T0801SA_negatives_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
-  return(check)
+  nfsa::nfsa_to_excel(check)
+    return(check)
 }
 

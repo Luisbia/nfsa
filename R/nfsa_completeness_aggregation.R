@@ -152,6 +152,7 @@ nfsa_completeness_aggregation <- function(country ,
                                     table, "_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
   }
+  nfsa::nfsa_to_excel(dat_missing)
   return(dat_missing)
 }
 

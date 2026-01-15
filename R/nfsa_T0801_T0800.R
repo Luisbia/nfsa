@@ -66,6 +66,7 @@ nfsa_T0801_T0800 <- function(country,
   asTable = TRUE)
 cli::cli_alert_success(paste0("File created in", paste0(output_sel,"/T0801_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx")))
   }
+  nfsa::nfsa_to_excel(qnfsa_anfsa)
   return(qnfsa_anfsa)
 }
 

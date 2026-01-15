@@ -104,7 +104,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
                                     ,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
 
-
+    nfsa::nfsa_to_excel(dat_missing)
   return(dat_missing)
 }
 

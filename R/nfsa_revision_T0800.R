@@ -125,5 +125,6 @@ if(length(unique(new_prev_db$ref_area)) > 1) {
 
   cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
+nfsa::nfsa_to_excel(new_prev_db)
 return(new_prev_db)
 }

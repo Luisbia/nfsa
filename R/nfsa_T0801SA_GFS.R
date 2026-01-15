@@ -104,6 +104,7 @@ nfsa_T0801SA_GFS <- function(country,
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801SA_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
   options(warn=0)
+  nfsa::nfsa_to_excel(gfs_nama)
   return(gfs_nfsa)
 }
 

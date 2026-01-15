@@ -87,7 +87,7 @@ nfsa_sequence_T0801 <- function(country,
 
 
     if(length(country) == 1) {
-      saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
@@ -143,13 +143,13 @@ nfsa_sequence_T0801 <- function(country,
     writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
     if(length(country) == 1) {
-      saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
 
     if(length(country) > 1) {
-      saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      saveWorkbook(wb, file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }

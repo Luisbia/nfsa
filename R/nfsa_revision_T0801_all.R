@@ -70,5 +70,6 @@ if(length(unique(revisions$ref_area)) > 1) {
 
   cli::cli_alert_success(paste0("File created in ",output_sel,"/revisions_T0801_all_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
+nfsa::nfsa_to_excel(revisions)
   return(revisions)
 }
