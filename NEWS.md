@@ -47,3 +47,4 @@
 * option to have revision of versions in sequence of accounts
 * new function to delete content of output folders
 * most output sent to temporary excel files on the screen to avoid searching for files
+* new function to plot together T0801/BÔP

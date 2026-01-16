@@ -2,7 +2,7 @@
 % Please edit documentation in R/nfsa_seas_level2.R
 \name{nfsa_seas_level2}
 \alias{nfsa_seas_level2}
-\title{Perform Level 3 Seasonal Adjustment Validation for Eurostat Data}
+\title{Perform Level 2 Seasonal Adjustment Validation for Eurostat Data}
 \usage{
 nfsa_seas_level2(
   series = here("assets", "seas_level1.xlsx"),
@@ -44,7 +44,7 @@ This function does not explicitly return a value.  It generates
 Quarto dashboard reports and saves them to the \code{output_sel} directory.
 }
 \description{
-This function performs Level 3 seasonal adjustment validation on Eurostat
+This function performs Level 2 seasonal adjustment validation on Eurostat
 data. It retrieves data, joins NSA and SCA series, and generates validation
 reports using a Quarto dashboard.
 }

@@ -5,7 +5,7 @@
 \title{Get NFSA Data}
 \usage{
 nfsa_get_data(
-  input_sel = "M:/nas/Rprod/data",
+  input_sel = "M:/nas/Rprod/data/",
   country,
   table = "T0801",
   type = "new",

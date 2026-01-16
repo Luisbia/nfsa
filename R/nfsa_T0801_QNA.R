@@ -106,18 +106,6 @@ nfsa_T0801_QNA <- function(country,
     cli::cli_alert_success("T0801 and QNA are fully consistent!")
     return(NULL)
   }
-
-  # --- New Summary Section ---
-  summary_stats <- nama_nfsa |>
-    dplyr::group_by(ref_area) |>
-    dplyr::summarise(
-      total_diffs = n(),
-      not_validated = sum(validate == "NOT VALIDATED"),
-      .groups = "drop"
-    )
-
-  cli::cli_h1("Consistency Check Summary")
-  print(summary_stats)
   # ---------------------------
 
   ts <- format(Sys.time(), "%Y%m%d_%H%M%S")

@@ -109,17 +109,6 @@ nfsa_T0801_GFS <- function(country,
     return(NULL)
   }
 
-  # Console Summary Table
-  summary_stats <- gfs_nfsa |>
-    dplyr::group_by(ref_area) |>
-    dplyr::summarise(
-      total_flags = n(),
-      b9_not_validated = sum(validate == "NOT VALIDATED"),
-      .groups = "drop"
-    )
-
-  cli::cli_h1("GFS vs QSA Consistency Summary")
-  print(summary_stats)
 
   ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
   unique_areas <- unique(gfs_nfsa$ref_area)
@@ -128,7 +117,7 @@ nfsa_T0801_GFS <- function(country,
 
   openxlsx::write.xlsx(gfs_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
   cli::cli_alert_success("Validation report created: {.file {file_out}}")
-  nfsa::nfsa_to_excel(gfs_nama)
+  nfsa::nfsa_to_excel(gfs_nfsa)
   return(gfs_nfsa)
 }
 
