@@ -1,5 +1,4 @@
 #' @title Analyze and Report Observation Status
-#'
 #' @description This function analyzes observation status data from NFSA datasets,
 #'   aggregates it by country, statistical object (STO), and time period, and
 #'   writes the results to an Excel file. It supports both annual (T0800) and
@@ -37,304 +36,79 @@
 nfsa_obs_status <- function(table = "T0801",
                             type = "new",
                             input_sel = "M:/nas/Rprod/data/",
-                            output_sel = here::here("output", "flags")){
+                            output_sel = here::here("output", "flags")) {
 
-  library(tidyverse)
-  library(openxlsx)
-  library(arrow)
+  # 1. Validation and Path Setup -------------------------------------------
+  # Map inputs to specific path segments and logic
+  path_map <- list(
+    "T0800"   = list(sub = "/a/", freq_code = "_A_", date_min = 1995, time_col = "year"),
+    "T0801"   = list(sub = "/q/", freq_code = "_Q_", date_min = "1999-Q1", time_col = "quarter"),
+    "T0801SA" = list(sub = "/q/", freq_code = "_Q_", date_min = "1999-Q1", time_col = "quarter")
+  )
 
-  lookup <- nfsa::nfsa_sto_lookup
-  tst <- paste0(table,type)
+  if (!table %in% names(path_map)) stop("Invalid table selection.")
+  cfg <- path_map[[table]]
 
-  ###T0800----
-  if (tst == "T0800new"){
-    obs_status<- list.files(path = paste0(input_sel,"/a/new/"),
-                                 recursive = FALSE,
-                                 full.names = TRUE) |>
-    as_tibble() |>
-    mutate(version = as.numeric(str_extract(value, "(?<=_A_..............).{4}")),
-           country = str_extract(value, "(?<=_A_)..")) |>
-    group_by(country) |>
-    arrange(version) |>
-    slice_tail(n=1) |>
-    pull(value) |>
-    open_dataset() |>
-    select(-embargo_date,-received) |>
-    collect() %>%
-    left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                    consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_status) |>
-      filter(time_period >= 1995)
+  # Determine sub-directory for SA (Seasonally Adjusted) vs NSA
+  adj_path <- if (table == "T0801SA") "sca/" else if (table == "T0801") "nsa/" else ""
+  full_input_path <- file.path(input_sel, cfg$sub, type, adj_path)
 
-  obs_status_country <- obs_status|>
-    group_by(ref_area,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
+  # 2. File Selection Logic ------------------------------------------------
+  # Find the latest version per country
+  target_files <- list.files(path = full_input_path, full.names = TRUE) |>
+    tibble::as_tibble() |>
+    dplyr::mutate(
+      version = as.numeric(stringr::str_extract(value, paste0("(?<=", cfg$freq_code, "..............).{4}"))),
+      country = stringr::str_extract(value, paste0("(?<=", cfg$freq_code, ").."))
+    ) |>
+    dplyr::group_by(country) |>
+    dplyr::slice_max(version, n = 1) |>
+    dplyr::pull(value)
 
-  obs_status_sto <- obs_status|>
-    group_by(id,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  obs_status_year <- obs_status|>
-    group_by(time_period,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  l <- list(country = obs_status_country,
-            sto = obs_status_sto,
-            year= obs_status_year)
-
-
-
-  write.xlsx(l, file = paste0(output_sel,"/",
-                             as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"),
-             overwrite = TRUE)
-
-  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_new.xlsx"))
-
-  } else if (tst == "T0800prev"){
-  obs_status<- list.files(path = paste0(input_sel,"/a/prev/"),
-                          recursive = FALSE,
-                          full.names = TRUE) |>
-    as_tibble() |>
-    mutate(version = as.numeric(str_extract(value, "(?<=_A_..............).{4}")),
-           country = str_extract(value, "(?<=_A_)..")) |>
-    group_by(country) |>
-    arrange(version) |>
-    slice_tail(n=1) |>
-    pull(value) |>
-    open_dataset() |>
-    select(-embargo_date,-received) |>
-    collect() %>%
-    left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                    consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_status)|>
-    filter(time_period >= 1995)
-
-obs_status_country <- obs_status|>
-  group_by(ref_area,obs_status) |>
-  tally() |>
-  pivot_wider(names_from = obs_status,
-              values_from = n)
-
-obs_status_sto <- obs_status|>
-  group_by(id,obs_status) |>
-  tally() |>
-  pivot_wider(names_from = obs_status,
-              values_from = n)
-
-obs_status_year <- obs_status|>
-  group_by(time_period,obs_status) |>
-  tally() |>
-  pivot_wider(names_from = obs_status,
-              values_from = n)
-
-l <- list(country = obs_status_country,
-          sto = obs_status_sto,
-          year= obs_status_year)
-
-write.xlsx(l, file = paste0(output_sel,"/",
-                            as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_A_prev.xlsx"),
-           overwrite = TRUE)
-
-cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0800_prev.xlsx"))
-} else if  (tst == "T0801new"){
-  obs_status<- list.files(path = paste0(input_sel,"/q/new/nsa/"),
-                          recursive = FALSE,
-                          full.names = TRUE) |>
-    as_tibble() |>
-    mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-           country = str_extract(value, "(?<=_Q_)..")) |>
-    group_by(country) |>
-    arrange(version) |>
-    slice_tail(n=1) |>
-    pull(value) |>
-    open_dataset() |>
-    select(-embargo_date,-received) |>
-    collect() %>%
-    left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                    consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_status) |>
-    filter(time_period >= "1999-Q1")
-
-  obs_status_country <- obs_status|>
-    group_by(ref_area,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  obs_status_sto <- obs_status|>
-    group_by(id,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  obs_status_quarter <- obs_status|>
-    group_by(time_period,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  l <- list(country = obs_status_country,
-            sto = obs_status_sto,
-            quarter= obs_status_quarter)
-
-  write.xlsx(l, file = paste0(output_sel,"/",
-                              as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"),
-             overwrite = TRUE)
-
-  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_new.xlsx"))
-
-  } else if (tst == "T0801prev"){
-  obs_status<- list.files(path = paste0(input_sel,"/q/prev/nsa/"),
-                          recursive = FALSE,
-                          full.names = TRUE) |>
-    as_tibble() |>
-    mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-           country = str_extract(value, "(?<=_Q_)..")) |>
-    group_by(country) |>
-    arrange(version) |>
-    slice_tail(n=1) |>
-    pull(value) |>
-    open_dataset() |>
-    select(-embargo_date,-received) |>
-    collect() %>%
-    left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                    consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_status)|>
-    filter(time_period >= "1999-Q1")
-
-  obs_status_country <- obs_status|>
-    group_by(ref_area,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  obs_status_sto <- obs_status|>
-    group_by(id,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  obs_status_quarter <- obs_status|>
-    group_by(time_period,obs_status) |>
-    tally() |>
-    pivot_wider(names_from = obs_status,
-                values_from = n)
-
-  l <- list(country = obs_status_country,
-            sto = obs_status_sto,
-            quarter= obs_status_quarter)
-
-  write.xlsx(l, file = paste0(output_sel,"/",
-                              as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"),
-             overwrite = TRUE)
-
-  cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801_prev.xlsx"))
-  } else if  (tst == "T0801SAnew"){
-    obs_status<- list.files(path = paste0(input_sel,"/q/new/sca/"),
-                            recursive = FALSE,
-                            full.names = TRUE) |>
-      as_tibble() |>
-      mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-             country = str_extract(value, "(?<=_Q_)..")) |>
-      group_by(country) |>
-      arrange(version) |>
-      slice_tail(n=1) |>
-      pull(value) |>
-      open_dataset() |>
-      select(-embargo_date,-received) |>
-      collect() %>%
-      left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                      consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-      na.omit() |>
-      select(ref_area,id,time_period,obs_status) |>
-      filter(time_period >= "1999-Q1")
-
-    obs_status_country <- obs_status|>
-      group_by(ref_area,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    obs_status_sto <- obs_status|>
-      group_by(id,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    obs_status_quarter <- obs_status|>
-      group_by(time_period,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    l <- list(country = obs_status_country,
-              sto = obs_status_sto,
-              year= obs_status_quarter)
-
-    write.xlsx(l, file = paste0(output_sel,"/",
-                                as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"),
-               overwrite = TRUE)
-
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_new.xlsx"))
-
-  } else if (tst == "T0801SAprev"){
-    obs_status<- list.files(path = paste0(input_sel,"/q/prev/sca/"),
-                            recursive = FALSE,
-                            full.names = TRUE) |>
-      as_tibble() |>
-      mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-             country = str_extract(value, "(?<=_Q_)..")) |>
-      group_by(country) |>
-      arrange(version) |>
-      slice_tail(n=1) |>
-      pull(value) |>
-      open_dataset() |>
-      select(-embargo_date,-received) |>
-      collect() %>%
-      left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
-                                      consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-      na.omit() |>
-      select(ref_area,id,time_period,obs_status)|>
-      filter(time_period >= "1999-Q1")
-
-    obs_status_country <- obs_status|>
-      group_by(ref_area,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    obs_status_sto <- obs_status|>
-      group_by(id,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    obs_status_quarter <- obs_status|>
-      group_by(time_period,obs_status) |>
-      tally() |>
-      pivot_wider(names_from = obs_status,
-                  values_from = n)
-
-    l <- list(country = obs_status_country,
-              sto = obs_status_sto,
-              year= obs_status_quarter)
-
-    write.xlsx(l, file = paste0(output_sel,"/",
-                                as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"),
-               overwrite = TRUE)
-
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_obs_status_T0801SA_prev.xlsx"))
+  if (length(target_files) == 0) {
+    cli::cli_alert_danger("No files found in the specified path.")
+    return(NULL)
   }
-  return(l)
+
+  # 3. Data Processing -----------------------------------------------------
+  lookup <- nfsa::nfsa_sto_lookup
+
+  obs_status_raw <- arrow::open_dataset(target_files) |>
+    dplyr::select(-embargo_date, -received) |>
+    dplyr::collect() |>
+    dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
+                                    "consolidation", "accounting_entry", "sto",
+                                    "instr_asset", "unit_measure", "prices")) |>
+    dplyr::filter(time_period >= cfg$date_min)
+
+  if (table == "T0801SA") obs_status_raw <- tidyr::drop_na(obs_status_raw)
+
+  # 4. Aggregation Helper --------------------------------------------------
+  # Local function to avoid repeating the group/tally/pivot logic
+  get_tally <- function(data, group_var) {
+    data |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(group_var)), obs_status) |>
+      dplyr::tally() |>
+      tidyr::pivot_wider(names_from = obs_status, values_from = n)
+  }
+
+  results_list <- list(
+    country = get_tally(obs_status_raw, "ref_area"),
+    sto     = get_tally(obs_status_raw, "id")
+  )
+  # Add the time-based sheet (named 'year' or 'quarter' dynamically)
+  results_list[[cfg$time_col]] <- get_tally(obs_status_raw, "time_period")
+
+  # 5. Output --------------------------------------------------------------
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  file_name <- paste0(timestamp, "_obs_status_", table, "_", type, ".xlsx")
+  out_path <- file.path(output_sel, file_name)
+
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
+
+  openxlsx::write.xlsx(results_list, file = out_path, overwrite = TRUE)
+  cli::cli_alert_success("File created in {out_path}")
+
+  return(invisible(results_list))
 }
 

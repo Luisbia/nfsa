@@ -7,19 +7,26 @@
 nfsa_remove_output_files(path = here::here("output"))
 }
 \arguments{
-\item{path}{A character string representing the directory path.
-Defaults to the "output" folder in the project root using \code{here::here()}.}
+\item{path}{A character string. Defaults to \code{here::here("output")}.}
 }
 \value{
+Returns the input path invisibly.
+
 Returns the input path invisibly.
 }
 \description{
 This function scans a specified directory recursively and deletes all files
 found, while leaving the subfolder hierarchy intact. It provides a summary
 of the number of files deleted and the total disk space cleared.
+
+Scans a directory recursively and deletes all files while preserving
+folder structure. Includes a safety prompt showing the file count
+and total size before execution.
 }
 \examples{
 \dontrun{
 nfsa_remove_output_files("output/plots")
 }
+Remove files from a directory with user confirmation
+
 }

@@ -1,6 +1,6 @@
-#' Perform Level 3 Seasonal Adjustment Validation for Eurostat Data
+#' Perform Level 2 Seasonal Adjustment Validation for Eurostat Data
 #'
-#' This function performs Level 3 seasonal adjustment validation on Eurostat
+#' This function performs Level 2 seasonal adjustment validation on Eurostat
 #' data. It retrieves data, joins NSA and SCA series, and generates validation
 #' reports using a Quarto dashboard.
 #'

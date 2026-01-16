@@ -4,7 +4,12 @@
 \alias{nfsa_get_data_all}
 \title{Get NFSA Data}
 \usage{
-nfsa_get_data_all(input_sel = "M:/nas/Rprod/data/", country, table = "T0801")
+nfsa_get_data_all(
+  input_sel = "M:/nas/Rprod/data/",
+  country,
+  table = "T0801",
+  filters = NULL
+)
 }
 \arguments{
 \item{input_sel}{Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data")}.}
@@ -12,6 +17,8 @@ nfsa_get_data_all(input_sel = "M:/nas/Rprod/data/", country, table = "T0801")
 \item{country}{Character vector specifying the country or countries to retrieve data for.}
 
 \item{table}{Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").}
+
+\item{filters}{one or several filters to be applied before collecting the data using all columns in the original parquet files}
 }
 \value{
 A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
@@ -25,6 +32,10 @@ This function retrieves data from the NFSA database based on specified criteria.
 # Assuming you have data stored in a directory accessible via here("data")
 # and you want to retrieve the newest version of table T0801 for "IT":
 # data <- nfsa_get_data_all(country = "IT", table = "T0801")
+Single filter
+data <- nfsa_get_data_all(country = "IT", filters = "ref_sector == 'S13'")
+Multiple filters
+data <- nfsa_get_data_all(country = "IT", filters = c("ref_sector == 'S13'","sto == 'B9'"))
 }
 
 }

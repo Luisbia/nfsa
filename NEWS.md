@@ -45,3 +45,5 @@
 # nfsa 0.0.9 dev
 * adding some code suggestions from Gemini
 * option to have revision of versions in sequence of accounts
+* new function to delete content of output folders
+* most output sent to temporary excel files on the screen to avoid searching for files
