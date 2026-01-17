@@ -171,7 +171,7 @@ l <- list(REC_S1 = rec_s1,
 write.xlsx(l, file = paste0(output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_BOP_EUI_input.xlsx"),
            overwrite = TRUE)
 
-print(paste0("File created at: ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_BOP_EUI_input.xlsx"))
+cli::cli_alert_success("File created at: {output_sel}/{as.character(format(Sys.time(), '%Y%m%d_%H%M%S'))}_BOP_EUI_input.xlsx")
 return(l)
 }
 
