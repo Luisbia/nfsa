@@ -114,7 +114,7 @@ if(area == "EA20"){
       tally() |>
       filter(n<3) |>
       unite("quarter_sel",c(year,quarter),sep="") |>
-      filter(quarter == quarter)
+      filter(quarter_sel == quarter)
 
     if (nrow(check) > 0) {
 
