@@ -38,6 +38,14 @@ nfsa_revision_T0800 <- function(country,
                                 abs_threshold = 100,
                                 rel_threshold = 0,
                                 output_sel = here::here("output", "revisions")) {
+
+  # Deprecation warning
+  lifecycle::deprecate_soft(
+    when = "0.2.0",
+    what = "nfsa_revision_T0800()",
+    with = "nfsa_revision(table = 'T0800')"
+  )
+
   nfsa_revision(
     country = country,
     table = "T0800",

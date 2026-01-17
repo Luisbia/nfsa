@@ -39,6 +39,14 @@ nfsa_revision_T0801SA_all <- function(country,
                                       input_sel = "M:/nas/Rprod/data/",
                                       output_sel = here::here("output", "revisions"),
                                       ...) {
+
+  # Deprecation warning
+  lifecycle::deprecate_soft(
+    when = "0.2.0",
+    what = "nfsa_revision_T0801SA_all()",
+    with = "nfsa_revision_all(table = 'T0801SA')"
+  )
+
   nfsa_revision_all(
     country = country,
     table = "T0801SA",

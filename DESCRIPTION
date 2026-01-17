@@ -18,6 +18,7 @@ Imports:
     ggthemes,
     here,
     janitor,
+    lifecycle,
     lubridate,
     openxlsx,
     purrr,
