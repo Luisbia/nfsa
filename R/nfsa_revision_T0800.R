@@ -48,7 +48,6 @@ nfsa_revision_T0800 <- function(country,
                                 abs_threshold = 100,
                                 rel_threshold = 0,
                                 output_sel = here("output", "revisions")){
-  pacman::p_load(tidyverse,arrow, here,openxlsx, readxl)
   lookup <- nfsa::nfsa_sto_lookup
 
 new_db <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "new") |>
