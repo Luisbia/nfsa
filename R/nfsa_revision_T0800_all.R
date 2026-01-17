@@ -4,6 +4,9 @@
 #' comparing different versions of the data stored as Parquet files. It joins the data with a lookup table,
 #' calculates the changes between versions, and prepares the data for export to Excel.
 #'
+#' This is a wrapper around `nfsa_revision_all()` for backward compatibility.
+#' Consider using `nfsa_revision_all(table = "T0800")` directly.
+#'
 #' @param country A character string specifying the country code to filter the data.
 #' @param input_sel A character string specifying the path to the directory containing the Parquet files.
 #'   Defaults to `"M:/nas/Rprod/data/"`.
@@ -36,53 +39,11 @@ nfsa_revision_T0800_all <- function(country,
                                     input_sel = "M:/nas/Rprod/data/",
                                     output_sel = here::here("output", "revisions"),
                                     ...) {
-
-  # Capture filters from ...
-  filters <- c(...)
-
-  # Get all versions of data using nfsa_get_data_all with filters
-  revisions <- nfsa_get_data_all(
-    input_sel = input_sel,
+  nfsa_revision_all(
     country = country,
     table = "T0800",
-    filters = if (length(filters) > 0) filters else NULL
-  ) |>
-    dplyr::select(version, ref_area, id, time_period, obs_value) |>
-    dplyr::arrange(version) |>
-    dplyr::group_by(ref_area, id, time_period) |>
-    dplyr::mutate(change = obs_value - dplyr::lag(obs_value)) |>
-    tidyr::drop_na() |>
-    dplyr::filter(change != 0) |>
-    dplyr::ungroup() |>
-    dplyr::select(-obs_value) |>
-    nfsa::nfsa_separate_id() |>
-    tidyr::pivot_wider(names_from = version,
-                       values_from = change)
-
-  # Write output
-  if (nrow(revisions) > 0) {
-    if (length(unique(revisions$ref_area)) == 1) {
-      openxlsx::write.xlsx(revisions,
-                           file = paste0(output_sel, "/revisions_T0800_all_",
-                                         unique(revisions$ref_area), "_",
-                                         as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"),
-                           overwrite = TRUE,
-                           asTable = TRUE)
-
-      cli::cli_alert_success("File created in {output_sel}/revisions_T0800_all_{unique(revisions$ref_area)}_{as.character(format(Sys.time(), '%Y%m%d_%H%M%S'))}.xlsx")
-    } else {
-      openxlsx::write.xlsx(revisions,
-                           file = paste0(output_sel, "/revisions_T0800_all_",
-                                         as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"),
-                           overwrite = TRUE,
-                           asTable = TRUE)
-
-      cli::cli_alert_success("File created in {output_sel}/revisions_T0800_all_{as.character(format(Sys.time(), '%Y%m%d_%H%M%S'))}.xlsx")
-    }
-    nfsa::nfsa_to_excel(revisions)
-  } else {
-    cli::cli_alert_info("No revisions found for {country}")
-  }
-
-  return(revisions)
+    input_sel = input_sel,
+    output_sel = output_sel,
+    ...
+  )
 }
