@@ -30,12 +30,6 @@ nfsa_move_convert_T0801 <- function(country,
                                input_sel = "M:/nas/Incoming_SDMX_files/",
                                output_sel = "M:/nas/Rprod/data/q/new/nsa/"){
 
-  library(tidyverse)
-  library(readsdmx)
-  library(cli)
-  library(arrow)
-  library(here)
-
   cli::cli_inform("Looking for files in the server...")
   file <- list.files(path  = input_sel,
                     pattern = paste0("NASEC_T0801_Q_",country,"_",yearquarter),

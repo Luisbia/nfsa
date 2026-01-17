@@ -26,24 +26,20 @@ nfsa_negatives_zeroes <- function(table = "T0801",
                                   time_min = "1999-Q1",
                                   output_sel = here::here("output", "negatives_zeroes")) {
 
-  library(tidyverse)
-  library(openxlsx)
-  library(here)
-
   if(table == "T0801"){
     zero_negatives <- nfsa::nfsa_get_data(country = country,
                                           table = "T0801",
                                           type = "new") |>
-      filter(time_period >= time_min,
+      dplyr::filter(time_period >= time_min,
              obs_value <=0) |>
       nfsa::nfsa_separate_id() |>
-      filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
+      dplyr::filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
 
 
     zero_negatives_id <- zero_negatives |>
-      mutate(type = if_else(obs_value<0, "negative", "zero")) |>
-      group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
-      tally()
+      dplyr::mutate(type = dplyr::if_else(obs_value<0, "negative", "zero")) |>
+      dplyr::group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
+      dplyr::tally()
 
 
     l <- list(raw_data = zero_negatives,
@@ -51,7 +47,7 @@ nfsa_negatives_zeroes <- function(table = "T0801",
 
 
 
-    write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801.xlsx"),
+    openxlsx::write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801.xlsx"),
                overwrite = TRUE)
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801.xlsx"))
@@ -61,22 +57,22 @@ nfsa_negatives_zeroes <- function(table = "T0801",
     zero_negatives <- nfsa::nfsa_get_data(country = country,
                                           table = "T0800",
                                           type = "new") |>
-      filter(time_period >= time_min,
+      dplyr::filter(time_period >= time_min,
              obs_value <=0) |>
       nfsa::nfsa_separate_id() |>
-      filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
+      dplyr::filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
 
 
     zero_negatives_id <- zero_negatives |>
-      mutate(type = if_else(obs_value<0, "negative", "zero")) |>
-      group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
-      tally()
+      dplyr::mutate(type = dplyr::if_else(obs_value<0, "negative", "zero")) |>
+      dplyr::group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
+      dplyr::tally()
 
 
     l <- list(raw_data = zero_negatives,
               analysis = zero_negatives_id)
 
-    write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0800.xlsx"),
+    openxlsx::write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0800.xlsx"),
                overwrite = TRUE)
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0800.xlsx"))
@@ -86,22 +82,22 @@ nfsa_negatives_zeroes <- function(table = "T0801",
     zero_negatives <- nfsa::nfsa_get_data(country = country,
                                           table = "T0801SA",
                                           type = "new") |>
-      filter(time_period >= time_min,
+      dplyr::filter(time_period >= time_min,
              obs_value <=0) |>
       nfsa::nfsa_separate_id() |>
-      filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
+      dplyr::filter(!sto %in% c("B9", "NP", "B101", "D43", "P5M", "B9X9F", "B11", "B12"))
 
 
     zero_negatives_id <- zero_negatives |>
-      mutate(type = if_else(obs_value<0, "negative", "zero")) |>
-      group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
-      tally()
+      dplyr::mutate(type = dplyr::if_else(obs_value<0, "negative", "zero")) |>
+      dplyr::group_by(ref_area,ref_sector,sto,accounting_entry,type) |>
+      dplyr::tally()
 
 
     l <- list(raw_data = zero_negatives,
               analysis = zero_negatives_id)
 
-    write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801SA.xlsx"),
+    openxlsx::write.xlsx(l, file = paste0(output_sel,"/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801SA.xlsx"),
                overwrite = TRUE)
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_negatives_zeroes_T0801SA.xlsx"))

@@ -18,43 +18,39 @@
 #' @export
 nfsa_eurofixed_to_eur <- function(data, freq = "Q"){
 
-  library(restatapi)
-  library(tidyverse)
   if(freq == "Q"){
     erate <- restatapi::get_eurostat_data("ert_bil_conv_q",
                                           filters = list(statinfo = "AVG"),
                                           stringsAsFactors = FALSE) |>
-      select(ref_area=geo,time_period=time,erate = values) |>
-      as_tibble()
+      dplyr::select(ref_area=geo,time_period=time,erate = values) |>
+      tibble::as_tibble()
 
     tmp <- data |>
-      filter(str_detect(id,".PS|.HW"))
+      dplyr::filter(stringr::str_detect(id,".PS|.HW"))
 
-    data_eur <- left_join(data,erate, by = join_by(ref_area, time_period)) |>
-      mutate(obs_value = obs_value/erate) |>
-      select(-erate) |>
-    filter(!str_detect(id,".PS|.HW"))
+    data_eur <- dplyr::left_join(data,erate, by = dplyr::join_by(ref_area, time_period)) |>
+      dplyr::mutate(obs_value = obs_value/erate) |>
+      dplyr::select(-erate) |>
+      dplyr::filter(!stringr::str_detect(id,".PS|.HW"))
 
-    data_eur <- bind_rows(data_eur,tmp)
+    data_eur <- dplyr::bind_rows(data_eur,tmp)
   }
 else if (freq == "A"){
   erate <- restatapi::get_eurostat_data("ert_bil_conv_a",
                                         filters = list(statinfo = "AVG"),
                                         stringsAsFactors = FALSE) |>
-    select(ref_area = geo,time_period=time,erate = values)|>
-    as_tibble()
+    dplyr::select(ref_area = geo,time_period=time,erate = values)|>
+    tibble::as_tibble()
 
   tmp <- data |>
-    filter(str_detect(id,".PS|.HW"))
+    dplyr::filter(stringr::str_detect(id,".PS|.HW"))
 
-  data_eur <- left_join(data,erate, by = join_by(ref_area, time_period)) |>
-    mutate(obs_value = obs_value/erate) |>
-    select(-erate) |>
-    filter(!str_detect(id,".PS|.HW"))
+  data_eur <- dplyr::left_join(data,erate, by = dplyr::join_by(ref_area, time_period)) |>
+    dplyr::mutate(obs_value = obs_value/erate) |>
+    dplyr::select(-erate) |>
+    dplyr::filter(!stringr::str_detect(id,".PS|.HW"))
 
-  data_eur <- bind_rows(data_eur,tmp)
+  data_eur <- dplyr::bind_rows(data_eur,tmp)
 }
   return(data_eur)
   }
-
-

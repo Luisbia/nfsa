@@ -20,33 +20,25 @@
 #' }
 nfsa_q_plots_T0801_BOP <- function(country,
                                    quarter,
-                                   output_sel = here("output", "plots"),
+                                   output_sel = here::here("output", "plots"),
                                    time_min = "2015-Q1",
                                    my_theme = ggthemes::theme_fivethirtyeight(),
                                    my_colours = c("#B656BD","#208486", "#AF155C")){
 
-  library(here)
-  library(ggthemes)
-  library(tidyverse)
-  library(gridExtra)
-  library(nfsa)
-  library(lubridate)
-  library(readsdmx)
-
-  my_scale <- scale_color_manual(values = c("T0801" = my_colours[1],
+  my_scale <- ggplot2::scale_color_manual(values = c("T0801" = my_colours[1],
                                             "BOP" = my_colours[2],
                                             "T0801-BOP" = my_colours[3]))
 
   cli::cli_progress_message("Collecting data...")
 
   tmp_n <- nfsa::nfsa_get_data(country = country) |>
-    select(ref_area,id,time_period,obs_value) |>
+    dplyr::select(ref_area,id,time_period,obs_value) |>
     nfsa::nfsa_separate_id() |>
-    filter(ref_sector == "S2") |>
-    select(-ref_sector) |>
-    filter(obs_value != "NaN") |>
-    filter(time_period >= time_min) |>
-    mutate(source = "T0801",
+    dplyr::filter(ref_sector == "S2") |>
+    dplyr::select(-ref_sector) |>
+    dplyr::filter(obs_value != "NaN") |>
+    dplyr::filter(time_period >= time_min) |>
+    dplyr::mutate(source = "T0801",
            time_period = lubridate::yq(time_period))
 
 
@@ -55,56 +47,54 @@ nfsa_q_plots_T0801_BOP <- function(country,
                       pattern = paste0("_",country,"_"),
                       full.names = TRUE,
                       recursive = TRUE) |>
-    read_sdmx() |>
+    readsdmx::read_sdmx() |>
     janitor::clean_names() |>
-    filter(time_period >= time_min,
+    dplyr::filter(time_period >= time_min,
            counterpart_area == "W1" ) |>
-    select(ref_area,sto,accounting_entry,time_period,obs_value) |>
-    mutate(obs_value = as.numeric(obs_value),
+    dplyr::select(ref_area,sto,accounting_entry,time_period,obs_value) |>
+    dplyr::mutate(obs_value = as.numeric(obs_value),
            source = "BOP",
            time_period = lubridate::yq(time_period),) |>
-    filter(accounting_entry %in% c("C", "D", "B"))
+    dplyr::filter(accounting_entry %in% c("C", "D", "B"))
 
   if(nrow(tmp_y) == 0) stop(paste0("No BOP file ", country))
 
 
 
-  tmp <- bind_rows(tmp_n, tmp_y) %>%
-    pivot_wider(names_from = source,
+  tmp <- dplyr::bind_rows(tmp_n, tmp_y) %>%
+    tidyr::pivot_wider(names_from = source,
                 values_from = obs_value) |>
-    na.omit() |>
-    mutate(`T0801-BOP` = T0801 - BOP) |>
+    stats::na.omit() |>
+    dplyr::mutate(`T0801-BOP` = T0801 - BOP) |>
     #filter(abs(`T0801-BOP`)>5) |>
-    pivot_longer(cols = c(T0801,BOP,`T0801-BOP`),
+    tidyr::pivot_longer(cols = c(T0801,BOP,`T0801-BOP`),
                  names_to = "source",
                  values_to = "obs_value") |>
-    group_nest(ref_area,sto)
+    tidyr::nest(.by = c(ref_area,sto))
 
 
   cli::cli_progress_message("Creating charts...")
 
   charts <- tmp |>
-    transmute(chart= map2(data,sto, ~ggplot(.x)+
-                            geom_line(aes(time_period,obs_value, colour = source),linewidth = 0.65)+
-                            facet_wrap(~accounting_entry)+ #, scales="free_y"
+    dplyr::transmute(chart= purrr::map2(data,sto, ~ggplot2::ggplot(.x)+
+                            ggplot2::geom_line(ggplot2::aes(time_period,obs_value, colour = source),linewidth = 0.65)+
+                            ggplot2::facet_wrap(~accounting_entry)+ #, scales="free_y"
                             my_theme+
                             my_scale+
-                            scale_y_continuous(labels = scales::label_number(),position = "right")+
-                            ggtitle(paste0(.y))+
-                            ylab("")+ xlab("")+
-                            theme(axis.ticks.y = element_blank())
+                            ggplot2::scale_y_continuous(labels = scales::label_number(),position = "right")+
+                            ggplot2::ggtitle(paste0(.y))+
+                            ggplot2::ylab("")+ ggplot2::xlab("")+
+                            ggplot2::theme(axis.ticks.y = ggplot2::element_blank())
     )
     ) |>
-    deframe()
+    tibble::deframe()
 
   cli::cli_progress_message("Generating file...")
 
-  ggsave(
+  ggplot2::ggsave(
     filename = paste0(output_sel,"/", country,"_T0801_BOP.pdf"),
-    plot = marrangeGrob(charts, nrow=1, ncol=1),
+    plot = gridExtra::marrangeGrob(charts, nrow=1, ncol=1),
     width = 15, height = 9
   )
   cli::cli_alert_success(paste0("Charts created in ",output_sel,"/", country,"_T0801_BOP.pdf"))
 }
-
-

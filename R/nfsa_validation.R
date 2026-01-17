@@ -28,9 +28,6 @@ nfsa_validation <- function(time_min,
                             time_max = lubridate::ymd(lubridate::today()),
                             output_sel = here::here("output", "logs")){
 
-  library(tidyverse)
-  library(data.table)
-
   cli::cli_progress_message("Searching for files in the server...")
   validated <- list.files("I:/econ/NFSA/VALID/results/",
                           full.names = TRUE,

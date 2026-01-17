@@ -21,11 +21,6 @@
 #' @export
 nfsa_completeness_regulation_T0801SA <- function(country  ,
                                          output_sel = here::here("output", "completeness")) {
-  library(tidyverse)
-  library(readxl)
-  library(arrow)
-  library(openxlsx)
-  library(here)
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
@@ -35,57 +30,57 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
     req_time <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
-      open_dataset() |>
-      select(time_period) |>
-      filter(time_period>= "1999-Q1") |>
-      distinct() |>
-      collect()
+      arrow::open_dataset() |>
+      dplyr::select(time_period) |>
+      dplyr::filter(time_period>= "1999-Q1") |>
+      dplyr::distinct() |>
+      dplyr::collect()
 
     req_small <- req |>
-      filter(countries == "ALL") |>
-      select(-countries)  %>%
-      cross_join(.,data.frame(ref_area = small))
+      dplyr::filter(countries == "ALL") |>
+      dplyr::select(-countries)  %>%
+      tidyr::crossing(.,data.frame(ref_area = small))
 
     req_big <- req |>
-      select(-countries)  %>%
-      cross_join(.,data.frame(ref_area = big))
+      dplyr::select(-countries)  %>%
+      tidyr::crossing(.,data.frame(ref_area = big))
 
-    req <- bind_rows(req_small, req_big) |>
-      filter(ref_area %in% country)%>%
-      cross_join(., req_time)
+    req <- dplyr::bind_rows(req_small, req_big) |>
+      dplyr::filter(ref_area %in% country)%>%
+      tidyr::crossing(., req_time)
 
     rm(req_small,req_big, req_time)
 
     dat <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
                       pattern = ".parquet",
                       full.names = TRUE) |>
-      as_tibble() |>
-      mutate(
-        version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-        country_sel = str_extract(value, "(?<=_Q_)..")
+      tibble::as_tibble() |>
+      dplyr::mutate(
+        version = as.numeric(stringr::str_extract(value, "(?<=_Q_..............).{4}")),
+        country_sel = stringr::str_extract(value, "(?<=_Q_)..")
       ) |>
-      filter(country_sel %in% country) |>
-      group_by(country_sel) |>
-      arrange(version) |>
-      slice_tail(n = 1) |>
-      pull(value) |>
-      open_dataset() |>
-      select(-received, -embargo_date,-version) |>
-      filter(time_period >= "1999-Q1",
+      dplyr::filter(country_sel %in% country) |>
+      dplyr::group_by(country_sel) |>
+      dplyr::arrange(version) |>
+      dplyr::slice_tail(n = 1) |>
+      dplyr::pull(value) |>
+      arrow::open_dataset() |>
+      dplyr::select(-received, -embargo_date,-version) |>
+      dplyr::filter(time_period >= "1999-Q1",
              ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M")) |>
-      collect()  %>%
-      left_join(req,.,by = join_by(table_identifier, freq,
+      dplyr::collect()  %>%
+      dplyr::left_join(req,.,by = dplyr::join_by(table_identifier, freq,
                                    adjustment, counterpart_area, ref_sector,
                                    counterpart_sector, consolidation, accounting_entry,
                                    sto, instr_asset, maturity, expenditure,
                                    unit_measure, currency_denom, valuation, prices,
                                    transformation, cust_breakdown, ref_area,time_period)) %>%
-      select(ref_area,table_identifier,id,time_period,obs_value,obs_status) |>
+      dplyr::select(ref_area,table_identifier,id,time_period,obs_value,obs_status) |>
       nfsa_separate_id()
 
     dat_missing <- dat |>
-      filter(is.na(obs_value))|>
-      select(-obs_value)
+      dplyr::filter(is.na(obs_value))|>
+      dplyr::select(-obs_value)
 
 
     if (nrow(dat_missing) == 0) {
@@ -93,7 +88,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
     } else {
 
 
-      write.xlsx(dat_missing,
+      openxlsx::write.xlsx(dat_missing,
                  asTable = TRUE,
                  file = paste0(output_sel, "/completeness_regulation_T0801SA_",
                                as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
@@ -107,4 +102,3 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
     nfsa::nfsa_to_excel(dat_missing)
   return(dat_missing)
 }
-

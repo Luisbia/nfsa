@@ -25,9 +25,8 @@
 #'
 #' @export
 nfsa_unite_id <- function(data){
-  library(tidyr)
   tmp <- data |>
-    unite(col = "id",
+    tidyr::unite(col = "id",
           c(ref_sector,sto,accounting_entry),
           sep = ".")
 

@@ -22,13 +22,6 @@ nfsa_move_convert_T0801_QSA10 <- function(country,
                                           input_sel = "M:/nas/QSA10/Production/2025Q2/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files/",
                                           output_sel = "M:/nas/Rprod/data/q/new/nsa/"){
 
-  library(tidyverse)
-  library(readsdmx)
-  library(cli)
-  library(arrow)
-  library(here)
-
-
   files <- list.files(path  = input_sel,
                       pattern = paste0("NASEC_T0801_Q_",country),
                       full.names = TRUE) |>

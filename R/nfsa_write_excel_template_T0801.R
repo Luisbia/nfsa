@@ -64,32 +64,27 @@
 #'
 #' @export
 nfsa_write_excel_template_T0801 <- function(data,
-                                            template = here("assets","template_T0801.xlsx"),
-                                            output_sel = here("output","excel_template")) {
-
-  library(tidyverse)
-  library(here)
-  library(openxlsx)
+                                            template = here::here("assets","template_T0801.xlsx"),
+                                            output_sel = here::here("output","excel_template")) {
 
   country <- unique(data$ref_area)
   nfsa_data <- data |>
-    separate_wider_delim(cols = id,
+    tidyr::separate_wider_delim(cols = id,
                          delim = ".",
                          names = c("ref_sector", "sto", "accounting_entry")) |>
-    filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
+    dplyr::filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
            time_period >= "1999-Q1") |>
-    na.omit() |>
-    unite("id",c(ref_sector,sto,accounting_entry), sep = ".") |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_value) |>
-    mutate(time_period = str_remove(time_period,"-")) |>
-    unite("id",c(time_period,ref_area,id),sep = ".")
+    stats::na.omit() |>
+    tidyr::unite("id",c(ref_sector,sto,accounting_entry), sep = ".") |>
+    stats::na.omit() |>
+    dplyr::select(ref_area,id,time_period,obs_value) |>
+    dplyr::mutate(time_period = stringr::str_remove(time_period,"-")) |>
+    tidyr::unite("id",c(time_period,ref_area,id),sep = ".")
 
-  wb <- loadWorkbook(template)
-  writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+  wb <- openxlsx::loadWorkbook(template)
+  openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
-  saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 
   cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
-

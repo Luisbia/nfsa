@@ -28,29 +28,27 @@ nfsa_revision_T0800_all <- function(country,
                                     input_sel = "M:/nas/Rprod/data/a",
                                     output_sel = here::here("output", "revisions")){
 
-  library(arrow)
-  library(tidyverse)
   lookup <- nfsa::nfsa_sto_lookup
 
   revisions <- list.files(path = input_sel,
                           pattern = paste0("^NASEC_T0800_A_", country, "_.*\\.parquet$"),
                           full.names = TRUE,
                           recursive = TRUE) |>
-    open_dataset() |>
-    collect() %>%
-    left_join(.,lookup,by = join_by(counterpart_area, ref_sector, counterpart_sector,
+    arrow::open_dataset() |>
+    dplyr::collect() %>%
+    dplyr::left_join(.,lookup,by = dplyr::join_by(counterpart_area, ref_sector, counterpart_sector,
                                     consolidation, accounting_entry, sto, instr_asset, unit_measure, prices)) |>
-    na.omit() |>
-    select(version,ref_area,id,time_period,obs_value) |>
-    arrange(version) |>
-    group_by(ref_area,id,time_period) |>
-    mutate(change = obs_value-lag(obs_value)) |>
-    na.omit() |>
-    filter(change != 0) |>
-    ungroup() |>
-    select(-obs_value) |>
+    stats::na.omit() |>
+    dplyr::select(version,ref_area,id,time_period,obs_value) |>
+    dplyr::arrange(version) |>
+    dplyr::group_by(ref_area,id,time_period) |>
+    dplyr::mutate(change = obs_value-dplyr::lag(obs_value)) |>
+    stats::na.omit() |>
+    dplyr::filter(change != 0) |>
+    dplyr::ungroup() |>
+    dplyr::select(-obs_value) |>
     nfsa::nfsa_separate_id() |>
-    pivot_wider(names_from = version,
+    tidyr::pivot_wider(names_from = version,
                 values_from = change)
 
 

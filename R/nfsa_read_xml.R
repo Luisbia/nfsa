@@ -18,9 +18,7 @@
 #'
 #' @export
 nfsa_read_xml <- function(file){
-  library(readsdmx)
-
   data <- readsdmx::read_sdmx(file) |>
     janitor::clean_names() |>
-    mutate(obs_value = as.numeric(obs_value))
+    dplyr::mutate(obs_value = as.numeric(obs_value))
 }

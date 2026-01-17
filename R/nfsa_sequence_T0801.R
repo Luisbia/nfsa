@@ -37,89 +37,84 @@
 nfsa_sequence_T0801 <- function(country,
                                      time_min = "2020-Q1",
                                      type = "values",
-                                     template = here("assets","seq_accounts_T0801.xlsx"),
-                                     output_sel = here("output","sequence")) {
-
-  library(tidyverse)
-  library(arrow)
-  library(here)
-  library(openxlsx)
+                                     template = here::here("assets","seq_accounts_T0801.xlsx"),
+                                     output_sel = here::here("output","sequence")) {
 
   lookup <- nfsa::nfsa_sto_lookup
 
 
   nfsa_new_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
-    separate_wider_delim(cols = id,
+    tidyr::separate_wider_delim(cols = id,
                          delim = ".",
                          names = c("ref_sector", "sto", "accounting_entry")) |>
-    filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
+    dplyr::filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
            time_period >= time_min) |>
-    na.omit() |>
-    unite("id",c(ref_sector,sto,accounting_entry), sep = ".") |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_value) |>
-    unite("id",c(time_period,ref_area,id),sep = ".") |>
-    rename(new = obs_value)
+    stats::na.omit() |>
+    tidyr::unite("id",c(ref_sector,sto,accounting_entry), sep = ".") |>
+    stats::na.omit() |>
+    dplyr::select(ref_area,id,time_period,obs_value) |>
+    tidyr::unite("id",c(time_period,ref_area,id),sep = ".") |>
+    dplyr::rename(new = obs_value)
 
   nfsa_prev_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
-    separate_wider_delim(cols = id,
+    tidyr::separate_wider_delim(cols = id,
                          delim = ".",
                          names = c("ref_sector", "sto", "accounting_entry")) |>
-    filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S14", "S15","S1M", "S2"),
+    dplyr::filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S14", "S15","S1M", "S2"),
            time_period >= time_min) |>
-    na.omit() |>
-    unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
-    na.omit() |>
-    select(ref_area,id,time_period,obs_value) |>
-    unite("id",c(time_period,ref_area,id),sep = ".") |>
-    rename(prev = obs_value)
+    stats::na.omit() |>
+    tidyr::unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
+    stats::na.omit() |>
+    dplyr::select(ref_area,id,time_period,obs_value) |>
+    tidyr::unite("id",c(time_period,ref_area,id),sep = ".") |>
+    dplyr::rename(prev = obs_value)
 
 
   if (type == "values"){
 
     nfsa_data <- nfsa_new_data |>
-      rename(obs_value = new) |>
-      mutate(obs_value = round(obs_value,1)) |>
-      mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value))
+      dplyr::rename(obs_value = new) |>
+      dplyr::mutate(obs_value = round(obs_value,1)) |>
+      dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value))
 
-    wb <- loadWorkbook(template)
-    writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+    wb <- openxlsx::loadWorkbook(template)
+    openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
 
     if(length(country) == 1) {
-      saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
 
     if(length(country) > 1) {
-      saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
 
   }
   if (type == "vintages"){
-    nfsa_data <- full_join(nfsa_new_data,nfsa_prev_data,by = join_by(id)) |>
-      mutate(obs_value = round(new-prev)) |>
-      mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
-      select(-new,-prev)
+    nfsa_data <- dplyr::full_join(nfsa_new_data,nfsa_prev_data,by = dplyr::join_by(id)) |>
+      dplyr::mutate(obs_value = round(new-prev)) |>
+      dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+      dplyr::select(-new,-prev)
 
     if (nrow(nfsa_data) == 0) {
       cli::cli_alert_success("No revisions in T0801!")}
 
 
-    wb <- loadWorkbook(template)
-    writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+    wb <- openxlsx::loadWorkbook(template)
+    openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
     if(length(country) == 1) {
-      saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
 
     if(length(country) > 1) {
-      saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, ,file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
@@ -127,32 +122,31 @@ nfsa_sequence_T0801 <- function(country,
 
   if (type == "versions"){
     nfsa_data <- nfsa_get_data_all(country = country,table = "T0801") |>
-      filter(time_period >= time_min) |>
-      group_by(ref_area,id,time_period) |>
-      arrange(version,.by_group = TRUE) |>
-      mutate(obs_value = round(obs_value-lag(obs_value))) |>
-      mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
-      ungroup() |>
-      unite("id",c(version,time_period,ref_area,id),sep = ".")
+      dplyr::filter(time_period >= time_min) |>
+      dplyr::group_by(ref_area,id,time_period) |>
+      dplyr::arrange(version,.by_group = TRUE) |>
+      dplyr::mutate(obs_value = round(obs_value-dplyr::lag(obs_value))) |>
+      dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+      dplyr::ungroup() |>
+      tidyr::unite("id",c(version,time_period,ref_area,id),sep = ".")
 
     if (nrow(nfsa_data) == 0) {
       cli::cli_alert_success("No revisions in T0801!")}
 
 
-    wb <- loadWorkbook(template)
-    writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+    wb <- openxlsx::loadWorkbook(template)
+    openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
     if(length(country) == 1) {
-      saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
 
     if(length(country) > 1) {
-      saveWorkbook(wb, file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+      openxlsx::saveWorkbook(wb, file = paste0(output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
 
       cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
     }
   }
 }
-

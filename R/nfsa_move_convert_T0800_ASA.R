@@ -22,13 +22,6 @@ nfsa_move_convert_T0800_ASA10 <- function(country,
                                     input_sel = "M:/nas/ASA10/Production/2024/(1) ASA/(1_1) Original transmission/(1_1_1) Original xml files/",
                                     output_sel = "M:/nas/Rprod/data/a/new/"){
 
-  library(tidyverse)
-  library(readsdmx)
-  library(cli)
-  library(arrow)
-  library(here)
-
-
   files <- list.files(path  = input_sel,
                      pattern = paste0("NASEC_T0800_A_",country),
                      full.names = TRUE) |>

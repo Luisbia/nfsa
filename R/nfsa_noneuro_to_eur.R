@@ -18,8 +18,6 @@
 #' @export
 nfsa_noneuro_to_euro <- function(data, freq = "Q"){
 
-  library(restatapi)
-  library(tidyverse)
   if(freq == "Q"){
     erate <- restatapi::get_eurostat_data("ert_bil_eur_q",
                                           filters = list(statinfo = "AVG",

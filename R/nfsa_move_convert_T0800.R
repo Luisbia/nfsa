@@ -31,11 +31,6 @@ nfsa_move_convert_T0800 <- function(country,
                            input_sel = "M:/nas/Incoming_SDMX_files/",
                            output_sel = "M:/nas/Rprod/data/a/new/"){
 
-  library(tidyverse)
-  library(readsdmx)
-  library(cli)
-  library(arrow)
-  library(here)
   cli::cli_inform("Looking for files in the server...")
 
   file <- list.files(path  = input_sel,

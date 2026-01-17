@@ -29,51 +29,43 @@ nfsa_seas_level1 <- function(country ,
                              input_sel = "M:/nas/Rprod/data/",
                              output_sel = here::here("output", "seas")){
 
-  library(nfsa)
-  library(tidyverse)
-  library(arrow)
-  library(SAvalidation)
-  library(openxlsx)
-  library(here)
-
   cli::cli_inform("Collecting data...")
   nsa <- nfsa_get_data(country = country,
                        table = "T0801",
                        type = "new",
                        input_sel = input_sel) |>
-    rename(NSA = obs_value)
+    dplyr::rename(NSA = obs_value)
 
   sca <- nfsa_get_data(country = country,
                        table = "T0801SA",
                        type = "new",
                        input_sel = input_sel) |>
-    rename(SCA = obs_value)
+    dplyr::rename(SCA = obs_value)
 
-  data <- full_join(nsa, sca, by = join_by(ref_area, id,
+  data <- dplyr::full_join(nsa, sca, by = dplyr::join_by(ref_area, id,
                                            time_period)) |>
-    filter(time_period >= time_min) |>
-    na.omit()
+    dplyr::filter(time_period >= time_min) |>
+    stats::na.omit()
 
   ## Need to remove series entirely 0's or with several 0's
   tmp <- nsa |>
-    filter(NSA == 0) |>
-    group_by (ref_area,id) |>
-    add_count() |>
-    filter(n >10) |>
-    select(ref_area,id) |>
-	  ungroup() |>
-    distinct()
+    dplyr::filter(NSA == 0) |>
+    dplyr::group_by (ref_area,id) |>
+    dplyr::add_count() |>
+    dplyr::filter(n >10) |>
+    dplyr::select(ref_area,id) |>
+	  dplyr::ungroup() |>
+    dplyr::distinct()
 
 
   cli::cli_inform("Running tests...")
 
-  data <- anti_join(data,tmp,join_by(ref_area, id)) |>
-    mutate(time_period = lubridate::yq(time_period)) |>
-    group_by(ref_area,id) |>
-    nest() |>
-    mutate(nsa = map(data,~ts(.x$NSA,start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4)),
-           sca = map(data,~ts(.x$SCA,start = c(min(str_sub(.x$time_period,1,4)),1),frequency = 4)),
-           level1_X13 = map2(.x = nsa,
+  data <- dplyr::anti_join(data,tmp,dplyr::join_by(ref_area, id)) |>
+    dplyr::mutate(time_period = lubridate::yq(time_period)) |>
+    tidyr::nest(.by = c(ref_area,id)) |>
+    dplyr::mutate(nsa = purrr::map(data,~stats::ts(.x$NSA,start = c(min(stringr::str_sub(.x$time_period,1,4)),1),frequency = 4)),
+           sca = purrr::map(data,~stats::ts(.x$SCA,start = c(min(stringr::str_sub(.x$time_period,1,4)),1),frequency = 4)),
+           level1_X13 = purrr::map2(.x = nsa,
                              .y = sca,
                              .f=~SAvalidation::level1_validation(.x,.y,default_type = "X13",
                                                                  default_spec_nsa = "RSA1",
@@ -81,10 +73,10 @@ nfsa_seas_level1 <- function(country ,
            # level1_TS = map2(.x = nsa,
            #                  .y = sca,
            #                  .f=~SAvalidation::level1_validation(.x,.y,default_type = "TS", default_spec_sa = "RSA2"))) |>
-    select(ref_area,id,level1_X13) |>
-    unnest(c(level1_X13)) |>
-    select(ref_area, id,level1=level1_X13) |>
-    filter(level1 == "FAIL: EVIDENCE OF RESIDUAL SEASONALITY OR CALENDAR EFFECTS IN SA SERIES" |
+    dplyr::select(ref_area,id,level1_X13) |>
+    tidyr::unnest(c(level1_X13)) |>
+    dplyr::select(ref_area, id,level1=level1_X13) |>
+    dplyr::filter(level1 == "FAIL: EVIDENCE OF RESIDUAL SEASONALITY OR CALENDAR EFFECTS IN SA SERIES" |
              level1 == "FAIL: NO EVIDENCE OF SEASONALITY IN NSA BUT SERIES ADJUSTED" |
              level1 == "FAIL: EVIDENCE OF SEASONALITY IN NSA BUT SA IS NOT ADJUSTED"|
              level1 == "WARNING: ANNUAL TOTALS CHECK FAILED"|

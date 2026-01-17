@@ -20,71 +20,61 @@
 #'
 #' @export
 nfsa_q_plots_T_V_N <- function(country,
-                             output_sel = here("output", "plots"),
+                             output_sel = here::here("output", "plots"),
                              time_min = "1999-Q1",
                              my_theme = ggthemes::theme_fivethirtyeight(),
                              my_colours = c("#B656BD","#208486")){
 
-  library(here)
-  library(ggthemes)
-  library(tidyverse)
-  library(gridExtra)
-  library(arrow)
-  library(lubridate)
-
-
-
   lookup <- nfsa::nfsa_sto_lookup
   sto_label <- nfsa::nfsa_sto_label
 
-  my_scale <- scale_color_manual(values = c("T" = my_colours[1], "V" = my_colours[2]))
+  my_scale <- ggplot2::scale_color_manual(values = c("T" = my_colours[1], "V" = my_colours[2]))
 
   cli::cli_progress_message("Collecting data...")
 
 tmp_t <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
   nfsa::nfsa_separate_id() |>
-  filter(obs_value != "NaN") |>
-  filter(time_period >= time_min) |>
-  mutate(source = "T",
+  dplyr::filter(obs_value != "NaN") |>
+  dplyr::filter(time_period >= time_min) |>
+  dplyr::mutate(source = "T",
          time_period = lubridate::yq(time_period))
 
 tmp_v <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
   nfsa::nfsa_separate_id() |>
-  filter(obs_value != "NaN") |>
-  filter(time_period >= time_min) |>
-  mutate(source = "V",
+  dplyr::filter(obs_value != "NaN") |>
+  dplyr::filter(time_period >= time_min) |>
+  dplyr::mutate(source = "V",
          time_period = lubridate::yq(time_period))
 
 
-tmp <- bind_rows(tmp_t, tmp_v) %>%
-  na.omit() %>%
-  left_join(.,sto_label, by = join_by(sto)) |>
-  mutate(sto = paste0(sto,".",accounting_entry,"-",sto_label)) |>
-  select(-sto_label) |>
-  group_nest(ref_area,sto)
+tmp <- dplyr::bind_rows(tmp_t, tmp_v) %>%
+  stats::na.omit() %>%
+  dplyr::left_join(.,sto_label, by = dplyr::join_by(sto)) |>
+  dplyr::mutate(sto = paste0(sto,".",accounting_entry,"-",sto_label)) |>
+  dplyr::select(-sto_label) |>
+  tidyr::nest(.by = c(ref_area,sto))
 
 cli::cli_progress_message("Creating charts...")
 charts <- tmp |>
-  transmute(chart= map2(data,sto, ~ggplot(.x)+
-                          geom_line(aes(time_period,obs_value, colour = source),linewidth = 0.65)+
-                          facet_wrap(~ref_sector)+ #, scales="free_y"
+  dplyr::transmute(chart= purrr::map2(data,sto, ~ggplot2::ggplot(.x)+
+                          ggplot2::geom_line(ggplot2::aes(time_period,obs_value, colour = source),linewidth = 0.65)+
+                          ggplot2::facet_wrap(~ref_sector)+ #, scales="free_y"
                           my_theme+
                           my_scale+
-                          scale_y_continuous(labels = scales::label_number(),position = "right")+
-                          ggtitle(paste0(.y))+
-                          ylab("")+ xlab("")+
-                          theme(axis.ticks.y = element_blank())
+                          ggplot2::scale_y_continuous(labels = scales::label_number(),position = "right")+
+                          ggplot2::ggtitle(paste0(.y))+
+                          ggplot2::ylab("")+ ggplot2::xlab("")+
+                          ggplot2::theme(axis.ticks.y = ggplot2::element_blank())
   )
   ) |>
-  deframe()
+  tibble::deframe()
 
 
 cli::cli_progress_message("Generating file...")
-ggsave(
+ggplot2::ggsave(
   filename = paste0(output_sel,"/", country,"_q_T_V_N.pdf"),
-  plot = marrangeGrob(charts, nrow=1, ncol=1),
+  plot = gridExtra::marrangeGrob(charts, nrow=1, ncol=1),
   width = 15, height = 9
 )
 cli::cli_alert_success(paste0("Charts created in ",output_sel,"/", country,"_q_T_V_N.pdf"))
 }
-

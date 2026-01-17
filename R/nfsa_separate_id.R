@@ -17,9 +17,8 @@
 #' print(separated_df)
 #'
 nfsa_separate_id <- function(data){
-  library(tidyr)
   tmp <- data |>
-    separate_wider_delim(cols = id,
+    tidyr::separate_wider_delim(cols = id,
                          delim = ".",
                          names = c("ref_sector", "sto", "accounting_entry"))
 

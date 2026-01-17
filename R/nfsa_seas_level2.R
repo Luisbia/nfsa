@@ -45,7 +45,7 @@
 #' }
 #'
 #' @export
-nfsa_seas_level2 <- function(series = here("assets", "seas_level1.xlsx"),
+nfsa_seas_level2 <- function(series = here::here("assets", "seas_level1.xlsx"),
                              time_min = "1999-Q1",
                              input_sel = "M:/nas/Rprod/data/",
                              output_sel = here::here("output", "seas"),
@@ -54,34 +54,26 @@ nfsa_seas_level2 <- function(series = here("assets", "seas_level1.xlsx"),
                              default_spec_nsa_sel = "RSA1",
                              default_spec_sa_sel = "RSA2c"){
 
-  library(nfsa)
-  library(tidyverse)
-  library(arrow)
-  library(readxl)
-  library(SAvalidation)
-  library(here)
-
   series_list <- readxl::read_xlsx(series)
 
   nsa <- nfsa_get_data(country = unique(series_list$ref_area),
                        table = "T0801",
                        type = "new") |>
-    rename(NSA = obs_value)
+    dplyr::rename(NSA = obs_value)
 
   sca <- nfsa_get_data(country = unique(series_list$ref_area),
                        table = "T0801SA",
                        type = "new")|>
-    rename(SCA = obs_value)
+    dplyr::rename(SCA = obs_value)
 
-  nsa_sca <- full_join(nsa,sca,by = join_by(ref_area, id, time_period) ) |>
-    filter(time_period >= time_min)
+  nsa_sca <- dplyr::full_join(nsa,sca,by = dplyr::join_by(ref_area, id, time_period) ) |>
+    dplyr::filter(time_period >= time_min)
 
-  nsa_sca <- left_join(series_list, nsa_sca,by = join_by(ref_area, id) ) |>
-    mutate(time_period = lubridate::yq(time_period)) |>
-    arrange(time_period) |>
-    unite(col = "id", c(ref_area,id),sep ="_") |>
-    group_by(id) |>
-    nest()
+  nsa_sca <- dplyr::left_join(series_list, nsa_sca,by = dplyr::join_by(ref_area, id) ) |>
+    dplyr::mutate(time_period = lubridate::yq(time_period)) |>
+    dplyr::arrange(time_period) |>
+    tidyr::unite(col = "id", c(ref_area,id),sep ="_") |>
+    tidyr::nest(.by = id)
 
   level2_validation_eurostat <- function(nsa,sa,series_name,
                                          dataset_name = "Quarterly non-financial sector accounts",
@@ -133,14 +125,12 @@ nfsa_seas_level2 <- function(series = here("assets", "seas_level1.xlsx"),
   }
 
   for (i in seq_along(nsa_sca$id)) {
-    level2_validation_eurostat(ts(nsa_sca$data[[i]][[2]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
-                                                                    str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+    level2_validation_eurostat(stats::ts(nsa_sca$data[[i]][[2]], start = c(stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
+                                                                    stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
                                   frequency = 4),
-                               ts(nsa_sca$data[[i]][[3]], start = c(str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
-                                                                    str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+                               stats::ts(nsa_sca$data[[i]][[3]], start = c(stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
+                                                                    stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
                                   frequency = 4),
                                nsa_sca$id[i])
   }
 }
-
-

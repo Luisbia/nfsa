@@ -23,11 +23,6 @@
 nfsa_completeness_aggregation <- function(country ,
                                           table = "T0801",
                                           output_sel = here::here("output", "completeness")) {
-  library(tidyverse)
-  library(readxl)
-  library(arrow)
-  library(openxlsx)
-  library(here)
   lookup <- nfsa::nfsa_sto_lookup
 
   # Initialize dat_missing to avoid scope issues
