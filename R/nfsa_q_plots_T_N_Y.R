@@ -23,70 +23,19 @@ nfsa_q_plots_T_N_Y <- function(country,
                                my_theme = ggthemes::theme_fivethirtyeight(),
                                my_colours = c("#B656BD","#208486")){
 
-my_scale <- ggplot2::scale_color_manual(values = c("Y" = my_colours[1], "N" = my_colours[2]))
-lookup <- nfsa::nfsa_sto_lookup
-sto_label <- nfsa::nfsa_sto_label
-
-cli::cli_progress_message("Collecting data...")
-
-tmp_n <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
-  dplyr::select(ref_area,id,time_period,obs_value) |>
-nfsa::nfsa_separate_id() |>
-  dplyr::filter(obs_value != "NaN") |>
-  dplyr::filter(time_period >= time_min) |>
-  dplyr::mutate(source = "T",
-         time_period = lubridate::yq(time_period),
-         adjustment = "N")
-
-tmp_y <- nfsa::nfsa_get_data(country = country, table = "T0801SA", type = "new") |>
-  dplyr::select(ref_area,id,time_period,obs_value) |>
-  nfsa::nfsa_separate_id() |>
-  dplyr::filter(obs_value != "NaN") |>
-  dplyr::filter(time_period >= time_min) |>
-  dplyr::mutate(source = "T",
-         time_period = lubridate::yq(time_period),
-         adjustment = "Y")
-
-if(nrow(tmp_y) == 0) stop(paste0("No seasonaly adjusted file for ", country))
-
-
-
-tmp <- dplyr::bind_rows(tmp_n, tmp_y) %>%
-  stats::na.omit() %>%
-  dplyr::left_join(.,sto_label,by = dplyr::join_by(sto)) |>
-    dplyr::mutate(sto = paste0(sto, ".",accounting_entry,"-",sto_label)) |>
-  dplyr::select(-sto_label,-accounting_entry) |>
-  tidyr::pivot_wider(names_from = adjustment,
-              values_from = obs_value) |>
-  stats::na.omit() |>
-  tidyr::pivot_longer(cols = c(Y,N),
-               names_to = "adjustment",
-               values_to = "obs_value") |>
-  tidyr::nest(.by = c(ref_area,sto))
-
-
-cli::cli_progress_message("Creating charts...")
-
-charts <- tmp |>
-  dplyr::transmute(chart= purrr::map2(data,sto, ~ggplot2::ggplot(.x)+
-                          ggplot2::geom_line(ggplot2::aes(time_period,obs_value, colour = adjustment),linewidth = 0.65)+
-                          ggplot2::facet_wrap(~ref_sector)+ #, scales="free_y"
-                          my_theme+
-                          my_scale+
-                          ggplot2::scale_y_continuous(labels = scales::label_number(),position = "right")+
-                          ggplot2::ggtitle(paste0(.y))+
-                          ggplot2::ylab("")+ ggplot2::xlab("")+
-                          ggplot2::theme(axis.ticks.y = ggplot2::element_blank())
+  # Deprecation warning
+  lifecycle::deprecate_soft(
+    when = "0.2.0",
+    what = "nfsa_q_plots_T_N_Y()",
+    with = "nfsa_q_plots(comparison = 'adjusted_unadjusted')"
   )
-  ) |>
-  tibble::deframe()
 
-cli::cli_progress_message("Generating file...")
-
-ggplot2::ggsave(
-  filename = paste0(output_sel,"/", country,"_q_T_N_Y.pdf"),
-  plot = gridExtra::marrangeGrob(charts, nrow=1, ncol=1),
-  width = 15, height = 9
-)
-cli::cli_alert_success(paste0("Charts created in ",output_sel,"/", country,"_q_T_N_Y.pdf"))
+  nfsa_q_plots(
+    country = country,
+    comparison = "adjusted_unadjusted",
+    output_sel = output_sel,
+    time_min = time_min,
+    my_theme = my_theme,
+    my_colours = my_colours
+  )
 }
