@@ -1,6 +1,6 @@
 #' Default theme options for charts
 #'
-#' @return a set of theme paremeters
+#' @return a set of theme parameters
 #' @export
 #' @examples
 #' library(ggplot2)
@@ -77,12 +77,12 @@ nfsa_theme <- function() {
     # grey ggplot background colour from the plot.
     panel.background = ggplot2::element_rect(fill = "#F3F6FC"),
 
-    plot.background = element_rect(fill= "#FFFFFF",
-                                   colour = "#262B38"),
-    line = element_line(colour = "#262B38"),
-    rect = element_rect(fill = "#FAFAFA",
-                        linetype = 0,
-                        colour = NA),
+    plot.background = ggplot2::element_rect(fill = "#FFFFFF",
+                                            colour = "#262B38"),
+    line = ggplot2::element_line(colour = "#262B38"),
+    rect = ggplot2::element_rect(fill = "#FAFAFA",
+                                  linetype = 0,
+                                  colour = NA),
 
     # STRIP BACKGROUND
     # This sets the panel background for facet-wrapped plots to white,
@@ -90,7 +90,7 @@ nfsa_theme <- function() {
     # title size of the facet-wrap title to font size 22.
     strip.background = ggplot2::element_rect(fill = "#F3F6FC"),
     strip.text = ggplot2::element_text(size = 14, hjust = 0.1, color="#262B38",face="bold"),
-    panel.spacing = unit(2, "lines"),
+    panel.spacing = grid::unit(2, "lines"),
     strip.placement = "outside"
   )
 }
