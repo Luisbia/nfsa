@@ -9,23 +9,23 @@ nfsa_comext(
   quarter,
   output_sel,
   input_sel =
-    "M:/nas/QSA10/Production/2025Q2/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files/EA early/Comext/"
+    "M:/nas/QSA10/Production/2025Q3/(1) QSA/(1_1) Original transmission/(1_1_2) Other input/Comext/"
 )
 }
 \arguments{
 \item{area}{A string indicating the geographical area ("EA20" or "EU27").}
 
-\item{quarter}{A string representing the target quarter in the format "YYYYQ#".}
+\item{quarter}{A string representing the target quarter in the format "YYYYQ#" (e.g., "2023Q4").}
 
 \item{output_sel}{A string specifying the directory where the output CSV file should be saved.}
 
-\item{input_sel}{A string specifying the directory where the additional files are saved. Defaults to
-"M:/nas/QSA10/Production/2025Q2/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files/EA early/Comext/".
-It is important that the area has the right associated file. For example, "EA20_lines to add.csv" for area EA20 and "EU27_lines to add.csv" for area EU27.}
+\item{input_sel}{A string specifying the directory where the additional historical files are saved.
+Defaults to the standard Comext production directory. The directory must contain the appropriate
+historical data file: "EA20_lines to add.csv" for EA20 or "EU27_lines to add.csv" for EU27.}
 }
 \value{
-A data frame containing the processed Comext data. The data frame is
-also written to a CSV file in the specified output directory.
+A tibble containing the processed Comext data. The data is also written to a CSV file
+in the specified output directory with the naming format: "{area}_{quarter}_comext.csv".
 }
 \description{
 This function retrieves, processes, and exports Eurostat Comext
@@ -36,8 +36,8 @@ data for a specified area (EA20 or EU27) and quarter.
 # Example usage for EA20 in 2023 Q4
 nfsa_comext(area = "EA20", quarter = "2023Q4", output_sel = "path/to/output/")
 
-# Example usage for EU27 in 2023 Q4
-nfsa_comext(area = "EU27", quarter = "2023Q4", output_sel = "path/to/output/")
+# Example usage for EU27 in 2024 Q1
+nfsa_comext(area = "EU27", quarter = "2024Q1", output_sel = "path/to/output/")
 }
 
 }

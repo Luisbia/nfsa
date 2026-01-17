@@ -23,7 +23,7 @@
 #' }
 #'
 #' @export
-nfsa_comext_test <- function(area,
+nfsa_comext <- function(area,
                              quarter,
                              output_sel,
                              input_sel = "M:/nas/QSA10/Production/2025Q3/(1) QSA/(1_1) Original transmission/(1_1_2) Other input/Comext/") {
