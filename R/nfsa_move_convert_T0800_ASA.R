@@ -22,8 +22,6 @@ nfsa_move_convert_T0800_ASA10 <- function(country,
                                     input_sel = "M:/nas/ASA10/Production/2024/(1) ASA/(1_1) Original transmission/(1_1_1) Original xml files/",
                                     output_sel = "M:/nas/Rprod/data/a/new/"){
 
-  options(warn=-1)
-
   library(tidyverse)
   library(readsdmx)
   library(cli)
@@ -39,7 +37,7 @@ nfsa_move_convert_T0800_ASA10 <- function(country,
     pull(value)
 
 
-  if(length(files) ==0) {print(paste0("No T0800 file for ", country))
+  if(length(files) ==0) {cli::cli_alert_warning("No T0800 file for {country}")
   } else {
 
         cli::cli_inform("Converting files...")
@@ -82,11 +80,9 @@ nfsa_move_convert_T0800_ASA10 <- function(country,
                    embargo_date = "NA")
         }
 
-        options(warn=0)
-
         arrow::write_parquet(dat,
                              paste0(output_sel,"/",file_name))
-        print(file_name)
+        cli::cli_alert_success("Converted {file_name}")
       }
   }
   walk(files, ~ move_convert(file = .x,

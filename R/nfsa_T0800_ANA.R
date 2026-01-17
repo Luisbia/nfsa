@@ -37,7 +37,6 @@ nfsa_T0800_ANA <- function(country,
                            input_sel = "M:/nas/Rprod/data/a/new/",
                            output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,readxl,writexl,here,readsdmx)
-  options(warn=-1)
 
   cli::cli_progress_message("Collecting NFSA...")
 
@@ -122,7 +121,6 @@ nfsa_T0800_ANA <- function(country,
   }
   nfsa::nfsa_to_excel(nama_nfsa)
   return(nama_nfsa)
-  options(warn=0)
 }
 
 

@@ -31,7 +31,6 @@ nfsa_validation <- function(time_min,
   library(tidyverse)
   library(data.table)
 
-  options(warn = -1)
   cli::cli_progress_message("Searching for files in the server...")
   validated <- list.files("I:/econ/NFSA/VALID/results/",
                           full.names = TRUE,
@@ -93,7 +92,6 @@ nfsa_validation <- function(time_min,
 
 
   }
-  options(warn = 0)
   nfsa_to_excel(validated)
   return(validated)
 }

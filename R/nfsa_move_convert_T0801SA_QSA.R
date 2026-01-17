@@ -22,8 +22,6 @@ nfsa_move_convert_T0801SA_QSA10 <- function(country,
                                           input_sel = "M:/nas/QSA10/Production/2025Q2/(2) SA&V/(2_1) Original transmission/(2_1_1) Original xml files/",
                                           output_sel = "M:/nas/Rprod/data/q/new/sca/"){
 
-  options(warn=-1)
-
   library(tidyverse)
   library(readsdmx)
   library(cli)
@@ -39,7 +37,7 @@ nfsa_move_convert_T0801SA_QSA10 <- function(country,
     pull(value)
 
 
-  if(length(files) ==0) {print(paste0("No T0801SA file for ", country))
+  if(length(files) ==0) {cli::cli_alert_warning("No T0801SA file for {country}")
   } else {
 
     cli::cli_inform("Converting files...")
@@ -82,11 +80,9 @@ nfsa_move_convert_T0801SA_QSA10 <- function(country,
                  embargo_date = "NA")
       }
 
-      options(warn=0)
-
       arrow::write_parquet(dat,
                            paste0(output_sel,"/",file_name))
-      print(file_name)
+      cli::cli_alert_success("Converted {file_name}")
     }
   }
   walk(files, ~ move_convert(file = .x,

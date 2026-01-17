@@ -35,7 +35,6 @@ nfsa_move_convert_T0801 <- function(country,
   library(cli)
   library(arrow)
   library(here)
-  options(warn=-1)
 
   cli::cli_inform("Looking for files in the server...")
   file <- list.files(path  = input_sel,
@@ -58,11 +57,11 @@ files_have <- list.files(path  = output_sel,
 
 if(length(files_have) ==0) {files_have <-"no file"}
 
-if(length(file) ==0) {  print(paste0("No T0801 file for ", country))
+if(length(file) ==0) {  cli::cli_alert_warning("No T0801 file for {country}")
   } else {
 
 if (file == files_have){
-  print(paste0("No new T0801 file for ", country))
+  cli::cli_alert_info("No new T0801 file for {country}")
 } else{
 
 cli::cli_inform("Converting files...")
@@ -104,12 +103,9 @@ if("embargo_date" %in% names(dat)){
            embargo_date = "NA")
 }
 
-options(warn=0)
-
-
 arrow::write_parquet(dat,
        paste0(output_sel,"/",file_name))
-print(file_name)
+cli::cli_alert_success("Created file: {file_name}")
       }
     }
   }

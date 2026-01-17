@@ -26,7 +26,6 @@ nfsa_T0801SA_QNA <- function(country,
                              input_sel = "M:/nas/Rprod/data/q/new/sca/",
                              output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,writexl,here,restatapi)
-  options(warn=-1)
 
   cli::cli_progress_message("Collecting NFSA...")
   nfsa <- nfsa_get_data(country = country,table = "T0801SA", type = "new") |>
@@ -93,7 +92,6 @@ nfsa_T0801SA_QNA <- function(country,
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801SA_QNA_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
-  options(warn=0)
   nfsa::nfsa_to_excel(nama_nfsa)
   return(nama_nfsa)
 }

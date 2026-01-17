@@ -47,7 +47,6 @@ nfsa_T0800_GFS <- function(country,
 
   ## GFS -----
   cli::cli_progress_message("Collecting GFS...")
-  options(warn=-1)
   gfs_files <- list.files(path = paste0("M:/nas/ASA10/Production/",year,"/(1) ASA/(1_2) Validation in progress/(1_2_5) Consistency checks - ASA vs GFS/Input"),
                           pattern = "xml$",
                           full.names = TRUE,
@@ -119,7 +118,6 @@ nfsa_T0800_GFS <- function(country,
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0800_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
-  options(warn=0)
   return(gfs_nfsa)
 }
 

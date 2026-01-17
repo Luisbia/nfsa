@@ -30,7 +30,6 @@ nfsa_move_convert_T0800 <- function(country,
                            year,
                            input_sel = "M:/nas/Incoming_SDMX_files/",
                            output_sel = "M:/nas/Rprod/data/a/new/"){
-  options(warn=-1)
 
   library(tidyverse)
   library(readsdmx)
@@ -59,11 +58,11 @@ nfsa_move_convert_T0800 <- function(country,
 
   if(length(files_have) ==0) {files_have <-"no file"}
 
-  if(length(file) ==0) {print(paste0("No T0800 file for ", country))
+  if(length(file) ==0) {cli::cli_alert_warning("No T0800 file for {country}")
   } else {
 
     if (file == files_have){
-      print(paste0("No new T0800 file for ", country))
+      cli::cli_alert_info("No new T0800 file for {country}")
     } else{
 
 cli::cli_inform("Converting files...")
@@ -105,10 +104,9 @@ cli::cli_inform("Converting files...")
                    embargo_date = "NA")
         }
 
-        options(warn=0)
         arrow::write_parquet(dat,
                              paste0(output_sel,"/",file_name))
-        print(file_name)
+        cli::cli_alert_success("Converted {file_name}")
       }
     }
   }

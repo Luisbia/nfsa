@@ -53,7 +53,6 @@ nfsa_T0801_BOP <- function(country,
   ## BOP
 
   cli::cli_progress_message("Collecting BOP...")
-  options(warn=-1)
   bop_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_6) Consistency checks - QSA vs BoP/Input"),
                                         pattern = "xml$",
                                         full.names = TRUE,
@@ -117,7 +116,6 @@ nfsa_T0801_BOP <- function(country,
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_BOP_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
-  options(warn=0)
   nfsa::nfsa_to_excel(bop_nfsa)
   return(bop_nfsa)
 }

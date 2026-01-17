@@ -27,7 +27,6 @@ nfsa_T0801SA_GFS <- function(country,
                              input_sel = "M:/nas/Rprod/q/new/sca/",
                              output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,writexl,here,readsdmx)
-  options(warn=-1)
 
   cli::cli_progress_message("Collecting NFSA...")
   nfsa_data <- nfsa_get_data(country = country,table = "T0801SA", type = "new") |>
@@ -36,7 +35,6 @@ nfsa_T0801SA_GFS <- function(country,
 
   ## GFS -----
   cli::cli_progress_message("Collecting GFS...")
-  options(warn=-1)
   gfs_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input"),
                                         pattern = "xml$",
                                         full.names = TRUE,
@@ -103,7 +101,6 @@ nfsa_T0801SA_GFS <- function(country,
 
     cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801SA_GFS_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
-  options(warn=0)
   nfsa::nfsa_to_excel(gfs_nama)
   return(gfs_nfsa)
 }
