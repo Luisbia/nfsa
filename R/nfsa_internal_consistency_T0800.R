@@ -66,28 +66,48 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::mutate(obs_value = janitor::round_half_up(obs_value, rounding)) |>
     nfsa::nfsa_separate_id()
 
+  # Helper function to check if required combinations exist before pivoting
+  has_required_combos <- function(df, required_combos) {
+    if (nrow(df) == 0) return(FALSE)
+    actual_combos <- df |>
+      dplyr::distinct(ref_sector, accounting_entry)
+    all(required_combos %in% paste0(actual_combos$ref_sector, ".", actual_combos$accounting_entry))
+  }
+
+
 
 
   # Uses vs Resources-----------------------------------------------------------
   ## UR01-----------------------------------------------------------------------
 
-  ur01 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur01_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D1", "D11", "D12", "D4", "D41", "D41G","D42", "D421","D422", "D43", "D44",
         "D441", "D442", "D443", "D45",  "D5", "D51", "D59", "D6", "D61",
         "D611", "D612", "D613", "D614","D61SC", "D62", "D7", "D71", "D72",
         "D74", "D75", "D8", "D9", "D91", "D92", "D99"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur01_filtered, c("S1.D", "S2.C", "S1.C", "S2.D"))){
+
+
+    ur01 <- ur01_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C, S2.D) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C, S2.D) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
       `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
@@ -95,112 +115,185 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     dplyr::filter(abs(check) > threshold)
 
+
+  }
+
   ## UR02---------------------------------------------------------------------
 
-  ur02 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur02_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D2", "D21", "D29"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur02_filtered, c("S1.D", "S1.C", "S2.D"))){
+
+
+    ur02 <- ur02_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S1.C, S2.D) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S1.C, S2.D) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
       check = round(S1.D - `S1.C + S2.D`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
 
+
+  }
+
   ## UR03---------------------------------------------------------------------
 
-  ur03 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur03_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D3", "D31", "D39"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur03_filtered, c("S1.D", "S2.C", "S1.C"))){
+
+
+    ur03 <- ur03_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
       check = round(S1.C - `S1.D + S2.C`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
 
+
+  }
+
   ## UR04---------------------------------------------------------------------
 
-  ur04 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur04_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D63", "D631", "D632", "P51C"
       ),
-      ref_sector %in% c("S1")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1"))
+
+
+
+  if(has_required_combos(ur04_filtered, c("S1.D", "S1.C"))){
+
+
+    ur04 <- ur04_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S1.C) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S1.C) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D - S1.C` = sum(c(S1.D, -S1.C), na.rm = TRUE),
     ) |>
     dplyr::filter(abs(`S1.D - S1.C`) > threshold)
 
+
+  }
+
   ## UR05---------------------------------------------------------------------
 
-  ur05 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur05_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D43", "D74", "D76"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur05_filtered, c("S1.D", "S2.D"))){
+
+
+    ur05 <- ur05_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S2.D) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S2.D) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D - S2.D` = sum(c(S1.D, -S2.D), na.rm = TRUE),
     ) |>
     dplyr::filter(abs(`S1.D - S2.D`) > threshold)
 
+
+  }
+
   ## UR06---------------------------------------------------------------------
 
-  ur06 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur06_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "NP"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector, accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur06_filtered, c("S1.D", "S2.C"))){
+
+
+    ur06 <- ur06_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.D, S2.C) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.D, S2.C) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
     ) |>
     dplyr::filter(abs(`S1.D + S2.C`) > threshold)
+
+
+  }
 
   ## UR07---------------------------------------------------------------------
 
@@ -225,44 +318,66 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
   ## UR08---------------------------------------------------------------------
 
-  ur08 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur08_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D43", "D74"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector,accounting_entry),
+      ref_sector %in% c("S1", "S2"))
+
+
+
+  if(has_required_combos(ur08_filtered, c("S1.C", "S2.C"))){
+
+
+    ur08 <- ur08_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector,accounting_entry),
       values_from = obs_value,
-      names_sep = "."
-    ) |>
-    dplyr::select(ref_area, sto, time_period, S1.C, S2.C) |>
-    dplyr::rowwise() |>
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, sto, time_period, S1.C, S2.C) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.C - S2.C` = sum(c(S1.C, -S2.C), na.rm = TRUE),
     ) |>
     dplyr::filter(abs(`S1.C - S2.C`) > threshold)
 
+
+  }
+
   ## UR09---------------------------------------------------------------------
 
-  ur09 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur09_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D12","D611","D612"
       ),
-      ref_sector %in% c("S1", "S2")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = c(ref_sector,sto,accounting_entry),
-      values_from = obs_value,
-      names_sep = "."
-    )
+      ref_sector %in% c("S1", "S2"))
 
-    if(ncol(ur09) == 14){
-  ur09 <- ur09 |>
-    dplyr::select(ref_area, time_period, S1.D12.D, S2.D12.C,S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D) |>
-    dplyr::rowwise() |>
+
+
+  if(has_required_combos(ur09_filtered, c("S1.D12.D", "S2.D12.C", "S1.D611.C", "S1.D612.C", "S2.D611.D", "S2.D612.D"))){
+
+
+    ur09 <- ur09_filtered |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector,sto,accounting_entry),
+      values_from = obs_value,
+      names_sep = ".") |>
+
+
+      dplyr::select(ref_area, time_period, S1.D12.D, S2.D12.C,S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D12.D + S2.D12.C` = sum(c(S1.D12.D,S2.D12.C), na.rm = TRUE),
       `S1.D611.C + S1.D612.C + S2.D611.D + S2.D612.D` = sum(c(S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D), na.rm = TRUE),
@@ -270,35 +385,45 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     dplyr::filter(abs(check) > threshold)
 
-    } else {
-      rm(ur09)
-    }
+
+  }
   ## UR10---------------------------------------------------------------------
 
-  ur10 <- data |>
-    dplyr::filter(
-      sto %in% c(
+  ur10_filtered <- data |>
+
+
+    dplyr::filter(sto %in% c(
         "D442", "D614"
       ),
       ref_sector %in% c("S1", "S2")
     ) |>
    nfsa_unite_id() |>
-    dplyr::filter(id %in% c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D")) |>
-    tidyr::pivot_wider(names_from = id,
-                values_from = obs_value)
+    dplyr::filter(id %in% c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D"))
 
-  if(ncol(ur10) == 6){
-    ur10 <- ur10 |>
-    dplyr::select(ref_area, time_period, S1.D442.D, S2.D442.C, S1.D614.C, S2.D614.D) |>
-    dplyr::rowwise() |>
+
+
+  if(has_required_combos(ur10_filtered, c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D"))){
+
+
+    ur10 <- ur10_filtered |>
+
+
+      tidyr::pivot_wider(names_from = id,
+                values_from = obs_value) |>
+
+
+      dplyr::select(ref_area, time_period, S1.D442.D, S2.D442.C, S1.D614.C, S2.D614.D) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.D442.D, S2.D442.C` = sum(c(S1.D442.D, S2.D442.C), na.rm = TRUE),
       `S1.D614.C + S2.D614.D` = sum(c(S1.D614.C, S2.D614.D), na.rm = TRUE),
       check = round(`S1.D442.D, S2.D442.C` > `S1.D614.C + S2.D614.D`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
-  } else {
-    rm(ur10)
+
+
   }
 
   # S1 vs Sum of Sub-sectors--------------------------------------------------
@@ -734,48 +859,63 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
   ## SIT12----------------------------------------------------------------------------------------
 
-  sit12 <- data |>
-    dplyr::filter(
-      sto %in% c("D4", "D41", "D43",  "D44", "D45"),
-      ref_sector %in% c("S1M", "S14", "S15"),
-      accounting_entry == "D"
-    ) |>
-    tidyr::pivot_wider(
-      names_from = sto,
-      values_from = obs_value
-    )
+  sit12_filtered <- data |>
 
-  if(ncol(sit12) == 9){
-    sit12 <- sit12 |>
-    dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D41, D43, D44, D45, D4) |>
-    dplyr::rowwise() |>
+
+    dplyr::filter(sto %in% c("D4", "D41", "D43",  "D44", "D45"),
+      ref_sector %in% c("S1M", "S14", "S15"),
+      accounting_entry == "D")
+
+
+
+  if(has_required_combos(sit12_filtered, c(""))){
+
+
+    sit12 <- sit12_filtered |>
+
+
+      tidyr::pivot_wider(names_from = sto,
+      values_from = obs_value) |>
+
+
+      dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D41, D43, D44, D45, D4) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(`D41 + D43 + D44 + D45` = sum(c(D41, D43,  D44, D45), na.rm = TRUE),
            check = round(D4 - `D41 + D43 + D44 + D45`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
-  } else {
-    rm(sit12)
+
   }
   ## SIT15----------------------------------------------------------------------------------------
 
-  sit15 <- data |>
-    dplyr::filter(
-      sto %in% c("D42", "D421", "D422")
-    ) |>
-    tidyr::pivot_wider(
-      names_from = sto,
-      values_from = obs_value
-    )
+  sit15_filtered <- data |>
 
-  if(ncol(sit15) == 7){
-    sit15 <- sit15 |>
-    dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D42, D421, D422) |>
-    dplyr::rowwise() |>
+
+    dplyr::filter(sto %in% c("D42", "D421", "D422"))
+
+
+
+  if(has_required_combos(sit15_filtered, c(""))){
+
+
+    sit15 <- sit15_filtered |>
+
+
+      tidyr::pivot_wider(names_from = sto,
+      values_from = obs_value) |>
+
+
+      dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D42, D421, D422) |>
+
+
+      dplyr::rowwise() |>
     dplyr::mutate(`D421 + D422` = sum(c(D421, D422), na.rm = TRUE),
            check = round(D42 - `D421 + D422`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
-  } else {
-    rm(sit15)
+
+
   }
 
   ## SIT16----------------------------------------------------------------------------------------
@@ -1784,28 +1924,31 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(abs(check) > threshold)
 
   ## BI30-----------------------------------------------------------------------------------------
-  BI30 <- data |>
-    dplyr::filter(
-      ref_sector %in% c("S13", "S15"),
+  BI30_filtered <- data |>
+
+    dplyr::filter(ref_sector %in% c("S13", "S15"),
       sto %in% c("B8G", "B6G", "D8", "P3"),
       accounting_entry != "C"
     ) |>
-    unite("sto", c(sto, accounting_entry), sep = ".") |>
-    tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value)
+    unite("sto", c(sto, accounting_entry), sep = ".")
 
-  if(ncol(BI30) == 7){
-    BI30 <- BI30 |>
-    dplyr::select(ref_area, ref_sector, time_period, B6G.B,D8.D,P3.D,B8G.B) |>
-    dplyr::rowwise() |>
+
+  if(has_required_combos(BI30_filtered, c(""))){
+
+    BI30 <- BI30_filtered |>
+
+      tidyr::pivot_wider(names_from = sto,
+                values_from = obs_value) |>
+
+      dplyr::select(ref_area, ref_sector, time_period, B6G.B,D8.D,P3.D,B8G.B) |>
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `B6G.B - D8.D - P3.D` = sum(c(B6G.B,-D8.D, -P3.D),na.rm = TRUE),
       check = round(B8G.B - `B6G.B - D8.D - P3.D`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
 
-  } else {
-    rm(BI30)
   }
   ## BI32-----------------------------------------------------------------------------------------
   BI32 <- data |>
@@ -1927,21 +2070,31 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(abs(check) > threshold)
 
   ## BI41-----------------------------------------------------------------------------------------
-  BI41 <- data |>
-    dplyr::filter(
-      ref_sector %in% c("S1", "S2"),
+  BI41_filtered <- data |>
+
+    dplyr::filter(ref_sector %in% c("S1", "S2"),
       sto %in% c("B101", "P5", "P51C")
     ) |>
-    unite("sto", c(ref_sector,sto, accounting_entry), sep = ".") |>
-    tidyr::pivot_wider(names_from = sto,
+    unite("sto", c(ref_sector,sto, accounting_entry), sep = ".")
+
+
+  if(has_required_combos(BI41_filtered, c("S2.B101.B", "S1.P5.D", "S1.P51C.C", "S1.B101.B"))){
+
+    BI41 <- BI41_filtered |>
+
+      tidyr::pivot_wider(names_from = sto,
                 values_from = obs_value) |>
-    dplyr::select(ref_area, time_period, S2.B101.B, S1.P5.D, S1.P51C.C, S1.B101.B) |>
-    dplyr::rowwise() |>
+
+      dplyr::select(ref_area, time_period, S2.B101.B, S1.P5.D, S1.P51C.C, S1.B101.B) |>
+
+      dplyr::rowwise() |>
     dplyr::mutate(
       `S1.B101.B_cal` = sum(c(-S2.B101.B,S1.P5.D,-S1.P51C.C),na.rm = TRUE),
       check = round(S1.B101.B - `S1.B101.B_cal`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
+
+  }
 
   ## BI42-----------------------------------------------------------------------------------------
   BI42 <- data |>
