@@ -11,17 +11,19 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends: R (>= 4.1.0)
 LazyData: true
-Imports: 
+Imports:
     arrow,
     cli,
     ggplot2,
     ggthemes,
     here,
+    janitor,
     lubridate,
     openxlsx,
     purrr,
     readsdmx,
     readxl,
+    rlang,
     stringr,
     tidyr,
     dplyr,

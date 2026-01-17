@@ -30,6 +30,9 @@ nfsa_completeness_aggregation <- function(country ,
   library(here)
   lookup <- nfsa::nfsa_sto_lookup
 
+  # Initialize dat_missing to avoid scope issues
+  dat_missing <- NULL
+
   if (table == "T0801"){
     requirements <- here::here("assets", "completeness_aggregation.xlsx")
 
@@ -152,6 +155,12 @@ nfsa_completeness_aggregation <- function(country ,
                                     table, "_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
     }
   }
+
+  # Check if table parameter was valid
+  if (is.null(dat_missing)) {
+    cli::cli_abort("Invalid table parameter. Must be 'T0801' or 'T0800'.")
+  }
+
   nfsa::nfsa_to_excel(dat_missing)
   return(dat_missing)
 }

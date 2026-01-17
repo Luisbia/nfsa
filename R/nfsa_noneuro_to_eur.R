@@ -49,7 +49,7 @@ nfsa_noneuro_to_euro <- function(data, freq = "Q"){
     data_eur <- left_join(data,erate, by = join_by(ref_area, time_period)) |>
       mutate(obs_value = obs_value/erate) |>
       select(-erate) |>
-    filter(!str_detect(id,".PS|.HW"))
+      filter(!str_detect(id,".PS|.HW"))
 
     data_eur <- bind_rows(data_eur,tmp)
   }
