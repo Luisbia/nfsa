@@ -30,78 +30,20 @@ nfsa_move_convert_T0801 <- function(country,
                                input_sel = "M:/nas/Incoming_SDMX_files/",
                                output_sel = "M:/nas/Rprod/data/q/new/nsa/"){
 
-  cli::cli_inform("Looking for files in the server...")
-  file <- list.files(path  = input_sel,
-                    pattern = paste0("NASEC_T0801_Q_",country,"_",yearquarter),
-                    full.names = TRUE) |>
-  as_tibble() |>
-  mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}"))) |>
-  filter(version == max(version)) |>
-  pull(value)
+  # Deprecation warning
+  lifecycle::deprecate_soft(
+    when = "0.2.0",
+    what = "nfsa_move_convert_T0801()",
+    with = "nfsa_move_convert(table = 'T0801')"
+  )
 
-files_have <- list.files(path  = output_sel,
-                         pattern = paste0("NASEC_T0801_Q_",country,"_",yearquarter),
-                         recursive = FALSE) |>
-  as_tibble() |>
-  mutate(version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}"))) |>
-  filter(version == max(version)) |>
-  mutate(value = str_replace_all(value,".parquet", ".xml"),
-         value= paste0(input_sel, value)) |>
-  pull(value)
-
-if(length(files_have) ==0) {files_have <-"no file"}
-
-if(length(file) ==0) {  cli::cli_alert_warning("No T0801 file for {country}")
-  } else {
-
-if (file == files_have){
-  cli::cli_alert_info("No new T0801 file for {country}")
-} else{
-
-cli::cli_inform("Converting files...")
-
-  if(length(file) ==1){
-  file_name <- stringr::str_sub(file,
-                                      nchar(file)-35,
-                                      nchar(file))
-
- file_name = stringr::str_replace(file_name,
-                                          ".xml",
-                                          ".parquet")
-
-dat <- file |>
-  read_sdmx() |>
-  janitor::clean_names() |>
-  mutate(received = file.mtime(file),
-         version = str_extract(file,"(?<=_Q_...).{15}"))
-
-if("embargo_date" %in% names(dat)){
-
-  dat <- dat |>
-    select(received, version, table_identifier, freq,adjustment,ref_area,counterpart_area,
-           ref_sector,counterpart_sector, consolidation, accounting_entry,sto,
-           instr_asset, maturity, expenditure,unit_measure,currency_denom,
-           valuation, prices, transformation, cust_breakdown, time_period,
-           obs_value, obs_status, conf_status, embargo_date) |>
-    mutate(obs_value = as.numeric(obs_value),
-           embargo_date = as.character(embargo_date))
-
-} else {
-  dat <- dat |>
-    select(received,version,table_identifier, freq,adjustment,ref_area,counterpart_area,
-           ref_sector,counterpart_sector, consolidation, accounting_entry,sto,
-           instr_asset, maturity, expenditure,unit_measure,currency_denom,
-           valuation, prices, transformation, cust_breakdown, time_period,
-           obs_value, obs_status, conf_status) |>
-    mutate(obs_value = as.numeric(obs_value),
-           embargo_date = "NA")
-}
-
-arrow::write_parquet(dat,
-       paste0(output_sel,"/",file_name))
-cli::cli_alert_success("Created file: {file_name}")
-      }
-    }
-  }
+  nfsa_move_convert(
+    country = country,
+    table = "T0801",
+    period = yearquarter,
+    input_sel = input_sel,
+    output_sel = output_sel,
+    process_all = FALSE
+  )
 }
 
