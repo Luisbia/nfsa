@@ -113,7 +113,7 @@ nfsa_move_convert <- function(country,
   }
 
   # Extract versions and get latest
-  files_df <- dplyr::as_tibble(value = files) |>
+  files_df <- tibble::as_tibble() |>
     dplyr::mutate(version = as.numeric(stringr::str_extract(value, config$version_regex)))
 
   if (process_all) {
