@@ -48,35 +48,47 @@ nfsa_T0800_ANA <- function(country,
   ## NAMA -----
   cli::cli_progress_message("Collecting ANA...")
 
-  nama_files <- list.files(path = paste0("M:/nas/ASA10/Production/",year,"/(1) ASA/(1_2) Validation in progress/(1_2_4) Consistency checks - ASA vs ANA/Input"),
-                           pattern = "xml$",
-                           full.names = TRUE,
-                           recursive = TRUE) |>
+  # Build country pattern for faster file filtering
+  country_pattern <- paste0("(", paste(country, collapse = "|"), ")")
+
+  nama_files <- list.files(
+    path = paste0("M:/nas/ASA10/Production/", year,
+                  "/(1) ASA/(1_2) Validation in progress/",
+                  "(1_2_4) Consistency checks - ASA vs ANA/Input"),
+    pattern = paste0(".*", country_pattern, ".*\\.xml$"),
+    full.names = TRUE,
+    recursive = TRUE
+  ) |>
     as_tibble() |>
-    mutate(ref_area = str_sub(value,-30,-29),
-           update = as.numeric(str_sub(value,-18,-4))) |>
+    mutate(
+      ref_area = str_sub(value, -30, -29),
+      update = as.numeric(str_sub(value, -18, -4))
+    ) |>
     filter(ref_area %in% country) |>
-    group_by(ref_area) |>
-    arrange(update,.by_group = TRUE) |>
-    slice_tail(n=1) |>
-    ungroup() |>
-    select(value) |>
+    slice_max(update, n = 1, by = ref_area) |>
     pull(value)
 
 
   read_nama_files <- function(file){
     nama_data <- read_sdmx(file) |>
       janitor::clean_names() |>
-      select(ref_area,ref_sector,sto,unit_measure,accounting_entry,counterpart_area,time_period,nama = obs_value) |>
-      mutate(accounting_entry = if_else(sto =="EMP" & unit_measure =="PS"& counterpart_area == "W2","PS",accounting_entry),
-             accounting_entry = if_else(sto =="EMP" & unit_measure =="HW"& counterpart_area == "W2","HW",accounting_entry)) |>
-      select(-unit_measure,-counterpart_area) |>
+      select(ref_area, ref_sector, sto, unit_measure, accounting_entry,
+             counterpart_area, time_period, nama = obs_value) |>
+      mutate(accounting_entry = if_else(sto == "EMP" & unit_measure == "PS" &
+                                          counterpart_area == "W2", "PS",
+                                        accounting_entry),
+             accounting_entry = if_else(sto == "EMP" & unit_measure == "HW" &
+                                          counterpart_area == "W2", "HW",
+                                        accounting_entry)) |>
+      select(-unit_measure, -counterpart_area) |>
       mutate(nama = as.numeric(nama)) |>
       distinct()
     return(nama_data)
   }
 
-  nama_data <- map(nama_files,read_nama_files) |>
+  # Read XML files with progress feedback
+  cli::cli_progress_message("Reading {length(nama_files)} XML file(s)...")
+  nama_data <- map(nama_files, read_nama_files, .progress = TRUE) |>
     list_rbind()
 
 
