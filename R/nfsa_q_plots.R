@@ -19,6 +19,8 @@
 #'   Defaults to `ggthemes::theme_fivethirtyeight()`.
 #' @param my_colours A character vector of two colors for the lines.
 #'   Defaults to c("#B656BD","#208486").
+#' @param ... Additional filter arguments passed to `nfsa_get_data()`. Can be one or more filter expressions
+#'   applied to columns in the original parquet files (e.g., `filters = "ref_sector == 'S13'"`).
 #'
 #' @return None. The function generates and saves a PDF file containing the plots.
 #'
@@ -40,7 +42,8 @@ nfsa_q_plots <- function(country,
                          output_sel = here::here("output", "plots"),
                          time_min = "1999-Q1",
                          my_theme = ggthemes::theme_fivethirtyeight(),
-                         my_colours = c("#B656BD", "#208486")) {
+                         my_colours = c("#B656BD", "#208486"),
+                         ...) {
 
   comparison <- match.arg(comparison)
 
@@ -51,7 +54,8 @@ nfsa_q_plots <- function(country,
 
   if (comparison == "adjusted_unadjusted") {
     # Compare N (unadjusted) vs Y (seasonally adjusted) from new version
-    tmp_n <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
+    tmp_n <- nfsa::nfsa_get_data(country = country, table = "T0801",
+                                 type = "new", ...) |>
       dplyr::select(ref_area, id, time_period, obs_value) |>
       nfsa::nfsa_separate_id() |>
       dplyr::filter(obs_value != "NaN") |>
@@ -62,7 +66,8 @@ nfsa_q_plots <- function(country,
         adjustment = "N"
       )
 
-    tmp_y <- nfsa::nfsa_get_data(country = country, table = "T0801SA", type = "new") |>
+    tmp_y <- nfsa::nfsa_get_data(country = country, table = "T0801SA",
+                                 type = "new", ...) |>
       dplyr::select(ref_area, id, time_period, obs_value) |>
       nfsa::nfsa_separate_id() |>
       dplyr::filter(obs_value != "NaN") |>
@@ -102,7 +107,8 @@ nfsa_q_plots <- function(country,
 
   } else if (comparison == "new_prev_unadjusted") {
     # Compare new vs prev for unadjusted data
-    tmp_new <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new") |>
+    tmp_new <- nfsa::nfsa_get_data(country = country, table = "T0801",
+                                   type = "new", ...) |>
       nfsa::nfsa_separate_id() |>
       dplyr::filter(obs_value != "NaN") |>
       dplyr::filter(time_period >= time_min) |>
@@ -111,7 +117,8 @@ nfsa_q_plots <- function(country,
         time_period = lubridate::yq(time_period)
       )
 
-    tmp_prev <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "prev") |>
+    tmp_prev <- nfsa::nfsa_get_data(country = country, table = "T0801",
+                                    type = "prev", ...) |>
       nfsa::nfsa_separate_id() |>
       dplyr::filter(obs_value != "NaN") |>
       dplyr::filter(time_period >= time_min) |>
@@ -144,7 +151,8 @@ nfsa_q_plots <- function(country,
 
   } else if (comparison == "new_prev_adjusted") {
     # Compare new vs prev for seasonally adjusted data
-    tmp_new <- nfsa::nfsa_get_data(country = country, table = "T0801SA", type = "new") |>
+    tmp_new <- nfsa::nfsa_get_data(country = country, table = "T0801SA",
+                                   type = "new", ...) |>
       dplyr::filter(obs_value != "NaN") |>
       dplyr::filter(time_period >= time_min) |>
       nfsa::nfsa_separate_id() |>
@@ -155,7 +163,8 @@ nfsa_q_plots <- function(country,
 
     if (nrow(tmp_new) == 0) stop(paste0("No seasonally adjusted file for ", country))
 
-    tmp_prev <- nfsa::nfsa_get_data(country = country, table = "T0801SA", type = "prev") |>
+    tmp_prev <- nfsa::nfsa_get_data(country = country, table = "T0801SA",
+                                    type = "prev", ...) |>
       dplyr::filter(obs_value != "NaN") |>
       dplyr::filter(time_period >= time_min) |>
       nfsa::nfsa_separate_id() |>
