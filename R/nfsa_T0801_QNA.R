@@ -50,7 +50,11 @@ nfsa_T0801_QNA <- function(country,
   cli::cli_progress_message("Locating latest QNA XML files...")
   base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input")
 
-  nama_files <- list.files(path = base_path, pattern = "\\.xml$", full.names = TRUE, recursive = TRUE) |>
+  # Build country pattern for faster file filtering
+  country_pattern <- paste0(".*_(", paste(country, collapse = "|"), ")_.*\\.xml$")
+
+  nama_files <- list.files(path = base_path, pattern = country_pattern,
+                           full.names = TRUE, recursive = TRUE) |>
     tibble::enframe(name = NULL, value = "path") |>
     dplyr::mutate(
       file_name = basename(path),
@@ -58,9 +62,8 @@ nfsa_T0801_QNA <- function(country,
       update_ts = as.numeric(stringr::str_extract(file_name, "\\d{14}"))
     ) |>
     dplyr::filter(file_ref_area %in% country) |>
-    dplyr::group_by(file_ref_area) |>
-    dplyr::slice_max(update_ts, n = 1, with_ties = FALSE) |>
-    dplyr::ungroup() |>
+    dplyr::slice_max(update_ts, n = 1, by = file_ref_area,
+                     with_ties = FALSE) |>
     dplyr::pull(path)
 
   # 3. Read NAMA Data
@@ -79,7 +82,10 @@ nfsa_T0801_QNA <- function(country,
       dplyr::distinct()
   }
 
-  nama_data <- purrr::map(nama_files, read_nama) |> dplyr::bind_rows()
+  # Read XML files with progress feedback
+  cli::cli_progress_message("Reading {length(nama_files)} XML file(s)...")
+  nama_data <- purrr::map(nama_files, read_nama, .progress = TRUE) |>
+    dplyr::bind_rows()
 
   # 4. Join and Calculate Consistency
   # Creating a GDP lookup ensures we don't lose rows if GDP is missing for some periods
