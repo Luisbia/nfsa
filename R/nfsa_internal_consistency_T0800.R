@@ -69,9 +69,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   # Helper function to check if required combinations exist before pivoting
   has_required_combos <- function(df, required_combos) {
     if (nrow(df) == 0) return(FALSE)
-    actual_combos <- df |>
-      dplyr::distinct(ref_sector, accounting_entry)
-    all(required_combos %in% paste0(actual_combos$ref_sector, ".", actual_combos$accounting_entry))
+    all(required_combos %in% names(df))
   }
 
 
@@ -89,7 +87,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
         "D611", "D612", "D613", "D614","D61SC", "D62", "D7", "D71", "D72",
         "D74", "D75", "D8", "D9", "D91", "D92", "D99"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -97,11 +100,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur01 <- ur01_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C, S2.D) |>
@@ -126,7 +124,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D2", "D21", "D29"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -134,11 +137,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur02 <- ur02_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S1.C, S2.D) |>
@@ -162,7 +160,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D3", "D31", "D39"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -170,11 +173,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur03 <- ur03_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S2.C, S1.C) |>
@@ -198,7 +196,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D63", "D631", "D632", "P51C"
       ),
-      ref_sector %in% c("S1"))
+      ref_sector %in% c("S1")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -206,11 +209,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur04 <- ur04_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S1.C) |>
@@ -233,7 +231,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D43", "D74", "D76"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -241,11 +244,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur05 <- ur05_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S2.D) |>
@@ -268,7 +266,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "NP"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -276,11 +279,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur06 <- ur06_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.D, S2.C) |>
@@ -324,7 +322,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D43", "D74"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector,accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -332,11 +335,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur08 <- ur08_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector,accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, sto, time_period, S1.C, S2.C) |>
@@ -359,7 +357,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::filter(sto %in% c(
         "D12","D611","D612"
       ),
-      ref_sector %in% c("S1", "S2"))
+      ref_sector %in% c("S1", "S2")) |>
+
+
+      tidyr::pivot_wider(names_from = c(ref_sector,sto,accounting_entry),
+      values_from = obs_value,
+      names_sep = ".")
 
 
 
@@ -367,11 +370,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur09 <- ur09_filtered |>
-
-
-      tidyr::pivot_wider(names_from = c(ref_sector,sto,accounting_entry),
-      values_from = obs_value,
-      names_sep = ".") |>
 
 
       dplyr::select(ref_area, time_period, S1.D12.D, S2.D12.C,S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D) |>
@@ -398,7 +396,11 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       ref_sector %in% c("S1", "S2")
     ) |>
    nfsa_unite_id() |>
-    dplyr::filter(id %in% c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D"))
+    dplyr::filter(id %in% c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D")) |>
+
+
+      tidyr::pivot_wider(names_from = id,
+                values_from = obs_value)
 
 
 
@@ -406,10 +408,6 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     ur10 <- ur10_filtered |>
-
-
-      tidyr::pivot_wider(names_from = id,
-                values_from = obs_value) |>
 
 
       dplyr::select(ref_area, time_period, S1.D442.D, S2.D442.C, S1.D614.C, S2.D614.D) |>
