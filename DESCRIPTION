@@ -32,6 +32,7 @@ Imports:
     fs,
     SAvalidation,
     gridExtra,
-    readr
+    readr,
+    magrittr
 NeedsCompilation: no
 Packaged: 2026-01-14; biedmlu

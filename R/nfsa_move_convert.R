@@ -46,11 +46,11 @@
 #'
 #' @export
 nfsa_move_convert <- function(country,
-                               table = c("T0800", "T0801", "T0801SA"),
-                               period = NULL,
-                               input_sel = NULL,
-                               output_sel = NULL,
-                               process_all = FALSE) {
+                              table = c("T0800", "T0801", "T0801SA"),
+                              period = NULL,
+                              input_sel = NULL,
+                              output_sel = NULL,
+                              process_all = FALSE) {
 
   table <- match.arg(table)
 
@@ -113,7 +113,7 @@ nfsa_move_convert <- function(country,
   }
 
   # Extract versions and get latest
-  files_df <- tibble::as_tibble() |>
+  files_df <- tibble::as_tibble(files) |>
     dplyr::mutate(version = as.numeric(stringr::str_extract(value, config$version_regex)))
 
   if (process_all) {
@@ -183,7 +183,7 @@ nfsa_move_convert <- function(country,
     if (length(files_have) == 0) {
       files_have <- "no file"
     } else {
-      files_have_df <- dplyr::as_tibble(value = files_have) |>
+      files_have_df <- tibble::as_tibble(files_have) |>
         dplyr::mutate(version = as.numeric(stringr::str_extract(value, config$version_regex))) |>
         dplyr::filter(version == max(version)) |>
         dplyr::mutate(

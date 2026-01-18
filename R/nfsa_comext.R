@@ -4,7 +4,7 @@
 #'   data for a specified area (EA20 or EU27) and quarter.
 #'
 #' @param area A string indicating the geographical area ("EA20" or "EU27").
-#' @param quarter A string representing the target quarter in the format "YYYYQ#" (e.g., "2023Q4").
+#' @param quarter A string representing the target quarter in the format "YYYYQQ" (e.g., "2023Q4").
 #' @param output_sel A string specifying the directory where the output CSV file should be saved.
 #' @param input_sel A string specifying the directory where the additional historical files are saved.
 #'   Defaults to the standard Comext production directory. The directory must contain the appropriate

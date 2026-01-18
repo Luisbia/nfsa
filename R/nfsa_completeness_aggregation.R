@@ -23,6 +23,11 @@
 nfsa_completeness_aggregation <- function(country ,
                                           table = "T0801",
                                           output_sel = here::here("output", "completeness")) {
+  library(tidyverse)
+  library(arrow)
+  library(openxlsx)
+
+
   lookup <- nfsa::nfsa_sto_lookup
 
   # Initialize dat_missing to avoid scope issues
@@ -34,18 +39,6 @@ nfsa_completeness_aggregation <- function(country ,
     req_time <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
-      open_dataset() |>
-      select(time_period) |>
-      filter(time_period>= "1999-Q1") |>
-      distinct() |>
-      collect()
-
-    req <- readxl::read_xlsx(requirements)%>%
-      cross_join(.,req_time)
-
-    dat <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
-                      pattern = ".parquet",
-                      full.names = TRUE) |>
       as_tibble() |>
       mutate(
         version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
@@ -57,27 +50,33 @@ nfsa_completeness_aggregation <- function(country ,
       slice_tail(n = 1) |>
       pull(value) |>
       open_dataset() |>
-      select(-received, -embargo_date,-version) |>
+      select(time_period,sto) |>
+      filter(time_period>= "1999-Q1", sto == "B1GQ") |>
+      select(time_period) |>
+      distinct() |>
+      collect() |>
+      arrange()
+
+    req <- readxl::read_xlsx(requirements)%>%
+      expand_grid(.,req_time,country) |>
+      rename(ref_area = country)
+
+    dat <- nfsa_get_data(country = country) |>
+      nfsa::nfsa_separate_id() |>
       filter(time_period >= "1999-Q1",
-             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M")) |>
-      collect()  %>%
-      left_join(.,lookup,by = join_by(counterpart_area,
-                                      ref_sector, counterpart_sector, consolidation,
-                                      accounting_entry, sto, instr_asset, unit_measure,
-                                      prices)) |>
-      select(ref_area,table_identifier,id,time_period,obs_value,obs_status) %>%
-      left_join(req,., by = join_by(id, time_period))
+             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
+      nfsa_unite_id() %>%
+      left_join(req,., by = join_by(ref_area,id, time_period))
 
     dat_missing <- dat |>
-      filter(is.na(obs_value))|>
-      nfsa_separate_id()
+      filter(is.na(obs_value))
 
 
     if (nrow(dat_missing) == 0) {
       cli::cli_inform(paste0("Data requirements for ",table, " are fulfilled" ))
     } else {
 
-
+      nfsa::nfsa_to_excel(dat_missing)
       write.xlsx(dat_missing,
                  asTable = TRUE,
                  file = paste0(output_sel, "/completeness_aggregation_",
@@ -94,18 +93,6 @@ nfsa_completeness_aggregation <- function(country ,
     req_time <- list.files(path = "M:/nas/Rprod/data/a/new/",
                            pattern = ".parquet",
                            full.names = TRUE) |>
-      open_dataset() |>
-      select(time_period) |>
-      filter(time_period>= "1999") |>
-      distinct() |>
-      collect()
-
-    req <- readxl::read_xlsx(requirements)%>%
-      cross_join(.,req_time)
-
-    dat <- list.files(path = "M:/nas/Rprod/data/a/new/",
-                      pattern = ".parquet",
-                      full.names = TRUE) |>
       as_tibble() |>
       mutate(
         version = as.numeric(str_extract(value, "(?<=_A_..............).{4}")),
@@ -117,20 +104,28 @@ nfsa_completeness_aggregation <- function(country ,
       slice_tail(n = 1) |>
       pull(value) |>
       open_dataset() |>
-      select(-received, -embargo_date,-version) |>
+      select(time_period,sto) |>
+      filter(time_period>= "1999", sto == "B1GQ") |>
+      select(time_period) |>
+      distinct() |>
+      collect() |>
+      arrange()
+
+    req <- readxl::read_xlsx(requirements)%>%
+      expand_grid(.,req_time,country) |>
+      rename(ref_area = country)
+
+    dat <- nfsa_get_data(country = country, table = "T0800") |>
+      nfsa::nfsa_separate_id() |>
       filter(time_period >= "1999",
-             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M")) |>
-      collect()  %>%
-      left_join(.,lookup,by = join_by(counterpart_area,
-                                      ref_sector, counterpart_sector, consolidation,
-                                      accounting_entry, sto, instr_asset, unit_measure,
-                                      prices)) |>
-      select(ref_area,table_identifier,id,time_period,obs_value,obs_status) %>%
-      left_join(req,., by = join_by(id, time_period))
+             ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
+      nfsa_unite_id() %>%
+      left_join(req,., by = join_by(ref_area,id, time_period))
 
     dat_missing <- dat |>
       filter(is.na(obs_value))|>
-      nfsa_separate_id()
+      nfsa_separate_id() |>
+      filter(!str_detect(sto,"N|M")) #D7N,P5M...
 
 
 
@@ -138,6 +133,7 @@ nfsa_completeness_aggregation <- function(country ,
       cli::cli_inform(paste0("Data requirements for ",table, " are fulfilled" ))
     } else {
 
+      nfsa::nfsa_to_excel(dat_missing)
 
       write.xlsx(dat_missing,
                  asTable = TRUE,
@@ -151,12 +147,9 @@ nfsa_completeness_aggregation <- function(country ,
     }
   }
 
-  # Check if table parameter was valid
-  if (is.null(dat_missing)) {
-    cli::cli_abort("Invalid table parameter. Must be 'T0801' or 'T0800'.")
-  }
 
-  nfsa::nfsa_to_excel(dat_missing)
+
+
   return(dat_missing)
 }
 
