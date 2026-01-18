@@ -28,13 +28,25 @@ folders <- data.frame(
   stringsAsFactors = FALSE
 )
 
+# Initialize counters for summary
+total_copied <- 0
+total_skipped <- 0
+
+# Start message
+cli::cli_progress_message(
+  "Copying {country} parquet files to {output_folder}..."
+)
+
 # 2. Loop through each row and perform the copy
 for (i in 1:nrow(folders)) {
-  
+
   # Construct full paths
   source_path <- paste0("M:/nas/Rprod/data/", folders$rel_path[i])
   target_path <- paste0(output_folder, folders$rel_path[i])
-  
+
+  # Show which folder is being processed
+  cli::cli_alert_info("Processing {folders$rel_path[i]}...")
+
   # Find files
   files_to_copy <- list.files(
     path = source_path,
@@ -42,26 +54,37 @@ for (i in 1:nrow(folders)) {
     full.names = TRUE,
     recursive = FALSE
   )
-  
+
   # Check if files exist before trying to copy
   if (length(files_to_copy) > 0) {
-    
+
     # Attempt copy
-    results <- file.copy(files_to_copy, target_path, overwrite = FALSE, copy.date = TRUE)
-    
-    # Report back to user
-    success_count <- sum(results)
+    results <- file.copy(files_to_copy, target_path, overwrite = FALSE,
+                         copy.date = TRUE)
+
+    # Get filenames
     filenames <- basename(files_to_copy)
-    
+
     # Print the specific files moved for this folder
     for (j in seq_along(results)) {
       if (results[j]) {
-        message("COPIED: ", filenames[j])
-      } 
+        cli::cli_alert_success("Copied: {filenames[j]}")
+        total_copied <- total_copied + 1
+      } else {
+        cli::cli_alert_warning("Already exists: {filenames[j]}")
+        total_skipped <- total_skipped + 1
+      }
     }
-    
+
   } else {
-    message("SKIP: No files found for ", folders$rel_path[i], " with country: ", country)
+    cli::cli_alert_info(
+      "No files found in {folders$rel_path[i]} for country {country}"
+    )
   }
 }
+
+  # Summary message at the end
+  cli::cli_alert_success(
+    "Completed! Copied {total_copied} file(s), skipped {total_skipped} file(s)"
+  )
 }
