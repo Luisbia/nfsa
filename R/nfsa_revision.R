@@ -16,6 +16,8 @@
 #'   Defaults to 0.
 #' @param output_sel Path to the directory where the output Excel file containing the revisions will be saved.
 #'   Defaults to `here("output", "revisions")`.
+#' @param ... Additional filter arguments passed to `nfsa_get_data()`. Can be one or more filter expressions
+#'   applied to columns in the original parquet files (e.g., `filters = "ref_sector == 'S13'"`).
 #'
 #' @return A data frame containing the identified revisions with columns for reference area, sector,
 #'   STO, accounting entry, time period, new value, previous value, revision, revision percentage,
@@ -40,7 +42,8 @@ nfsa_revision <- function(country,
                           type = c("vintage", "version"),
                           abs_threshold = NULL,
                           rel_threshold = 0,
-                          output_sel = here::here("output", "revisions")) {
+                          output_sel = here::here("output", "revisions"),
+                          ...) {
 
   # Validate arguments
   table <- match.arg(table)
@@ -71,7 +74,8 @@ nfsa_revision <- function(country,
   lookup <- nfsa::nfsa_sto_lookup
 
   # Get new data
-  new_db <- nfsa::nfsa_get_data(country = country, table = table, type = "new") |>
+  new_db <- nfsa::nfsa_get_data(country = country, table = table,
+                                type = "new", ...) |>
     dplyr::select(ref_area, id, time_period, new = obs_value) |>
     tidyr::separate_wider_delim(cols = id,
                                  delim = ".",
@@ -79,7 +83,8 @@ nfsa_revision <- function(country,
 
   # Get previous data based on type
   if (type == "vintage") {
-    prev_db <- nfsa::nfsa_get_data(country = country, table = table, type = "prev") |>
+    prev_db <- nfsa::nfsa_get_data(country = country, table = table,
+                                   type = "prev", ...) |>
       dplyr::select(ref_area, id, time_period, prev = obs_value) |>
       tidyr::separate_wider_delim(cols = id,
                                    delim = ".",

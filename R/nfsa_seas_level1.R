@@ -3,7 +3,7 @@
 #' @description This function performs level 1 seasonality checks on time series data, comparing seasonally adjusted (SCA) and non-seasonally adjusted (NSA) data.
 #'   It identifies series with potential issues like residual seasonality, over-adjustment, or inconsistencies between NSA and SCA data.
 #'
-#' @param country A character vector specifying the countries to process (e.g., "BE", "IT", "FR").  Defaults to c("BE","IT", "FR", "FI", "PL", "EE", "SK", "SI").
+#' @param country A character vector specifying the countries to process (e.g., c("BE", "IT", "FR")).
 #' @param time_min From which quarter the series are analysed, by default "1999-Q1"
 #' @param input_sel The path to the directory containing the input data files. Defaults to `"M:/nas/Rprod/data/"`.
 #' @param output_sel The path to the directory where the output Excel file will be saved. Defaults to `here::here("output", "seas")`.
