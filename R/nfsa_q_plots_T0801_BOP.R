@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' nfsa_remove_output_files("output/plots")
+#' nfsa_q_plots_T0801_BOP(country = "IT", quarter = "2025Q3")
 #' }
 nfsa_q_plots_T0801_BOP <- function(country,
                                    quarter,

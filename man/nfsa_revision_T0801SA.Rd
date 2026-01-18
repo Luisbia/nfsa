@@ -2,41 +2,53 @@
 % Please edit documentation in R/nfsa_revision_T0801SA.R
 \name{nfsa_revision_T0801SA}
 \alias{nfsa_revision_T0801SA}
-\title{Detects and reports revisions in T0801sa data between two versions of the database.}
+\title{Identify and Report Revisions in T0801SA (Seasonally Adjusted) Data}
 \usage{
 nfsa_revision_T0801SA(
   country,
   type = "vintage",
   abs_threshold = 10,
   rel_threshold = 0,
-  output_sel = here("output", "revisions")
+  output_sel = here::here("output", "revisions")
 )
 }
 \arguments{
-\item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
+\item{country}{A character vector specifying the country or countries to analyze.
+This should correspond to the country codes used in the input file names.}
 
-\item{type}{Either to compare with the last version of the previous quarter ("vintage") or with the previous version of this period ("version")}
+\item{type}{Either to compare with the last version of the previous quarter ("vintage") or with the previous version of this quarter ("version")}
 
-\item{abs_threshold}{A numeric value specifying the absolute threshold for revision detection. Revisions with an absolute difference greater than this threshold are flagged. Defaults to 10.}
+\item{abs_threshold}{A numeric value specifying the minimum absolute revision value to consider.
+Revisions with an absolute value less than this threshold will be filtered out. Defaults to 10.}
 
-\item{rel_threshold}{A numeric value specifying the relative threshold (percentage of GDP) for revision detection. Revisions with a relative difference greater than this threshold are flagged. Defaults to 0.}
+\item{rel_threshold}{A numeric value specifying the minimum relative revision value (as a percentage of GDP) to consider.
+Revisions with an absolute relative value less than this threshold will be filtered out. Defaults to 0.}
 
-\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
+\item{output_sel}{A character string specifying the path to the directory where the output Excel file will be saved.
+Defaults to \code{here("output", "revisions")}.}
 }
 \value{
-This function does not return a value. It generates an Excel file containing the identified revisions in the specified output directory.  A success message is printed to the console indicating the file name and location.
+This function returns a data frame containing the identified revisions and saves an Excel file
+to the specified output directory. If no revisions meet the threshold criteria, a message will be displayed in the console.
 }
 \description{
-This function compares new and previous versions of T0801 data, identifies revisions based on absolute and relative thresholds,
-and exports the revisions to an Excel file.  It utilizes \code{arrow} for efficient data handling and \code{openxlsx} for Excel output.
+This function identifies and reports revisions between two versions of T0801SA data.
+It compares the \code{obs_value} in the new and previous datasets, calculates the absolute and
+relative revisions, and filters the results based on specified thresholds.
+
+This is a wrapper around \code{nfsa_revision()} for backward compatibility.
+Consider using \code{nfsa_revision(table = "T0801SA")} directly.
 }
 \examples{
 \dontrun{
-# Example usage with default thresholds:
-nfsa_revision_T0801SA(country = c("ES", "IT"))
+# Example usage with default thresholds and file paths:
+nfsa_revision_T0801SA(country = "BE")
 
 # Example usage with custom thresholds:
-nfsa_revision_T0801SA(country = c("ES", "IT"), abs_threshold = 20, rel_threshold = 0.5)
+nfsa_revision_T0801SA(country = c("IT", "ES"),
+                       abs_threshold = 20,
+                       rel_threshold = 0.5,
+                       output_sel = here("path", "to", "output"))
 }
 
 }

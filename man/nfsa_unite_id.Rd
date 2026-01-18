@@ -7,14 +7,14 @@
 nfsa_unite_id(data)
 }
 \arguments{
-\item{data}{A data frame containing the columns to be united.  Must contain columns named \code{ref_sector}, \code{sto}, and \code{acounting_entry}.}
+\item{data}{A data frame containing the columns to be united.  Must contain columns named \code{ref_sector}, \code{sto}, and \code{accounting_entry}.}
 }
 \value{
 A data frame with the specified columns united into a new column named "id", and the original columns removed.
 }
 \description{
 This function takes a data frame and unites three specified columns
-(\code{ref_sector}, \code{sto}, and \code{acounting_entry}) into a single column named "id".
+(\code{ref_sector}, \code{sto}, and \code{accounting_entry}) into a single column named "id".
 The columns are joined using a period (".") as a separator.
 }
 \examples{
@@ -22,7 +22,7 @@ The columns are joined using a period (".") as a separator.
 df <- data.frame(
   ref_sector = c("S1", "S2", "S11"),
   sto = c("B1G", "P3", "D41"),
-  acounting_entry = c("B", "D", "C"),
+  accounting_entry = c("B", "D", "C"),
   value = c(10, 20, 30)
 )
 

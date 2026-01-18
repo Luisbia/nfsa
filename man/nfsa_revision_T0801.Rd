@@ -9,7 +9,7 @@ nfsa_revision_T0801(
   type = "vintage",
   abs_threshold = 10,
   rel_threshold = 0,
-  output_sel = here("output", "revisions")
+  output_sel = here::here("output", "revisions")
 )
 }
 \arguments{
@@ -24,11 +24,15 @@ nfsa_revision_T0801(
 \item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
 }
 \value{
-This function does not return a value. It generates an Excel file containing the identified revisions in the specified output directory.  A success message is printed to the console indicating the file name and location.
+This function returns a data frame containing the identified revisions. It generates an Excel file containing the identified revisions in the specified output directory.  A success message is printed to the console indicating the file name and location.
 }
 \description{
 This function compares new and previous versions of T0801 data, identifies revisions based on absolute and relative thresholds,
 and exports the revisions to an Excel file.  It utilizes \code{arrow} for efficient data handling and \code{openxlsx} for Excel output.
+}
+\details{
+This is a wrapper around \code{nfsa_revision()} for backward compatibility.
+Consider using \code{nfsa_revision(table = "T0801")} directly.
 }
 \examples{
 \dontrun{

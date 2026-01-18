@@ -7,7 +7,7 @@
 nfsa_theme()
 }
 \value{
-a set of theme paremeters
+a set of theme parameters
 }
 \description{
 Default theme options for charts

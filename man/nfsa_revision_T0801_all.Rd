@@ -6,17 +6,22 @@
 \usage{
 nfsa_revision_T0801_all(
   country,
-  input_sel = "M:/nas/Rprod/data/q/",
-  output_sel = here::here("output", "revisions")
+  input_sel = "M:/nas/Rprod/data/",
+  output_sel = here::here("output", "revisions"),
+  ...
 )
 }
 \arguments{
-\item{country}{A character string specifying the country code to filter the data.Only one country!}
+\item{country}{A character string specifying the country code to filter the data. Only one country!}
 
 \item{input_sel}{A character string specifying the path to the directory containing the Parquet files.
-Defaults to \code{"M:/nas/Rprod/data/q/"}.}
+Defaults to \code{"M:/nas/Rprod/data/"}.}
 
-\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved. Defaults to \code{here("output", "revisions")}.}
+\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved.
+Defaults to \code{here("output", "revisions")}.}
+
+\item{...}{Additional filters to pass to nfsa_get_data_all(). Filters should be provided as character strings
+(e.g., "ref_sector == 'S13'", "sto == 'B9'"). Multiple filters can be provided as separate arguments.}
 }
 \value{
 An Excel workbook containing the identified revisions,
@@ -28,14 +33,22 @@ This function identifies and extracts revisions in the NASEC T0801 data for a sp
 comparing different versions of the data stored as Parquet files. It joins the data with a lookup table,
 calculates the changes between versions, and prepares the data for export to Excel.
 }
+\details{
+This is a wrapper around \code{nfsa_revision_all()} for backward compatibility.
+Consider using \code{nfsa_revision_all(table = "T0801")} directly.
+}
 \examples{
 \dontrun{
 # Example usage: Identify and extract revisions for country code "IT"
-# from Parquet files located in the default "data/q" directory.
 nfsa_revision_T0801_all(country = "IT")
 
-# Example usage: Identify and extract revisions for country code "BE"
-# from Parquet files located in a custom directory.
+# Example with filters: Only revisions for sector S13
+nfsa_revision_T0801_all(country = "IT", "ref_sector == 'S13'")
+
+# Example with multiple filters
+nfsa_revision_T0801_all(country = "IT", "ref_sector == 'S13'", "sto == 'B9'")
+
+# Example with custom directory
 nfsa_revision_T0801_all(country = "BE", input_sel = "path/to/my/data")
 }
 

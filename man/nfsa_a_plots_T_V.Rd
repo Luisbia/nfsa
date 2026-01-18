@@ -6,7 +6,7 @@
 \usage{
 nfsa_a_plots_T_V(
   country,
-  output_sel = here("output", "plots"),
+  output_sel = here::here("output", "plots"),
   time_min = 1995,
   my_theme = ggthemes::theme_fivethirtyeight(),
   my_colours = c("#B656BD", "#208486")

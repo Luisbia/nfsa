@@ -9,13 +9,14 @@ nfsa_revision_T0800(
   type = "vintage",
   abs_threshold = 100,
   rel_threshold = 0,
-  output_sel = here("output", "revisions")
+  output_sel = here::here("output", "revisions")
 )
 }
 \arguments{
 \item{country}{A character vector specifying the country or countries to analyze.
-This should correspond to the country codes used in the input file names.
-#' @param type Either to compare with the last version of the previous year ("vintage") or with the previous version of this year ("version")}
+This should correspond to the country codes used in the input file names.}
+
+\item{type}{Either to compare with the last version of the previous year ("vintage") or with the previous version of this year ("version")}
 
 \item{abs_threshold}{A numeric value specifying the minimum absolute revision value to consider.
 Revisions with an absolute value less than this threshold will be filtered out. Defaults to 100.}
@@ -27,26 +28,16 @@ Revisions with an absolute relative value less than this threshold will be filte
 Defaults to \code{here("output", "revisions")}.}
 }
 \value{
-This function does not return a value, but saves an Excel file containing the identified revisions to the specified output directory.
-The file name includes a timestamp and the country code (if a single country is selected).  If no revisions meet the threshold criteria, a message will be displayed in the console.
+This function returns a data frame containing the identified revisions and saves an Excel file
+to the specified output directory. If no revisions meet the threshold criteria, a message will be displayed in the console.
 }
 \description{
 This function identifies and reports revisions between two versions of T0800 data.
 It compares the \code{obs_value} in the new and previous datasets, calculates the absolute and
 relative revisions, and filters the results based on specified thresholds.
-}
-\details{
-The function performs the following steps:
-\enumerate{
-\item Loads the new and previous T0800 data files from the specified directories. The function extracts the version and country code from the filenames.
-\item Cleans and transforms the data, including joining with a lookup table (\code{nfsa::nfsa_sto_lookup}),
-separating the \code{id} column into \code{ref_sector}, \code{sto}, and \code{accounting_entry}, and removing rows with missing values.
-\item Calculates the absolute revision (\code{rev}) as the difference between the new and previous \code{obs_value}.
-\item Calculates the relative revision (\code{revp}) as the percentage change relative to the previous \code{obs_value}.
-\item Calculates the revision as a percentage of GDP (\code{as_GDP}).
-\item Filters the revisions based on the specified \code{abs_threshold} and \code{rel_threshold}.
-\item Saves the filtered revisions to an Excel file in the specified output directory.
-}
+
+This is a wrapper around \code{nfsa_revision()} for backward compatibility.
+Consider using \code{nfsa_revision(table = "T0800")} directly.
 }
 \examples{
 \dontrun{

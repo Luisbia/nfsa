@@ -8,8 +8,8 @@ nfsa_sequence_T0801(
   country,
   time_min = "2020-Q1",
   type = "values",
-  template = here("assets", "seq_accounts_T0801.xlsx"),
-  output_sel = here("output", "sequence")
+  template = here::here("assets", "seq_accounts_T0801.xlsx"),
+  output_sel = here::here("output", "sequence")
 )
 }
 \arguments{

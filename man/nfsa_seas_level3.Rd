@@ -5,7 +5,7 @@
 \title{Perform Level 3 Seasonal Adjustment Validation for Eurostat Data}
 \usage{
 nfsa_seas_level3(
-  series = here("assets", "seas_level1.xlsx"),
+  series = here::here("assets", "seas_level1.xlsx"),
   time_min = "1999-Q1",
   input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "seas"),
