@@ -8,6 +8,7 @@ nfsa_T0801_QNA(
   country,
   quarter,
   threshold = 1,
+  non_validated = FALSE,
   input_sel = "M:/nas/Rprod/data/q/new/nsa/",
   output_sel = here::here("output", "inter_domain")
 )
@@ -18,6 +19,8 @@ nfsa_T0801_QNA(
 \item{quarter}{A character string specifying the quarter in "YYYYQQ" format (e.g., "2023Q1").}
 
 \item{threshold}{A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.}
+
+\item{non_validated}{Logical condition. If \code{FALSE}, which is the default option, only looks for files in validated. If set to \code{TRUE} also looks in non-validated.}
 
 \item{input_sel}{A character string specifying the directory containing the NFSA data. Default is \code{"M:/nas/Rprod/data/q/new/nsa/"}.}
 
