@@ -17,7 +17,7 @@
 #' @param output_sel A character string specifying the path to the directory where the output Excel file will be saved.
 #'        Defaults to `here("output", "revisions")`.
 #'
-#' @return This function returns a data frame containing the identified revisions and saves an Excel file 
+#' @return This function returns a data frame containing the identified revisions and saves an Excel file
 #' to the specified output directory. If no revisions meet the threshold criteria, a message will be displayed in the console.
 #'
 #' @examples
@@ -41,7 +41,7 @@ nfsa_revision_T0800 <- function(country,
 
   # Deprecation warning
   lifecycle::deprecate_soft(
-    when = "0.2.0",
+    when = "1.0.0",
     what = "nfsa_revision_T0800()",
     with = "nfsa_revision(table = 'T0800')"
   )

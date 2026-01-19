@@ -10,7 +10,8 @@ nfsa_revision(
   type = c("vintage", "version"),
   abs_threshold = NULL,
   rel_threshold = 0,
-  output_sel = here::here("output", "revisions")
+  output_sel = here::here("output", "revisions"),
+  ...
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ Defaults to 0.}
 
 \item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved.
 Defaults to \code{here("output", "revisions")}.}
+
+\item{...}{Additional filter arguments passed to \code{nfsa_get_data()}. Can be one or more filter expressions
+applied to columns in the original parquet files (e.g., \code{filters = "ref_sector == 'S13'"}).}
 }
 \value{
 A data frame containing the identified revisions with columns for reference area, sector,

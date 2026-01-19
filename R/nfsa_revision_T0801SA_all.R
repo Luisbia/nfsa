@@ -42,7 +42,7 @@ nfsa_revision_T0801SA_all <- function(country,
 
   # Deprecation warning
   lifecycle::deprecate_soft(
-    when = "0.2.0",
+    when = "1.0.0",
     what = "nfsa_revision_T0801SA_all()",
     with = "nfsa_revision_all(table = 'T0801SA')"
   )

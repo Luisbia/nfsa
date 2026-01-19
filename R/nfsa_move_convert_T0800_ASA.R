@@ -24,7 +24,7 @@ nfsa_move_convert_T0800_ASA10 <- function(country,
 
   # Deprecation warning
   lifecycle::deprecate_soft(
-    when = "0.2.0",
+    when = "1.0.0",
     what = "nfsa_move_convert_T0800_ASA10()",
     with = "nfsa_move_convert(table = 'T0800', process_all = TRUE)"
   )
