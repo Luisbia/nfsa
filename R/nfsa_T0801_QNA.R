@@ -80,7 +80,8 @@ nfsa_T0801_QNA <- function(country,
           sto == "EMP" & unit_measure == "HW" & counterpart_area == "W2" ~ "HW",
           TRUE ~ accounting_entry
         ),
-        nama = as.numeric(obs_value)
+        nama = as.numeric(obs_value),
+        source_date = as.Date(stringr::str_extract(basename(file), "\\d{14}"), format = "%Y%m%d%H%M%S")
       ) |>
       dplyr::distinct()
   }

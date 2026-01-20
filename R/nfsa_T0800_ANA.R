@@ -72,6 +72,7 @@ nfsa_T0800_ANA <- function(country,
 
 
   read_nama_files <- function(file){
+    file_timestamp <- stringr::str_extract(basename(file), "\\d{14}")
     nama_data <- read_sdmx(file) |>
       janitor::clean_names() |>
       select(ref_area, ref_sector, sto, unit_measure, accounting_entry,
@@ -83,7 +84,8 @@ nfsa_T0800_ANA <- function(country,
                                           counterpart_area == "W2", "HW",
                                         accounting_entry)) |>
       select(-unit_measure, -counterpart_area) |>
-      mutate(nama = as.numeric(nama)) |>
+      mutate(nama = as.numeric(nama),
+             source_date = as.Date(file_timestamp, format = "%Y%m%d%H%M%S")) |>
       distinct()
     return(nama_data)
   }
