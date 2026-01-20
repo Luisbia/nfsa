@@ -1,13 +1,13 @@
 #' Generate plots comparing not adjusted data from two sources (T and V) for a given country.
 #'
-#' This function reads seasonally adjusted data from two different sources ("T" and "V")
+#' This function reads annual data from two different sources ("T" and "V")
 #' for a specified country, filters and processes the data, and generates time series plots
 #' comparing the two sources for various statistical concepts (STO).
 #' The plots are saved as a PDF file.
 #'
 #' @param country A character string specifying the country code (e.g., "AT"). This code is used to filter the data files.
 #' @param output_sel A character string specifying the path to the directory where the generated PDF file should be saved. Defaults to `here("output", "plots")`.
-#' @param time_min A character string specifying the earliest time period to include in the plots, in the format "YYYY-QX" (e.g., "1999-Q1"). Defaults to "1999-Q1".
+#' @param time_min A numeric or character string specifying the earliest year to include in the plots (e.g., 1995). Defaults to 1995.
 #' @param my_theme A ggplot2 theme object to use for the plots. Defaults to `ggthemes::theme_fivethirtyeight()`.
 #' @param my_colours Choose the colours for the lines, for example c("darkred","grey60")
 #'
@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' nfsa_q_plots_T_V_N(country = "AT", output_sel = here("my_output"))
+#' nfsa_a_plots_T_V(country = "AT", output_sel = here("my_output"))
 #' }
 #'
 #' @export
@@ -41,18 +41,18 @@ tmp_t <- nfsa::nfsa_get_data(country = country,
   dplyr::mutate(source = "T",
          time_period = as.integer(time_period))
 
-tmp_v<- nfsa::nfsa_get_data(country = country,
+tmp_v <- nfsa::nfsa_get_data(country = country,
                             table = "T0800",
                             type = "prev") |>
-  dplyr::filter(time_period >= time_min) |>
   nfsa::nfsa_separate_id() |>
   dplyr::filter(obs_value != "NaN") |>
+  dplyr::filter(time_period >= time_min) |>
   dplyr::mutate(source = "V",
          time_period = as.integer(time_period))
 
-tmp <- dplyr::bind_rows(tmp_t, tmp_v) %>%
-  stats::na.omit() %>%
-  dplyr::left_join(.,sto_label, by = dplyr::join_by(sto)) |>
+tmp <- dplyr::bind_rows(tmp_t, tmp_v) |>
+  stats::na.omit() |>
+  dplyr::left_join(sto_label, by = dplyr::join_by(sto)) |>
   dplyr::mutate(sto = paste0(sto,".",accounting_entry,"-",sto_label)) |>
   dplyr::select(-sto_label) |>
   tidyr::nest(.by = c(ref_area,sto))
@@ -75,7 +75,7 @@ charts <- tmp |>
 
 cli::cli_progress_message("Generating file...")
 ggplot2::ggsave(
-  filename = paste0(output_sel,"/", country,"_a_T_V.pdf"),
+  filename = file.path(output_sel, paste0(country, "_a_T_V.pdf")),
   plot = gridExtra::marrangeGrob(charts, nrow=1, ncol=1),
   width = 15, height = 9
 )

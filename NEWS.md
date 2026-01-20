@@ -9,17 +9,17 @@
 
 # nfsa 0.0.4
 
-* Proper completeness report according to regulation
-* new function nfsa_comext() to download data from ITGS from Eurobase
-* new convenience functions for reading matis,xml and xlsx.csv files
+* Proper completeness report according to regulation.
+* New function nfsa_comext() to download data from ITGS from Eurobase.
+* New convenience functions for reading matis, xml, xlsx and csv files.
 * nfsa_comext() now checks there are three months before calculating the quarter.
-* nfsa_seas_level1() only checks X13, no TS in order to be consistent between leve1 and level2/3
+* nfsa_seas_level1() only checks X13, no TS in order to be consistent between level1 and level2/3.
 
 # nfsa 0.0.5
 
-* Removed euro area requirements for non-EA countries in completeness_regulation()
-* Added /internal to nfsa_folders()
-* Output an excel file for all revisions
+* Removed euro area requirements for non-EA countries in completeness_regulation().
+* Added /internal to nfsa_folders().
+* Output an excel file for all revisions.
 
 # nfsa 0.0.6
 
@@ -27,12 +27,12 @@
 * Better alignment of codes with the ones in the VR tool.
 * Fix missing / in the output of conf/obs status.
 * Internal consistency T0800/T0801 using Conval rules (which I think need to be reviewed!).
-* New functions to read (not from Famex!) and write excel templates. 
+* New functions to read (not from Famex!) and write excel templates.
 
 
 # nfsa 0.0.7
 * Internal consistency T0800/T0801 now handles the case when transactions are missing.
-* Delete some not so useful functions (nfsa_completeness_regulation)
+* Delete some not so useful functions (nfsa_completeness_regulation).
 
 # nfsa 0.0.8
 * Default data directory is M:
@@ -43,8 +43,8 @@
 * New function to copy locally parquet files from server.
 
 # nfsa 0.0.9 dev
-* adding some code suggestions from Gemini
-* option to have revision of versions in sequence of accounts
-* new function to delete content of output folders
-* most output sent to temporary excel files on the screen to avoid searching for files
-* new function to plot together T0801/BÔP
+* Adding some code suggestions from Gemini.
+* Option to have revision of versions in sequence of accounts.
+* New function to delete content of output folders.
+* Most output sent to temporary excel files on the screen to avoid searching for files.
+* New function to plot together T0801/BOP.
