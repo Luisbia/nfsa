@@ -12,7 +12,7 @@ nfsa_seas_level1(
 )
 }
 \arguments{
-\item{country}{A character vector specifying the countries to process (e.g., "BE", "IT", "FR").  Defaults to c("BE","IT", "FR", "FI", "PL", "EE", "SK", "SI").}
+\item{country}{A character vector specifying the countries to process (e.g., c("BE", "IT", "FR")).}
 
 \item{time_min}{From which quarter the series are analysed, by default "1999-Q1"}
 

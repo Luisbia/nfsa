@@ -5,6 +5,7 @@
 #' @param country A character vector specifying the country or countries to process (ISO2 code).
 #' @param quarter A character string specifying the quarter in "YYYYQQ" format (e.g., "2023Q1").
 #' @param threshold A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.
+#' @param non_validated Logical condition. If `FALSE`, which is the default option, only looks for files in validated. If set to `TRUE` also looks in non-validated.
 #' @param input_sel A character string specifying the directory containing the NFSA data. Default is `"M:/nas/Rprod/data/q/new/nsa/"`.
 #' @param output_sel A character string specifying the directory to save the output Excel file. Default is `here::here("output", "inter_domain")`.
 #'
@@ -30,6 +31,7 @@
 nfsa_T0801_QNA <- function(country,
                            quarter,
                            threshold = 1,
+                           non_validated = FALSE,
                            input_sel = "M:/nas/Rprod/data/q/new/nsa/",
                            output_sel = here::here("output", "inter_domain")) {
 
@@ -54,7 +56,7 @@ nfsa_T0801_QNA <- function(country,
   country_pattern <- paste0(".*_(", paste(country, collapse = "|"), ")_.*\\.xml$")
 
   nama_files <- list.files(path = base_path, pattern = country_pattern,
-                           full.names = TRUE, recursive = TRUE) |>
+                           full.names = TRUE, recursive = non_validated) |>
     tibble::enframe(name = NULL, value = "path") |>
     dplyr::mutate(
       file_name = basename(path),
@@ -65,6 +67,7 @@ nfsa_T0801_QNA <- function(country,
     dplyr::slice_max(update_ts, n = 1, by = file_ref_area,
                      with_ties = FALSE) |>
     dplyr::pull(path)
+
 
   # 3. Read NAMA Data
   read_nama <- function(file) {

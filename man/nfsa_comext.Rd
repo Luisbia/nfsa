@@ -15,7 +15,7 @@ nfsa_comext(
 \arguments{
 \item{area}{A string indicating the geographical area ("EA20" or "EU27").}
 
-\item{quarter}{A string representing the target quarter in the format "YYYYQ#" (e.g., "2023Q4").}
+\item{quarter}{A string representing the target quarter in the format "YYYYQQ" (e.g., "2023Q4").}
 
 \item{output_sel}{A string specifying the directory where the output CSV file should be saved.}
 

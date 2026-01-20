@@ -82,17 +82,17 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D1", "D11", "D12", "D4", "D41", "D41G","D42", "D421","D422", "D43", "D44",
-        "D441", "D442", "D443", "D45",  "D5", "D51", "D59", "D6", "D61",
-        "D611", "D612", "D613", "D614","D61SC", "D62", "D7", "D71", "D72",
-        "D74", "D75", "D8", "D9", "D91", "D92", "D99"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D1", "D11", "D12", "D4", "D41", "D41G","D42", "D421","D422", "D43", "D44",
+      "D441", "D442", "D443", "D45",  "D5", "D51", "D59", "D6", "D61",
+      "D611", "D612", "D613", "D614","D61SC", "D62", "D7", "D71", "D72",
+      "D74", "D75", "D8", "D9", "D91", "D92", "D99"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -106,12 +106,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
-      `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
-      check = round(`S1.D + S2.C` - `S1.C + S2.D`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
+        `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
+        check = round(`S1.D + S2.C` - `S1.C + S2.D`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -122,14 +122,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D2", "D21", "D29"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D2", "D21", "D29"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -143,11 +143,11 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
-      check = round(S1.D - `S1.C + S2.D`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.C + S2.D` = sum(c(S1.C, S2.D), na.rm = TRUE),
+        check = round(S1.D - `S1.C + S2.D`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -158,14 +158,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D3", "D31", "D39"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D3", "D31", "D39"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -179,11 +179,11 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
-      check = round(S1.C - `S1.D + S2.C`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
+        check = round(S1.C - `S1.D + S2.C`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -194,14 +194,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D63", "D631", "D632", "P51C"
-      ),
-      ref_sector %in% c("S1")) |>
+      "D63", "D631", "D632", "P51C"
+    ),
+    ref_sector %in% c("S1")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -215,10 +215,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D - S1.C` = sum(c(S1.D, -S1.C), na.rm = TRUE),
-    ) |>
-    dplyr::filter(abs(`S1.D - S1.C`) > threshold)
+      dplyr::mutate(
+        `S1.D - S1.C` = sum(c(S1.D, -S1.C), na.rm = TRUE),
+      ) |>
+      dplyr::filter(abs(`S1.D - S1.C`) > threshold)
 
 
   }
@@ -229,14 +229,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D43", "D74", "D76"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D43", "D74", "D76"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -250,10 +250,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D - S2.D` = sum(c(S1.D, -S2.D), na.rm = TRUE),
-    ) |>
-    dplyr::filter(abs(`S1.D - S2.D`) > threshold)
+      dplyr::mutate(
+        `S1.D - S2.D` = sum(c(S1.D, -S2.D), na.rm = TRUE),
+      ) |>
+      dplyr::filter(abs(`S1.D - S2.D`) > threshold)
 
 
   }
@@ -264,14 +264,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "NP"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "NP"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector, accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -285,10 +285,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
-    ) |>
-    dplyr::filter(abs(`S1.D + S2.C`) > threshold)
+      dplyr::mutate(
+        `S1.D + S2.C` = sum(c(S1.D, S2.C), na.rm = TRUE),
+      ) |>
+      dplyr::filter(abs(`S1.D + S2.C`) > threshold)
 
 
   }
@@ -320,14 +320,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D43", "D74"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D43", "D74"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector,accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector,accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -341,10 +341,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.C - S2.C` = sum(c(S1.C, -S2.C), na.rm = TRUE),
-    ) |>
-    dplyr::filter(abs(`S1.C - S2.C`) > threshold)
+      dplyr::mutate(
+        `S1.C - S2.C` = sum(c(S1.C, -S2.C), na.rm = TRUE),
+      ) |>
+      dplyr::filter(abs(`S1.C - S2.C`) > threshold)
 
 
   }
@@ -355,14 +355,14 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D12","D611","D612"
-      ),
-      ref_sector %in% c("S1", "S2")) |>
+      "D12","D611","D612"
+    ),
+    ref_sector %in% c("S1", "S2")) |>
 
 
-      tidyr::pivot_wider(names_from = c(ref_sector,sto,accounting_entry),
-      values_from = obs_value,
-      names_sep = ".")
+    tidyr::pivot_wider(names_from = c(ref_sector,sto,accounting_entry),
+                       values_from = obs_value,
+                       names_sep = ".")
 
 
 
@@ -376,12 +376,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D12.D + S2.D12.C` = sum(c(S1.D12.D,S2.D12.C), na.rm = TRUE),
-      `S1.D611.C + S1.D612.C + S2.D611.D + S2.D612.D` = sum(c(S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D), na.rm = TRUE),
-      check = round(`S1.D12.D + S2.D12.C` - `S1.D611.C + S1.D612.C + S2.D611.D + S2.D612.D`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.D12.D + S2.D12.C` = sum(c(S1.D12.D,S2.D12.C), na.rm = TRUE),
+        `S1.D611.C + S1.D612.C + S2.D611.D + S2.D612.D` = sum(c(S1.D611.C,S1.D612.C,S2.D611.D,S2.D612.D), na.rm = TRUE),
+        check = round(`S1.D12.D + S2.D12.C` - `S1.D611.C + S1.D612.C + S2.D611.D + S2.D612.D`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -391,16 +391,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c(
-        "D442", "D614"
-      ),
-      ref_sector %in% c("S1", "S2")
+      "D442", "D614"
+    ),
+    ref_sector %in% c("S1", "S2")
     ) |>
-   nfsa_unite_id() |>
+    nfsa_unite_id() |>
     dplyr::filter(id %in% c("S1.D442.D", "S2.D442.C", "S1.D614.C", "S2.D614.D")) |>
 
 
-      tidyr::pivot_wider(names_from = id,
-                values_from = obs_value)
+    tidyr::pivot_wider(names_from = id,
+                       values_from = obs_value)
 
 
 
@@ -414,12 +414,12 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.D442.D, S2.D442.C` = sum(c(S1.D442.D, S2.D442.C), na.rm = TRUE),
-      `S1.D614.C + S2.D614.D` = sum(c(S1.D614.C, S2.D614.D), na.rm = TRUE),
-      check = round(`S1.D442.D, S2.D442.C` > `S1.D614.C + S2.D614.D`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.D442.D, S2.D442.C` = sum(c(S1.D442.D, S2.D442.C), na.rm = TRUE),
+        `S1.D614.C + S2.D614.D` = sum(c(S1.D614.C, S2.D614.D), na.rm = TRUE),
+        check = round(`S1.D442.D, S2.D442.C` > `S1.D614.C + S2.D614.D`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -513,10 +513,10 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     )
   if(nrow(s1ss05) == 6){
     dplyr::select(ref_area, sto, time_period, S11, S12,  S1) |>
-    dplyr::rowwise() |>
-    dplyr::mutate(`S11 + S12` = sum(c(S11, S12), na.rm = TRUE)) |>
-    dplyr::mutate(check = round(S1 - `S11 + S12`, rounding)) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::rowwise() |>
+      dplyr::mutate(`S11 + S12` = sum(c(S11, S12), na.rm = TRUE)) |>
+      dplyr::mutate(check = round(S1 - `S11 + S12`, rounding)) |>
+      dplyr::filter(abs(check) > threshold)
   } else {
     rm(s1ss05)
   }
@@ -735,7 +735,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, time_period, P51G.D, P52.D,P53.D, P5.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(`P51G.D + P52.D + P53.D` = sum(P51G.D,P52.D,P53.D, na.rm = TRUE),
-           check = round(P5.D - `P51G.D + P52.D + P53.D`, rounding)) |>
+                  check = round(P5.D - `P51G.D + P52.D + P53.D`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT05----------------------------------------------------------------------------------------
@@ -751,7 +751,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D11, D12, D1) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D11 + D12` = sum(D11,D12, na.rm = TRUE),
-           check = round(D1 - `D11 + D12`, rounding)) |>
+                  check = round(D1 - `D11 + D12`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT06----------------------------------------------------------------------------------------
@@ -767,7 +767,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D21, D29, D2) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D21 + D29` = sum(D21,D29, na.rm = TRUE),
-           check = round(D2 - `D21 + D29`, rounding)) |>
+                  check = round(D2 - `D21 + D29`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT07----------------------------------------------------------------------------------------
@@ -818,7 +818,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D31, D39, D3) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D31 + D39` = sum(c(D31,D39), na.rm = TRUE),
-           check = round(D3 - `D31 + D39`, rounding)) |>
+                  check = round(D3 - `D31 + D39`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT10----------------------------------------------------------------------------------------
@@ -834,7 +834,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D41, D42, D43, D44, D45, D4) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D41 + D42 + D43 + D44 + D45` = sum(c(D41, D42, D43, D44, D45), na.rm = TRUE),
-           check = round(D4 - `D41 + D42 + D43 + D44 + D45`, rounding)) |>
+                  check = round(D4 - `D41 + D42 + D43 + D44 + D45`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT11----------------------------------------------------------------------------------------
@@ -852,7 +852,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D41, D42, D44, D45, D4) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D41 + D42 + D44 + D45` = sum(c(D41, D42,  D44, D45), na.rm = TRUE),
-           check = round(D4 - `D41 + D42 + D44 + D45`, rounding)) |>
+                  check = round(D4 - `D41 + D42 + D44 + D45`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT12----------------------------------------------------------------------------------------
@@ -861,8 +861,8 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
     dplyr::filter(sto %in% c("D4", "D41", "D43",  "D44", "D45"),
-      ref_sector %in% c("S1M", "S14", "S15"),
-      accounting_entry == "D")
+                  ref_sector %in% c("S1M", "S14", "S15"),
+                  accounting_entry == "D")
 
 
 
@@ -873,16 +873,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       tidyr::pivot_wider(names_from = sto,
-      values_from = obs_value) |>
+                         values_from = obs_value) |>
 
 
       dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D41, D43, D44, D45, D4) |>
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(`D41 + D43 + D44 + D45` = sum(c(D41, D43,  D44, D45), na.rm = TRUE),
-           check = round(D4 - `D41 + D43 + D44 + D45`, rounding)) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(`D41 + D43 + D44 + D45` = sum(c(D41, D43,  D44, D45), na.rm = TRUE),
+                    check = round(D4 - `D41 + D43 + D44 + D45`, rounding)) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -902,16 +902,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
 
       tidyr::pivot_wider(names_from = sto,
-      values_from = obs_value) |>
+                         values_from = obs_value) |>
 
 
       dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D42, D421, D422) |>
 
 
       dplyr::rowwise() |>
-    dplyr::mutate(`D421 + D422` = sum(c(D421, D422), na.rm = TRUE),
-           check = round(D42 - `D421 + D422`, rounding)) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(`D421 + D422` = sum(c(D421, D422), na.rm = TRUE),
+                    check = round(D42 - `D421 + D422`, rounding)) |>
+      dplyr::filter(abs(check) > threshold)
 
 
   }
@@ -929,7 +929,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D44, D441, D442, D443) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D441 + D442 + D443` = sum(c(D441, D442, D443), na.rm = TRUE),
-           check = round(D44 - `D441 + D442 + D443`, rounding)) |>
+                  check = round(D44 - `D441 + D442 + D443`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT17----------------------------------------------------------------------------------------
@@ -945,7 +945,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D51, D59, D5) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D51 + D59` = sum(c(D51, D59), na.rm = TRUE),
-           check = round(D5 - `D51 + D59`, rounding)) |>
+                  check = round(D5 - `D51 + D59`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT18----------------------------------------------------------------------------------------
@@ -962,7 +962,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D61, D62, D63, D6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D61 + D62 + D63` = sum(c(D61, D62, D63), na.rm = TRUE),
-           check = round(D6 - `D61 + D62 + D63`, rounding)) |>
+                  check = round(D6 - `D61 + D62 + D63`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT19----------------------------------------------------------------------------------------
@@ -997,7 +997,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D62, D63, D6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D62 + D63` = sum(c(D62, D63), na.rm = TRUE),
-           check = round(D6 - `D62 + D63`, rounding)) |>
+                  check = round(D6 - `D62 + D63`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT20----------------------------------------------------------------------------------------
@@ -1015,7 +1015,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D61, D62, D6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D61 + D62` = sum(c(D61, D62), na.rm = TRUE),
-           check = round(D6 - `D61 + D62`, rounding)) |>
+                  check = round(D6 - `D61 + D62`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT21----------------------------------------------------------------------------------------
@@ -1032,7 +1032,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D61, D62, D6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D61 + D62` = sum(c(D61, D62), na.rm = TRUE),
-           check = round(D6 - `D61 + D62`, rounding)) |>
+                  check = round(D6 - `D61 + D62`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT22----------------------------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D611, D612, D613, D614, D61SC, D61) |>
     dplyr::rowwise() |>
     dplyr::mutate(`sum_D61` = sum(c(D611, D612, D613, D614, -D61SC), na.rm = TRUE),
-           check = round(D61 - `sum_D61`, rounding)) |>
+                  check = round(D61 - `sum_D61`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT23----------------------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D631, D632, D63) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D631 + D632` = sum(c(D631, D632), na.rm = TRUE),
-           check = round(D63 - `D631 + D632`, rounding)) |>
+                  check = round(D63 - `D631 + D632`, rounding)) |>
     dplyr::filter(abs(check) > threshold) |>
     dplyr::filter(if_all(c(D631,D632), ~ !is.na(.x )))
 
@@ -1081,7 +1081,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D71, D72,  D74, D75, D76, D7) |>
     dplyr::rowwise() |>
     dplyr::mutate(`sum_D7` = sum(c(D71, D72,  D74, D75, D76), na.rm = TRUE),
-           check = round(D7 - `sum_D7`, rounding)) |>
+                  check = round(D7 - `sum_D7`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT25----------------------------------------------------------------------------------------
@@ -1099,7 +1099,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D71, D75, D7) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D71 + D75` = sum(c(D71, D75), na.rm = TRUE),
-           check = round(D7 - `D71 + D75`, rounding)) |>
+                  check = round(D7 - `D71 + D75`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT26----------------------------------------------------------------------------------------
@@ -1116,7 +1116,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D71, D72, D75, D7) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D71 + D72 + D75` = sum(c(D71,D72, D75), na.rm = TRUE),
-           check = round(D7 - `D71 + D72 + D75`, rounding)) |>
+                  check = round(D7 - `D71 + D72 + D75`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT27----------------------------------------------------------------------------------------
@@ -1134,7 +1134,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D71, D72, D74, D75, D7) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D71 + D72 + D74 + D75` = sum(c(D71,D72,D74, D75), na.rm = TRUE),
-           check = round(D7 - `D71 + D72 + D74 + D75`, rounding)) |>
+                  check = round(D7 - `D71 + D72 + D74 + D75`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT28----------------------------------------------------------------------------------------
@@ -1166,7 +1166,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D91, D92, D99, D9) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D91 + D92 + D99` = sum(c(D91,D92,D99), na.rm = TRUE),
-           check = round(D9 - `D91 + D92 + D99`, rounding)) |>
+                  check = round(D9 - `D91 + D92 + D99`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT30----------------------------------------------------------------------------------------
@@ -1184,7 +1184,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D91,  D99, D9) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D91 + D99` = sum(c(D91,D99), na.rm = TRUE),
-           check = round(D9 - `D91 + D99`, rounding)) |>
+                  check = round(D9 - `D91 + D99`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT30b----------------------------------------------------------------------------------------
@@ -1202,7 +1202,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D92,  D99, D9) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D92 + D99` = sum(c(D92,D99), na.rm = TRUE),
-           check = round(D9 - `D92 + D99`, rounding)) |>
+                  check = round(D9 - `D92 + D99`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT31----------------------------------------------------------------------------------------
@@ -1220,7 +1220,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, P61,  P62, P6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`P61 + P62` = sum(c(P61,P62), na.rm = TRUE),
-           check = round(P6 - `P61 + P62`, rounding)) |>
+                  check = round(P6 - `P61 + P62`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT32----------------------------------------------------------------------------------------
@@ -1252,7 +1252,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D211, D212, D214, D21) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D211 + D212 + D214` = sum(c(D211, D212, D214), na.rm = TRUE),
-           check = round(D21 - `D211 + D212 + D214`, rounding)) |>
+                  check = round(D21 - `D211 + D212 + D214`, rounding)) |>
     dplyr::filter(abs(check) > threshold) |>
     dplyr::filter(if_all(c(D211, D212, D214), ~ !is.na(.x )))
 
@@ -1322,7 +1322,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D72, D75, D7) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D72 + D75` = sum(c(D72, D75), na.rm = TRUE),
-           check = round(D7 - `D72 + D75`, rounding)) |>
+                  check = round(D7 - `D72 + D75`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT38----------------------------------------------------------------------------------------
@@ -1340,7 +1340,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D92, D99, D9) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D92 + D99` = sum(c(D92, D99), na.rm = TRUE),
-           check = round(D9 - `D92 + D99`, rounding)) |>
+                  check = round(D9 - `D92 + D99`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT39----------------------------------------------------------------------------------------
@@ -1357,7 +1357,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, P11, P12,P13, P1) |>
     dplyr::rowwise() |>
     dplyr::mutate(`P11 + P12 + P13` = sum(c(P11, P12, P13), na.rm = TRUE),
-           check = round(P1 - `P11 + P12 + P13`, rounding)) |>
+                  check = round(P1 - `P11 + P12 + P13`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT40----------------------------------------------------------------------------------------
@@ -1375,7 +1375,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, P11, P12, P1) |>
     dplyr::rowwise() |>
     dplyr::mutate(`P11 + P12` = sum(c(P11, P12), na.rm = TRUE),
-           check = round(P1 - `P11 + P12`, rounding)) |>
+                  check = round(P1 - `P11 + P12`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT41----------------------------------------------------------------------------------------
@@ -1393,7 +1393,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, P7, P71, P72) |>
     dplyr::rowwise() |>
     dplyr::mutate(`P71 + P72` = sum(c(P71, P72), na.rm = TRUE),
-           check = round(P7 - `P71 + P72`, rounding)) |>
+                  check = round(P7 - `P71 + P72`, rounding)) |>
     dplyr::filter(abs(check) > threshold)
 
   ## SIT42----------------------------------------------------------------------------------------
@@ -1427,7 +1427,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D43, D43_I9, D43_J9) |>
       dplyr::rowwise() |>
       dplyr::mutate(`D43_I9 + D43_J9` = sum(c(D43_I9, D43_J9), na.rm = TRUE),
-             check = round(D43 - `D43_I9 + D43_J9`, rounding)) |>
+                    check = round(D43 - `D43_I9 + D43_J9`, rounding)) |>
       dplyr::filter(abs(check) > threshold) |>
       dplyr::filter(if_all(c(D43_I9,D43_J9), ~ !is.na(.x )))}
   rm(check)
@@ -1445,7 +1445,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     dplyr::select(ref_area, ref_sector, accounting_entry,time_period, D43, D43_B6, D43_D6) |>
     dplyr::rowwise() |>
     dplyr::mutate(`D43_B6 + D43_D6` = sum(c(D43_B6, D43_D6), na.rm = TRUE),
-           check = round(D43 - `D43_B6 + D43_D6`, rounding)) |>
+                  check = round(D43 - `D43_B6 + D43_D6`, rounding)) |>
     dplyr::filter(abs(check) > threshold) |>
     dplyr::filter(if_all(c(D43_B6,D43_D6), ~ !is.na(.x )))
 
@@ -1462,7 +1462,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, P1.C, P2.D, D21X31.C, B1GQ.B ) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1482,7 +1482,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, D21X31.C, D21.D, D31.C) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1501,7 +1501,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B1G.B, D21X31.C) |>
     dplyr::rowwise() |>
     dplyr::mutate(check = round(B1G.B - D21X31.C, rounding)) |>
@@ -1514,7 +1514,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B1G.B, P1.C, P2.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1533,7 +1533,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B1NQ.B, B1GQ.B, P51C.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1551,7 +1551,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B1N.B, B1G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1568,7 +1568,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B1N.B, P51C.C,B1G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1586,7 +1586,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     dplyr::select(-ref_sector) |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P3.D, P5.D,P6.D,P7.C,B1GQ.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1603,7 +1603,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D1.D,D3.C,D2.D,,B1GQ.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1620,7 +1620,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D1.D,D3.C,D2.D,,B1G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1638,7 +1638,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2G.B, B3G.B,B2A3G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1671,7 +1671,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D4.C,D41.D,D44.D,D45.D, B4G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1688,7 +1688,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D1.C,D2.C,D3.D,D4.C, D4.D,B5G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1705,7 +1705,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D4.C,D4.D, B5G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1722,7 +1722,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D2.C,D3.D,D4.C,D4.D, B5G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1739,7 +1739,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B2A3G.B, D1.C,D4.C,D4.D, B5G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1756,7 +1756,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B5G.B,D5.C,D5.D,D61.C,D61.D,D62.C,D62.D,D7.C,D7.D,B6G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1773,7 +1773,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B5G.B,D5.D,D61.C,D62.D,D7.C,D7.D,B6G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1790,7 +1790,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B5G.B,D5.C,D5.D,D61.C,D62.D,D7.C,D7.D,B6G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1807,7 +1807,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B5G.B,D5.D,D5.D,D61.C,D61.D,D62.C,D62.D,D7.C,D7.D,B6G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1824,7 +1824,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B6G.B,D63.C,D63.D,B7G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1860,7 +1860,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B6G.B,D63.D,B7G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1878,7 +1878,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B6G.B,D63.C,B7G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1895,7 +1895,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B6G.B,D8.C,D8.D,P3.D,B8G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1912,7 +1912,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B6G.B,D8.D,B8G.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1925,8 +1925,8 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   BI30_filtered <- data |>
 
     dplyr::filter(ref_sector %in% c("S13", "S15"),
-      sto %in% c("B8G", "B6G", "D8", "P3"),
-      accounting_entry != "C"
+                  sto %in% c("B8G", "B6G", "D8", "P3"),
+                  accounting_entry != "C"
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".")
 
@@ -1936,16 +1936,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     BI30 <- BI30_filtered |>
 
       tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                         values_from = obs_value) |>
 
       dplyr::select(ref_area, ref_sector, time_period, B6G.B,D8.D,P3.D,B8G.B) |>
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `B6G.B - D8.D - P3.D` = sum(c(B6G.B,-D8.D, -P3.D),na.rm = TRUE),
-      check = round(B8G.B - `B6G.B - D8.D - P3.D`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `B6G.B - D8.D - P3.D` = sum(c(B6G.B,-D8.D, -P3.D),na.rm = TRUE),
+        check = round(B8G.B - `B6G.B - D8.D - P3.D`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
   }
   ## BI32-----------------------------------------------------------------------------------------
@@ -1956,7 +1956,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B8G.B,D9.C,D9.D,P51C.C,B101.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1973,7 +1973,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B12.B,D9.C,D9.D,B101.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -1990,7 +1990,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B8G.B,D9.C,D9.D,P5.D,NP.D,B9.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2007,7 +2007,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B12.B,D9.C,D9.D,NP.C,B9.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2024,7 +2024,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, OTR.C, OTE.D,B9.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2041,7 +2041,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B101.B, P51C.C, P5.D,NP.D,B9.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2058,7 +2058,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, ref_sector, time_period, B101.B, NP.C,B9.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2071,7 +2071,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
   BI41_filtered <- data |>
 
     dplyr::filter(ref_sector %in% c("S1", "S2"),
-      sto %in% c("B101", "P5", "P51C")
+                  sto %in% c("B101", "P5", "P51C")
     ) |>
     unite("sto", c(ref_sector,sto, accounting_entry), sep = ".")
 
@@ -2081,16 +2081,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     BI41 <- BI41_filtered |>
 
       tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                         values_from = obs_value) |>
 
       dplyr::select(ref_area, time_period, S2.B101.B, S1.P5.D, S1.P51C.C, S1.B101.B) |>
 
       dplyr::rowwise() |>
-    dplyr::mutate(
-      `S1.B101.B_cal` = sum(c(-S2.B101.B,S1.P5.D,-S1.P51C.C),na.rm = TRUE),
-      check = round(S1.B101.B - `S1.B101.B_cal`, rounding)
-    ) |>
-    dplyr::filter(abs(check) > threshold)
+      dplyr::mutate(
+        `S1.B101.B_cal` = sum(c(-S2.B101.B,S1.P5.D,-S1.P51C.C),na.rm = TRUE),
+        check = round(S1.B101.B - `S1.B101.B_cal`, rounding)
+      ) |>
+      dplyr::filter(abs(check) > threshold)
 
   }
 
@@ -2102,7 +2102,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P7.C,P6.D,B11.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2119,7 +2119,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, B11.B,,D1.D,D1.C,D2.D,D3.C,D4.D,D4.C,D5.D,D5.C,D61.D,D61.C,D62.D,D62.C,D7.D,D7.C,D8.D,D8.C, B12.B) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2136,7 +2136,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P1O.C,D2.C,D39.C,D4.C,D5.C,D61.C,D7.C,D9.C,OTR.C) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2153,7 +2153,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P2.D,P5.D,D1.D,D29.D,D3.D,D4.D,D5.D,D62.D,D632.D,D7.D,D8.D,D9.D,NP.D,OTE.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2170,7 +2170,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P31.D,D63.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2186,7 +2186,7 @@ nfsa_internal_consistency_T0800 <- function(dataset,
     ) |>
     unite("sto", c(sto, accounting_entry), sep = ".") |>
     tidyr::pivot_wider(names_from = sto,
-                values_from = obs_value) |>
+                       values_from = obs_value) |>
     dplyr::select(ref_area, time_period, P1.C,P1O.C,D632.D,P3.D) |>
     dplyr::rowwise() |>
     dplyr::mutate(
@@ -2194,6 +2194,8 @@ nfsa_internal_consistency_T0800 <- function(dataset,
       check = round(P3.D - `P3.D_calc`, rounding)
     ) |>
     dplyr::filter(abs(check) > threshold)
+
+  rm(list = ls(pattern = "_filtered"))
 
   list_ur <- mget(ls(pattern = "ur")) |>
     keep(~ any(nrow(.x) > 0)) |>
@@ -2213,16 +2215,16 @@ nfsa_internal_consistency_T0800 <- function(dataset,
 
   list_ir <- c(list_ur, list_s1ss, list_sit, list_BI)
 
-if(length(list_ir) == 0){
+  if(length(list_ir) == 0){
 
-  cli::cli_inform("All consistent!")
-} else {
-  openxlsx::write.xlsx(list_ir,
-                       file = paste0(paste0(output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
-                       asTable = TRUE,
-                       overwrite = TRUE
-  )
-}
+    cli::cli_inform("All consistent!")
+  } else {
+    openxlsx::write.xlsx(list_ir,
+                         file = paste0(paste0(output_sel, "/T0800_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
+                         asTable = TRUE,
+                         overwrite = TRUE
+    )
+  }
   cli::cli_alert_success(paste0("File created at: ", output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx"))
 }
 

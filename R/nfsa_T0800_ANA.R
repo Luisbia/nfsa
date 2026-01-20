@@ -8,6 +8,7 @@
 #' @param year A numeric value specifying the year for which to compare the data.
 #' @param threshold A numeric value specifying the threshold for acceptable differences between NFSA and ANA data.
 #'                  Defaults to 1.
+#' @param non_validated Logical condition. If `FALSE`, which is the default option, only looks for files in validated. If set to `TRUE` also looks in non-validated.
 #' @param input_sel A file path to the directory containing NFSA data. Defaults to `"M:/nas/Rprod/data/a/new"` relative to the project root.
 #' @param output_sel A file path to the directory where the output Excel file will be saved. Defaults to `"output/inter_domain"` relative to the project root.
 #'
@@ -34,6 +35,7 @@
 nfsa_T0800_ANA <- function(country,
                            year,
                            threshold = 1,
+                           non_validated = FALSE,
                            input_sel = "M:/nas/Rprod/data/a/new/",
                            output_sel = here::here("output", "inter_domain")){
   pacman::p_load(tidyverse,arrow,readxl,writexl,here,readsdmx)
@@ -57,7 +59,7 @@ nfsa_T0800_ANA <- function(country,
                   "(1_2_4) Consistency checks - ASA vs ANA/Input"),
     pattern = paste0(".*", country_pattern, ".*\\.xml$"),
     full.names = TRUE,
-    recursive = TRUE
+    recursive = non_validated
   ) |>
     as_tibble() |>
     mutate(

@@ -10,7 +10,8 @@ nfsa_q_plots(
   output_sel = here::here("output", "plots"),
   time_min = "1999-Q1",
   my_theme = ggthemes::theme_fivethirtyeight(),
-  my_colours = c("#B656BD", "#208486")
+  my_colours = c("#B656BD", "#208486"),
+  ...
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ Defaults to \code{ggthemes::theme_fivethirtyeight()}.}
 
 \item{my_colours}{A character vector of two colors for the lines.
 Defaults to c("#B656BD","#208486").}
+
+\item{...}{Additional filter arguments passed to \code{nfsa_get_data()}. Can be one or more filter expressions
+applied to columns in the original parquet files (e.g., \code{filters = "ref_sector == 'S13'"}).}
 }
 \value{
 None. The function generates and saves a PDF file containing the plots.

@@ -3321,6 +3321,8 @@ nfsa_internal_consistency_T0801 <- function(dataset,
 
   }
 
+  rm(list = ls(pattern = "_filtered"))
+
   list_ur <- mget(ls(pattern = "ur")) |>
     keep(~ any(nrow(.x) > 0)) |>
     map(~ dplyr::mutate(.x, across(everything(), ~ replace(.x, is.na(.x), "NaN"))))
@@ -3344,7 +3346,7 @@ nfsa_internal_consistency_T0801 <- function(dataset,
     cli::cli_inform("All consistent!")
   } else {
   openxlsx::write.xlsx(list_ir,
-                       file = paste0(paste0(output_sel, "/", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
+                       file = paste0(paste0(output_sel, "/T0801_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")), ".xlsx")),
                        asTable = TRUE,
                        overwrite = TRUE
   )

@@ -32,7 +32,7 @@ nfsa_move_convert_T0801 <- function(country,
 
   # Deprecation warning
   lifecycle::deprecate_soft(
-    when = "0.2.0",
+    when = "1.0.0",
     what = "nfsa_move_convert_T0801()",
     with = "nfsa_move_convert(table = 'T0801')"
   )
