@@ -84,7 +84,8 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
                                     "consolidation", "accounting_entry", "sto",
                                     "instr_asset", "unit_measure", "prices")) |>
     tidyr::drop_na() |>
-    dplyr::select(ref_area, id, time_period, obs_value)
+    dplyr::select(ref_area, id, time_period, obs_value) |>
+    dplyr::arrange(time_period,ref_area,id)
 
   return(res)
 }
