@@ -36,25 +36,13 @@ nfsa_completeness_aggregation <- function(country ,
   if (table == "T0801"){
     requirements <- here::here("assets", "completeness_aggregation.xlsx")
 
-    req_time <- list.files(path = "M:/nas/Rprod/data/q/new/nsa/",
-                           pattern = ".parquet",
-                           full.names = TRUE) |>
-      as_tibble() |>
-      mutate(
-        version = as.numeric(str_extract(value, "(?<=_Q_..............).{4}")),
-        country_sel = str_extract(value, "(?<=_Q_)..")
-      ) |>
-      filter(country_sel %in% country) |>
-      group_by(country_sel) |>
-      arrange(version) |>
-      slice_tail(n = 1) |>
-      pull(value) |>
-      open_dataset() |>
-      select(time_period,sto) |>
-      filter(time_period>= "1999-Q1", sto == "B1GQ") |>
+    req_time <- nfsa::nfsa_get_data (country = c("FR","SE"), # first to report
+                                     table = "T0801",
+                                     filters = "sto == 'B1GQ'") |>
+      select(time_period) |>
+      filter(time_period>= "1999-Q1") |>
       select(time_period) |>
       distinct() |>
-      collect() |>
       arrange()
 
     req <- readxl::read_xlsx(requirements)%>%
@@ -90,25 +78,13 @@ nfsa_completeness_aggregation <- function(country ,
   }
   if (table == "T0800"){
     requirements <- here::here("assets", "completeness_aggregation.xlsx")
-    req_time <- list.files(path = "M:/nas/Rprod/data/a/new/",
-                           pattern = ".parquet",
-                           full.names = TRUE) |>
-      as_tibble() |>
-      mutate(
-        version = as.numeric(str_extract(value, "(?<=_A_..............).{4}")),
-        country_sel = str_extract(value, "(?<=_A_)..")
-      ) |>
-      filter(country_sel %in% country) |>
-      group_by(country_sel) |>
-      arrange(version) |>
-      slice_tail(n = 1) |>
-      pull(value) |>
-      open_dataset() |>
+    req_time <- nfsa::nfsa_get_data (country = c("IT","SE"),
+                                     table = "T0800",
+                                     filters = "sto == 'B1GQ'") |>
       select(time_period,sto) |>
-      filter(time_period>= "1999", sto == "B1GQ") |>
+      filter(time_period>= "1999") |>
       select(time_period) |>
       distinct() |>
-      collect() |>
       arrange()
 
     req <- readxl::read_xlsx(requirements)%>%

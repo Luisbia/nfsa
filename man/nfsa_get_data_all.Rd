@@ -18,7 +18,8 @@ nfsa_get_data_all(
 
 \item{table}{Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").}
 
-\item{filters}{one or several filters to be applied before collecting the data using all columns in the original parquet files}
+\item{filters}{one or several filters to be applied before collecting the data using all columns in the original parquet files.
+#' @param complete By default \code{FALSE} if we only want to bring \code{ref_area},\code{id},\code{time_period},\code{obs_value}. If set to \code{TRUE} brings all columns.}
 }
 \value{
 A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.

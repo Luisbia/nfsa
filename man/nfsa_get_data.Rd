@@ -9,7 +9,8 @@ nfsa_get_data(
   country,
   table = "T0801",
   type = "new",
-  filters = NULL
+  filters = NULL,
+  complete = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ nfsa_get_data(
 \item{type}{Character string specifying the type of data to retrieve ("new" or "prev").}
 
 \item{filters}{one or several filters to be applied before collecting the data using all columns in the original parquet files}
+
+\item{complete}{By default \code{FALSE} if we only want to bring \code{ref_area},\code{id},\code{time_period},\code{obs_value}. If set to \code{TRUE} brings all columns.}
 }
 \value{
 A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.

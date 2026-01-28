@@ -7,6 +7,7 @@
 #' @param table Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").
 #' @param type Character string specifying the type of data to retrieve ("new" or "prev").
 #' @param filters one or several filters to be applied before collecting the data using all columns in the original parquet files
+#' @param complete By default `FALSE` if we only want to bring `ref_area`,`id`,`time_period`,`obs_value`. If set to `TRUE` brings all columns.
 #'
 #' @return A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
 #'
@@ -28,7 +29,8 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
                           country,
                           table = "T0801",
                           type = "new",
-                          filters = NULL) {
+                          filters = NULL,
+                          complete = FALSE) {
 
   # 1. Config Map ----------------------------------------------------------
   # Maps table names to path segments and regex patterns
@@ -79,13 +81,27 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
 
   # Collect and Join
   res <- ds |>
-    dplyr::collect() |>
+    dplyr::collect()
+
+  if (complete == FALSE){
+    res <-res |>
     dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
                                     "consolidation", "accounting_entry", "sto",
                                     "instr_asset", "unit_measure", "prices")) |>
     tidyr::drop_na() |>
     dplyr::select(ref_area, id, time_period, obs_value) |>
-    dplyr::arrange(time_period,ref_area,id)
+    dplyr::arrange(time_period,ref_area,id) |>
+    dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
+  }
 
+  if (complete == TRUE){
+    res <-res |>
+      dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
+                                      "consolidation", "accounting_entry", "sto",
+                                      "instr_asset", "unit_measure", "prices")) |>
+      tidyr::drop_na() |>
+      dplyr::arrange(time_period,ref_area,id) |>
+      dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
+  }
   return(res)
 }

@@ -5,7 +5,9 @@
 #' @param input_sel Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data")}.
 #' @param country Character vector specifying the country or countries to retrieve data for.
 #' @param table Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").
-#' @param filters one or several filters to be applied before collecting the data using all columns in the original parquet files
+#' @param filters one or several filters to be applied before collecting the data using all columns in the original parquet files.
+#' #' @param complete By default `FALSE` if we only want to bring `ref_area`,`id`,`time_period`,`obs_value`. If set to `TRUE` brings all columns.
+
 
 #' @return A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
 #'
@@ -71,13 +73,28 @@ nfsa_get_data_all <- function(input_sel = "M:/nas/Rprod/data/",
   }
 
   res <- ds |>
-    dplyr::collect() |>
+    dplyr::collect()
+
+  if (complete == FALSE){
+    res <-res |>
     dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
                                     "consolidation", "accounting_entry", "sto",
                                     "instr_asset", "unit_measure", "prices")) |>
     tidyr::drop_na() |>
     # Note: version is included here as requested
-    dplyr::select(ref_area, version, id, time_period, obs_value)
+    dplyr::select(ref_area, version, id, time_period, obs_value) |>
+    dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
+  }
+
+  if (complete == TRUE){
+    res <-res |>
+      dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
+                                      "consolidation", "accounting_entry", "sto",
+                                      "instr_asset", "unit_measure", "prices")) |>
+      tidyr::drop_na() |>
+      dplyr::arrange(time_period,ref_area,id) |>
+      dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
+  }
 
   return(res)
 }

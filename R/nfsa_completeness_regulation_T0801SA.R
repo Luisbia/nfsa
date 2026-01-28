@@ -25,7 +25,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
            "NL", "PL", "PT", "RO", "SE")
-  requirements <- here::here("assets", "completeness_T0801SA.xlsx")
+  requirements <- "M:/nas/Rprod/assets/completeness_T0801SA.xlsx"
   req <- readxl::read_xlsx(requirements)
   req_time <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
                          pattern = ".parquet",
@@ -54,7 +54,8 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
 
   rm(req_small,req_big, req_time)
 
-  dat <- nfsa_get_data(country = country, table = "T0801SA") |>
+  dat <- nfsa_get_data(table = "T0801SA", complete = TRUE) |>
+    dplyr::select(ref_area, id, time_period,obs_value,obs_status) |>
     nfsa::nfsa_separate_id() |>
     dplyr::filter(time_period >= "1999-Q1",
                   ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
@@ -63,8 +64,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
 
 
   dat_missing <- dat |>
-    dplyr::filter(is.na(obs_value))|>
-    dplyr::select(-obs_value) |>
+    dplyr::filter(is.na(obs_value)| obs_status == "M")|>
     nfsa::nfsa_separate_id()
 
 

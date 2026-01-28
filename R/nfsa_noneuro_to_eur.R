@@ -37,7 +37,7 @@ nfsa_noneuro_to_euro <- function(data, freq = "Q"){
                                   currency == "ALL" ~"AL",
                                   currency == "MKD" ~"MK",
                                   currency == "RSD" ~"RS",
-                                  currency == "TRY" ~"TE")) |>
+                                  currency == "TRY" ~"TR")) |>
       select(ref_area,time_period=time,erate = values) |>
       as_tibble()
 
@@ -70,7 +70,7 @@ else if (freq == "A"){
                                 currency == "ALL" ~"AL",
                                 currency == "MKD" ~"MK",
                                 currency == "RSD" ~"RS",
-                                currency == "TRY" ~"TE")) |>
+                                currency == "TRY" ~"TR")) |>
     select(ref_area,time_period=time,erate = values)|>
     as_tibble()
 

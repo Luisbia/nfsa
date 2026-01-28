@@ -17,7 +17,7 @@ nfsa_a_plots_T_V(
 
 \item{output_sel}{A character string specifying the path to the directory where the generated PDF file should be saved. Defaults to \code{here("output", "plots")}.}
 
-\item{time_min}{A character string specifying the earliest time period to include in the plots, in the format "YYYY-QX" (e.g., "1999-Q1"). Defaults to "1999-Q1".}
+\item{time_min}{A numeric or character string specifying the earliest year to include in the plots (e.g., 1995). Defaults to 1995.}
 
 \item{my_theme}{A ggplot2 theme object to use for the plots. Defaults to \code{ggthemes::theme_fivethirtyeight()}.}
 
@@ -27,14 +27,14 @@ nfsa_a_plots_T_V(
 None. The function generates and saves a PDF file containing the plots.
 }
 \description{
-This function reads seasonally adjusted data from two different sources ("T" and "V")
+This function reads annual data from two different sources ("T" and "V")
 for a specified country, filters and processes the data, and generates time series plots
 comparing the two sources for various statistical concepts (STO).
 The plots are saved as a PDF file.
 }
 \examples{
 \dontrun{
-nfsa_q_plots_T_V_N(country = "AT", output_sel = here("my_output"))
+nfsa_a_plots_T_V(country = "AT", output_sel = here("my_output"))
 }
 
 }

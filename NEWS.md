@@ -42,9 +42,15 @@
 * New function to convert euro fixed to euro.
 * New function to copy locally parquet files from server.
 
-# nfsa 0.0.9 dev
+# nfsa 0.0.9
 * Adding some code suggestions from Gemini.
 * Option to have revision of versions in sequence of accounts.
 * New function to delete content of output folders.
 * Most output sent to temporary excel files on the screen to avoid searching for files.
 * New function to plot together T0801/BOP.
+
+# nfsa 1.0.0
+* GR converted to EL in output data.
+* New function to calculate data per capita.
+* Fixed bug in nfsa_seas_level1 when rows where not ordered by period.
+
