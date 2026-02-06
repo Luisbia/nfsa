@@ -2,27 +2,25 @@
 % Please edit documentation in R/nfsa_read_xml.R
 \name{nfsa_read_xml}
 \alias{nfsa_read_xml}
-\title{Reads and cleans NFSA data from an SDMX-ML file.}
+\title{Load SDMX XML to Dataframe}
 \usage{
-nfsa_read_xml(file)
+nfsa_read_xml(file_path)
 }
 \arguments{
-\item{file}{The path to the SDMX-ML file.}
+\item{file_path}{A character string specifying the path to the SDMX XML file.}
 }
 \value{
-A data frame containing the cleaned NFSA data.
+A dataframe containing the data extracted from the SDMX XML file.
 }
 \description{
-This function reads an SDMX-ML file containing NFSA data using the \code{readsdmx} package,
-cleans the column names using \code{janitor}, and converts the \code{obs_value} column to numeric.
+This function reads an SDMX XML file and converts it into a dataframe.
 }
 \examples{
 \dontrun{
-# Assuming you have an SDMX-ML file named "nfsa_data.xml" in your working directory
-nfsa_data <- nfsa_read_xml("nfsa_data.xml")
-
-# Print the first few rows of the data
-head(nfsa_data)
+# Example usage:
+file <- "path/to/your/sdmx_file.xml"
+df <- nfsa_read_xml(file)
+print(head(df))
 }
 
 }

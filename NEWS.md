@@ -53,4 +53,5 @@
 * GR converted to EL in output data.
 * New function to calculate data per capita.
 * Fixed bug in nfsa_seas_level1 when rows where not ordered by period.
+* Added argument to nfsa_get_data*() which allows to collect all columns. 
 

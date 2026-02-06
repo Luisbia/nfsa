@@ -6,6 +6,7 @@
 #' gaps if any exist.
 #'
 #' @param country A character vector specifying the countries for which to check data completeness.
+#' @param file If a file should be written. FALSE by default which will open a temporary Excel file.
 #' @param output_sel A file path specifying the directory where the output Excel file should be saved. Defaults to "output/completeness" inside the project.
 #'
 #' @return Invisible. The function's primary side effect is to produce an Excel file when data is missing.
@@ -19,23 +20,20 @@
 
 #' }
 #' @export
-nfsa_completeness_regulation_T0801SA <- function(country  ,
+nfsa_completeness_regulation_T0801SA <- function(country,
+                                                 file = FALSE,
                                                  output_sel = here::here("output", "completeness")) {
+  library(tidyverse)
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
            "NL", "PL", "PT", "RO", "SE")
   requirements <- "M:/nas/Rprod/assets/completeness_T0801SA.xlsx"
   req <- readxl::read_xlsx(requirements)
-  req_time <- list.files(path = "M:/nas/Rprod/data/q/new/sca/",
-                         pattern = ".parquet",
-                         full.names = TRUE) |>
-    arrow::open_dataset() |>
-    dplyr::select(time_period, sto) |>
-    dplyr::filter(time_period>= "1999-Q1",sto == "B1GQ") |>
-    dplyr::distinct() |>
-    select(-sto) |>
-    dplyr::collect() |>
+  req_time <- nfsa_get_data (country = "FR", table = "T0801SA",
+                             filters = "sto == 'B1GQ'") |>
+    select(time_period) |>
+    filter(time_period >= "1999-Q1") |>
     arrange()
 
   req_small <- req |>
@@ -54,7 +52,7 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
 
   rm(req_small,req_big, req_time)
 
-  dat <- nfsa_get_data(table = "T0801SA", complete = TRUE) |>
+  dat <- nfsa_get_data(country = country, table = "T0801SA", complete = TRUE) |>
     dplyr::select(ref_area, id, time_period,obs_value,obs_status) |>
     nfsa::nfsa_separate_id() |>
     dplyr::filter(time_period >= "1999-Q1",
@@ -65,15 +63,37 @@ nfsa_completeness_regulation_T0801SA <- function(country  ,
 
   dat_missing <- dat |>
     dplyr::filter(is.na(obs_value)| obs_status == "M")|>
-    nfsa::nfsa_separate_id()
+    select(ref_area,id, time_period,obs_status) |>
+    mutate(
+      from = min(time_period),
+      to = max(max(time_period))
+    ) |>
+    select(-time_period) |>
+    distinct() |>
+    rename(missing_series = id) |>
+    mutate(from = str_replace_all(from, c(
+      "-01-01" = "-Q1",
+      "-04-01" = "-Q2",
+      "-07-01" = "-Q3",
+      "-10-01" = "-Q4"
+    ))) |>
+    mutate(to = str_replace_all(to, c(
+      "-01-01" = "-Q1",
+      "-04-01" = "-Q2",
+      "-07-01" = "-Q3",
+      "-10-01" = "-Q4"
+    ))) |>
+    select(ref_area,missing_series,from,to,obs_status) |>
+    arrange(ref_area)
 
 
   if (nrow(dat_missing) == 0) {
     cli::cli_inform(paste0("Data requirements for T0801SA are fulfilled" ))
-  } else {
+  } else if (file == FALSE) {
 
     nfsa::nfsa_to_excel(dat_missing)
 
+  } else {
     openxlsx::write.xlsx(dat_missing,
                          asTable = TRUE,
                          file = paste0(output_sel, "/completeness_regulation_T0801SA_",

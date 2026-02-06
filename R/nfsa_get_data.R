@@ -70,8 +70,7 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
   lookup <- nfsa::nfsa_sto_lookup
 
   # Start arrow connection
-  ds <- arrow::open_dataset(target_files) |>
-    dplyr::select(-embargo_date, -received)
+  ds <- arrow::open_dataset(target_files)
 
   # Apply dynamic filters BEFORE collect (Push-down filtering for speed)
   if (!is.null(filters)) {
@@ -99,7 +98,6 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
       dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
                                       "consolidation", "accounting_entry", "sto",
                                       "instr_asset", "unit_measure", "prices")) |>
-      tidyr::drop_na() |>
       dplyr::arrange(time_period,ref_area,id) |>
       dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
   }

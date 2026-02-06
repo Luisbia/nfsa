@@ -41,7 +41,7 @@ nfsa_T0800_GFS <- function(country,
 
   cli::cli_progress_message("Collecting NFSA...")
 
-  nfsa_data <- nfsa_get_data(country = country,table = "T0801", type = "new") |>
+  nfsa_data <- nfsa_get_data(country = country,table = "T0800", type = "new") |>
     select(ref_area,id,time_period,nfsa = obs_value)  |>
     nfsa::nfsa_separate_id()
 

@@ -135,7 +135,7 @@ nfsa_move_convert <- function(country,
       readsdmx::read_sdmx() |>
       janitor::clean_names() |>
       dplyr::mutate(
-        received = file.mtime(file),
+        received = as.character(file.mtime(file)),
         version = stringr::str_extract(file, config$version_regex_extract)
       )
 
@@ -164,7 +164,7 @@ nfsa_move_convert <- function(country,
         ) |>
         dplyr::mutate(
           obs_value = as.numeric(obs_value),
-          embargo_date = "NA"
+          embargo_date = "None"
         )
     }
 
