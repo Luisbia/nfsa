@@ -24,7 +24,6 @@ nfsa_completeness_aggregation <- function(country ,
                                           table = "T0801",
                                           output_sel = here::here("output", "completeness")) {
   library(tidyverse)
-  library(arrow)
   library(openxlsx)
 
 
@@ -34,7 +33,7 @@ nfsa_completeness_aggregation <- function(country ,
   dat_missing <- NULL
 
   if (table == "T0801"){
-    requirements <- here::here("assets", "completeness_aggregation.xlsx")
+    requirements <- "M:/nas/Rprod/assets/completeness_aggregation.xlsx"
 
     req_time <- nfsa::nfsa_get_data (country = c("FR","SE"), # first to report
                                      table = "T0801",

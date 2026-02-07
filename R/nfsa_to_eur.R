@@ -159,6 +159,3 @@ nfsa_to_eur <- function(data, freq = "Q"){
   return(data_eur)
 }
 
-tmp <- nfsa::nfsa_get_data(country = c("IT", "PL"))
-
-tmp1 <- nfsa_to_eur(tmp)
