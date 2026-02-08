@@ -1,96 +1,122 @@
-#' Default theme options for charts
+#' @title NFSA Theme for ggplot2
 #'
-#' @return a set of theme parameters
-#' @export
+#' @description A custom ggplot2 theme similar to Eurostats
+#'
+#' @param base_size Numeric. Base font size for the theme (default is 11).
+#' @param base_family Character. Base font family for the theme (default is "sans").
+#' @param grid Logical. Whether to display major grid lines (default is TRUE).
+#' @param axis Logical. Whether to display axis lines (default is TRUE).
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @import ggplot2
+#'
 #' @examples
+#' # Apply the NFSA theme to a ggplot
 #' library(ggplot2)
-#' ggplot(mtcars, aes(mpg, disp)) + geom_point() + nfsa_theme()+ ggtitle("Test")
+#'
+#' ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+#'   geom_point() +
+#'   nfsa_theme()
+#'
+#' # Customize the theme
+#' ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+#'   geom_point() +
+#'   nfsa_theme(base_size = 12, grid = FALSE, axis = FALSE)
+#'
+#' \dontrun{
+#' # Example with different fonts (requires the font to be installed)
+#' ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+#'   geom_point() +
+#'   nfsa_theme(base_family = "serif")
+#' }
+#' @export
+# Main theme function
+nfsa_theme <- function(base_size = 11,
+                       base_family = "sans",
+                       grid = TRUE,
+                       axis = TRUE) {
 
-nfsa_theme <- function() {
+  library(ggplot2)
 
-  ggplot2::theme(
-
-    # TEXT FORMAT
-    # This sets the font, size, type and colour
-    # of text for the chart's title
-    plot.title = ggplot2::element_text(
-      size = 16,
-      face = "bold",
-      color = "#262B38"
-    ),
-    # This sets the font, size, type and colour
-    # of text for the chart's subtitle,
-    # as well as setting a margin between the title and the subtitle
-    plot.subtitle = ggplot2::element_text(
-      color = "#262B38",
-      size = 12,
-      margin = ggplot2::margin(9, 0, 9, 0)
-    ),
-    # This leaves the caption text element empty,
-    # because it is set elsewhere in the finalise plot function
-    plot.caption = ggplot2::element_text(
-      color = "#262B38",
-      size = 12),
-
-    # LEGEND FORMAT
-    # This sets the position and alignment of the legend,
-    # removes a title and background for it
-    # and sets the requirements for any text within the legend.
-    # The legend may often need some more manual tweaking
-    # when it comes to its exact position based on the plot coordinates.
-    legend.position = "right",
-    legend.text.align = 0,
-    legend.background = ggplot2::element_blank(),
-    legend.title = ggplot2::element_blank(),
-    legend.key = ggplot2::element_blank(),
-    legend.text = ggplot2::element_text(
-      size = 12,
-      color = "#262B38"
-    ),
-
-    # AXIS FORMAT
-    # This sets the text font, size and colour for the axis test,
-    # as well as setting the margins and removes lines and ticks.
-    # In some cases, axis lines and axis ticks are things we would
-    # want to have in the chart -
-    # the cookbook shows examples of how to do so.
-    axis.title = ggplot2::element_blank(),
-    axis.text = ggplot2::element_text(
-      size = 12,
-      color = "#262B38"
-    ),
-    axis.text.x = ggplot2::element_text(margin = ggplot2::margin(5, b = 10)),
-    axis.ticks = ggplot2::element_blank(),
-    axis.line = ggplot2::element_line(colour="#262B38"),
-
-    # GRID LINES
-    # This removes all minor gridlines and adds major y gridlines.
-    # In many cases you will want to change this to remove
-    # y gridlines and add x gridlines.
-    # The cookbook shows you examples for doing so.
-    panel.grid.minor = ggplot2::element_blank(),
-    panel.grid.major.y = ggplot2::element_line(color = "#D4D5D7"),
-    panel.grid.major.x = ggplot2::element_blank(),
-
-    # BLANK BACKGROUND
-    # This sets the panel background as blank, removing the standard
-    # grey ggplot background colour from the plot.
-    panel.background = ggplot2::element_rect(fill = "#F3F6FC"),
-
-    plot.background = ggplot2::element_rect(fill = "#FFFFFF",
-                                            colour = "#262B38"),
-    line = ggplot2::element_line(colour = "#262B38"),
-    rect = ggplot2::element_rect(fill = "#FAFAFA",
-                                  linetype = 0,
-                                  colour = NA),
-
-    # STRIP BACKGROUND
-    # This sets the panel background for facet-wrapped plots to white,
-    # removing the standard grey ggplot background colour and sets the
-    # title size of the facet-wrap title to font size 22.
-    strip.background = ggplot2::element_rect(fill = "#F3F6FC"),
-    strip.text = ggplot2::element_text(size = 14, hjust = 0.1, color="#262B38",face="bold"),
-    panel.spacing = grid::unit(2, "lines"),
-    strip.placement = "outside"
+  # Define Eurostat color palette
+  eurostat_colors <- c(
+    blue = "#003399",      # Primary Eurostat blue
+    yellow = "#FFB800",    # Eurostat yellow
+    lightblue = "#5694CA", # Light blue for secondary data
+    gray = "#707070",      # Gray for text
+    lightgray = "#E5E5E5"  # Light gray for gridlines
   )
+
+  theme_minimal(base_size = base_size, base_family = base_family) +
+    theme(
+      # Plot background
+      plot.background = element_rect(fill = "white", color = NA),
+      panel.background = element_rect(fill = "white", color = NA),
+
+      # Grid lines - light gray, subtle
+      panel.grid.major = if(grid) {
+        element_line(color = "#E5E5E5", linewidth = 0.3)
+      } else {
+        element_blank()
+      },
+      panel.grid.minor = element_blank(),
+      panel.grid.major.x = element_blank(), # Typically only horizontal gridlines
+
+      # Axes
+      axis.line = if(axis) {
+        element_line(color = "#707070", linewidth = 0.5)
+      } else {
+        element_blank()
+      },
+      axis.line.x = element_line(color = "#707070", linewidth = 0.5),
+      axis.line.y = element_blank(), # No y-axis line typically
+      axis.ticks = element_line(color = "#707070", linewidth = 0.5),
+      axis.ticks.y = element_blank(),
+      axis.text = element_text(color = "#707070", size = rel(0.9)),
+      axis.title = element_text(color = "#333333", size = rel(1.0),
+                                face = "plain"),
+      axis.title.y = element_text(angle = 90, margin = margin(r = 10)),
+      axis.title.x = element_text(margin = margin(t = 10)),
+
+      # Plot title and subtitle
+      plot.title = element_text(
+        color = "#003399",
+        size = rel(1.3),
+        face = "bold",
+        hjust = 0,
+        margin = margin(b = 8)
+      ),
+      plot.subtitle = element_text(
+        color = "#707070",
+        size = rel(1.0),
+        hjust = 0,
+        margin = margin(b = 12)
+      ),
+      plot.caption = element_text(
+        color = "#707070",
+        size = rel(0.8),
+        hjust = 0,
+        margin = margin(t = 12)
+      ),
+
+      # Legend
+      legend.background = element_rect(fill = "white", color = NA),
+      legend.key = element_rect(fill = "white", color = NA),
+      legend.text = element_text(color = "#707070", size = rel(0.9)),
+      legend.title = element_text(color = "#333333", size = rel(1.0),
+                                  face = "plain"),
+      legend.position = "bottom",
+      legend.direction = "horizontal",
+      legend.box.spacing = unit(0.5, "cm"),
+
+      # Faceting
+      strip.background = element_rect(fill = "#F5F5F5", color = NA),
+      strip.text = element_text(color = "#003399", size = rel(1.0),
+                                face = "bold", margin = margin(5, 5, 5, 5)),
+
+      # Margins
+      plot.margin = margin(15, 15, 15, 15)
+    )
 }
+

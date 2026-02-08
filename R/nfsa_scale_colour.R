@@ -1,21 +1,33 @@
-#' colour palette for charts
+#' @title Color scale functions for Eurostat palette
 #'
-#' @param name name of the palette. "full" by default. Other options ("primary","monoblue","monofuchsia") as defined in regacc_palettes()
-#' @param direction of the scale. 1 by default, any other number to reverse it.
-#' @return a colour palette
-#' @export nfsa_scale_colour
+#' @description This function generates a color scale using the Eurostat palette.
 #'
-#' @examples
-#' library(ggplot2)
-#'ggplot(iris,aes(Sepal.Length, Sepal.Width, colour = Species))+
-#'geom_point()+
-#'nfsa_scale_colour()
-nfsa_scale_colour <- function(name = "full", direction = 1) {
-  if (direction == 1) {
-    ggplot2::scale_colour_manual(values = nfsa_palettes(name, type = "discrete"))
-  } else {
-    ggplot2::scale_colour_manual(values = rev(nfsa_palettes(name, type = "discrete")))
-  }
+#' @param ... Additional arguments to be passed to \code{\link[ggplot2]{scale_colour_manual}}.
+#'
+#' @return A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
+#' @export
+nfsa_scale_colour <- function(...) {
+  scale_colour_manual(
+    values = c("#003399", "#FFB800", "#5694CA", "#9DC3E6",
+               "#A6CE39", "#F47B20", "#C00000"),
+    ...
+  )
+}
+
+#' @title Fill scale functions for Eurostat palette
+#'
+#' @description This function generates a fill scale using the Eurostat palette.
+#'
+#' @param ... Additional arguments to be passed to \code{\link[ggplot2]{scale_fill_manual}}.
+#'
+#' @return A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
+#' @export
+nfsa_scale_fill <- function(...) {
+  scale_fill_manual(
+    values = c("#003399", "#FFB800", "#5694CA", "#9DC3E6",
+               "#A6CE39", "#F47B20", "#C00000"),
+    ...
+  )
 }
 
 
