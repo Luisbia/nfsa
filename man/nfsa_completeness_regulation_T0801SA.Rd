@@ -6,11 +6,14 @@
 \usage{
 nfsa_completeness_regulation_T0801SA(
   country,
+  file = FALSE,
   output_sel = here::here("output", "completeness")
 )
 }
 \arguments{
 \item{country}{A character vector specifying the countries for which to check data completeness.}
+
+\item{file}{If a file should be written. FALSE by default which will open a temporary Excel file.}
 
 \item{output_sel}{A file path specifying the directory where the output Excel file should be saved. Defaults to "output/completeness" inside the project.}
 }

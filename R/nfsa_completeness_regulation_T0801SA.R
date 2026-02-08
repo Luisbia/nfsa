@@ -20,10 +20,11 @@
 
 #' }
 #' @export
-nfsa_completeness_regulation_T0801SA <- function(country,
-                                                 file = FALSE,
-                                                 output_sel = here::here("output", "completeness")) {
+nfsa_completeness_regulation_T0801SA_test <- function(country,
+                                                      file = FALSE,
+                                                      output_sel = here::here("output", "completeness")) {
   library(tidyverse)
+  library(openxlsx)
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
@@ -63,33 +64,24 @@ nfsa_completeness_regulation_T0801SA <- function(country,
 
   dat_missing <- dat |>
     dplyr::filter(is.na(obs_value)| obs_status == "M")|>
-    select(ref_area,id, time_period,obs_status) |>
-    mutate(
-      from = min(time_period),
-      to = max(max(time_period))
-    ) |>
-    select(-time_period) |>
-    distinct() |>
-    rename(missing_series = id) |>
-    mutate(from = str_replace_all(from, c(
-      "-01-01" = "-Q1",
-      "-04-01" = "-Q2",
-      "-07-01" = "-Q3",
-      "-10-01" = "-Q4"
-    ))) |>
-    mutate(to = str_replace_all(to, c(
-      "-01-01" = "-Q1",
-      "-04-01" = "-Q2",
-      "-07-01" = "-Q3",
-      "-10-01" = "-Q4"
-    ))) |>
-    select(ref_area,missing_series,from,to,obs_status) |>
-    arrange(ref_area)
-
+    select(ref_area,id, time_period,obs_status)
 
   if (nrow(dat_missing) == 0) {
     cli::cli_inform(paste0("Data requirements for T0801SA are fulfilled" ))
   } else if (file == FALSE) {
+
+    dat_missing <- dat_missing |>
+      mutate(
+        from = min(time_period),
+        to = max(max(time_period))
+      ) |>
+      select(-time_period) |>
+      distinct() |>
+      rename(missing_series = id) |>
+      select(ref_area,missing_series,from,to,obs_status) |>
+      arrange(ref_area)
+
+
 
     nfsa::nfsa_to_excel(dat_missing)
 
@@ -108,3 +100,5 @@ nfsa_completeness_regulation_T0801SA <- function(country,
 
   return(dat_missing)
 }
+
+
