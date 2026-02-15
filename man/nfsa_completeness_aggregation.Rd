@@ -6,14 +6,14 @@
 \usage{
 nfsa_completeness_aggregation(
   country,
-  table = "T0801",
+  file = FALSE,
   output_sel = here::here("output", "completeness")
 )
 }
 \arguments{
 \item{country}{A character vector specifying the country(ies) codes (e.g., "BE").}
 
-\item{table}{A character string specifying the table identifier ("T0801" or "T0800").  Defaults to "T0801".}
+\item{file}{If a file should be written. FALSE by default which will open a temporary Excel file.}
 
 \item{output_sel}{A character string specifying the output directory for the completeness report.
 Defaults to \code{here::here("output", "completeness")}.}
@@ -22,17 +22,14 @@ Defaults to \code{here::here("output", "completeness")}.}
 A data frame containing the missing data points. Returns an empty dataframe if data requirements are fulfilled.
 }
 \description{
-This function checks the completeness of NFSA data for a given country and table,
+This function checks the completeness of NFSA data for a given country for Table 801,
 comparing it against predefined data requirements. It identifies missing data points and
 exports them to an Excel file.
 }
 \examples{
 \dontrun{
 # Check completeness for Belgium (BE) for table T0801 and save the report to the default output directory
-missing_data <- nfsa_completeness_aggregation(country = "BE", table = "T0801")
-
-# Check completeness for Germany (DE) for table T0800 and save the report to a custom output directory
-missing_data <- nfsa_completeness_aggregation(country = "DE", table = "T0800", output_sel = here::here("custom_output"))
+missing_data <- nfsa_completeness_aggregation(country = "BE")
 }
 
 }

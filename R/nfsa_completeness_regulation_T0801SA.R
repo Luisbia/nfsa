@@ -20,7 +20,7 @@
 
 #' }
 #' @export
-nfsa_completeness_regulation_T0801SA_test <- function(country,
+nfsa_completeness_regulation_T0801SA <- function(country,
                                                       file = FALSE,
                                                       output_sel = here::here("output", "completeness")) {
   library(tidyverse)

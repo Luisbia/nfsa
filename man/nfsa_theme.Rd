@@ -2,17 +2,42 @@
 % Please edit documentation in R/nfsa_theme.R
 \name{nfsa_theme}
 \alias{nfsa_theme}
-\title{Default theme options for charts}
+\title{NFSA Theme for ggplot2}
 \usage{
-nfsa_theme()
+nfsa_theme(base_size = 11, base_family = "sans", grid = TRUE, axis = TRUE)
+}
+\arguments{
+\item{base_size}{Numeric. Base font size for the theme (default is 11).}
+
+\item{base_family}{Character. Base font family for the theme (default is "sans").}
+
+\item{grid}{Logical. Whether to display major grid lines (default is TRUE).}
+
+\item{axis}{Logical. Whether to display axis lines (default is TRUE).}
 }
 \value{
-a set of theme parameters
+A ggplot2 theme object.
 }
 \description{
-Default theme options for charts
+A custom ggplot2 theme similar to Eurostats
 }
 \examples{
+# Apply the NFSA theme to a ggplot
 library(ggplot2)
-ggplot(mtcars, aes(mpg, disp)) + geom_point() + nfsa_theme()+ ggtitle("Test")
+
+ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+  geom_point() +
+  nfsa_theme()
+
+# Customize the theme
+ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+  geom_point() +
+  nfsa_theme(base_size = 12, grid = FALSE, axis = FALSE)
+
+\dontrun{
+# Example with different fonts (requires the font to be installed)
+ggplot(data = mtcars, aes(x = mpg, y = disp)) +
+  geom_point() +
+  nfsa_theme(base_family = "serif")
+}
 }

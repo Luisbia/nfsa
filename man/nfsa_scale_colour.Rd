@@ -2,24 +2,16 @@
 % Please edit documentation in R/nfsa_scale_colour.R
 \name{nfsa_scale_colour}
 \alias{nfsa_scale_colour}
-\title{colour palette for charts}
+\title{Color scale functions for Eurostat palette}
 \usage{
-nfsa_scale_colour(name = "full", direction = 1)
+nfsa_scale_colour(...)
 }
 \arguments{
-\item{name}{name of the palette. "full" by default. Other options ("primary","monoblue","monofuchsia") as defined in regacc_palettes()}
-
-\item{direction}{of the scale. 1 by default, any other number to reverse it.}
+\item{...}{Additional arguments to be passed to \code{\link[ggplot2]{scale_colour_manual}}.}
 }
 \value{
-a colour palette
+A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
 }
 \description{
-colour palette for charts
-}
-\examples{
-library(ggplot2)
-ggplot(iris,aes(Sepal.Length, Sepal.Width, colour = Species))+
-geom_point()+
-nfsa_scale_colour()
+This function generates a color scale using the Eurostat palette.
 }
