@@ -3,7 +3,7 @@
 #' Correspondance between SDMX/MATIS codes and 3 columns internal code
 #'
 "nfsa_sto_lookup"
-# nfsa_stp_lookup <- data.frame(
+# nfsa_sto_lookup <- data.frame(
 #     stringsAsFactors = FALSE,
 #     counterpart_area = c("W0","W0","W0","W0",
 #                          "W0","W0","W0","W1","W0","W0","W0","W0","W0","W0",
@@ -3104,4 +3104,4 @@
 #                          "S1M.B1G_L.B","S14.B1G_L.B","S15.B1G_L.B","S1N.B1G_L.B",
 #                          "S1M.P31_L.D","S14.P31_L.D")
 # )
-#  usethis::use_data(nfsa_sto_lookup, overwrite = TRUE)
+ # usethis::use_data(nfsa_sto_lookup, overwrite = TRUE)
