@@ -8,7 +8,8 @@ nfsa_internal_consistency_T0801(
   dataset,
   output_sel = here::here("output", "internal"),
   threshold = 1,
-  rounding = 1
+  rounding = 1,
+  clean_NA = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ identifying discrepancies.  Differences greater than this threshold
 
 \item{rounding}{(optional) An integer specifying the number of decimal places
 to round the \code{obs_value} and check calculations to.  Defaults to 1.}
+
+\item{clean_NA}{(optional) A logical value. If \code{TRUE} it removes the accounting checks for which
+there are no values for one (or several) columns.}
 }
 \value{
 None. The function writes the results to an Excel file.
