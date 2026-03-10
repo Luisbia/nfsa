@@ -58,7 +58,7 @@
 # nfsa 1.0.1
 * Removed deprecated functions.
 * Removed from library not so common functions.
-* Re-factored internal consistency.
+* Re-factored internal consistency into a single function.
 * Ggplot2 theme more similar to Eurostat charts.
 
 

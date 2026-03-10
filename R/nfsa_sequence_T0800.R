@@ -5,7 +5,7 @@
 #'
 #' @param country A character vector specifying the countries to process (e.g., "BE", "NL").
 #' @param time_min A numeric value specifying the minimum time period to consider (default: 2020).
-#' @param type Either "values" by default or "revisions"
+#' @param type Either "values" by default or "vintages" or "versions".
 #' @param template A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_T0800.xlsx")`.
 #' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","sequence")`.
 #'
@@ -29,7 +29,7 @@
 #'   nfsa_sequence_T0800(country = "BE", type = "values")
 #'
 #'   # Example usage with multiple countries and custom time period
-#'   nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "revisions")
+#'   nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "vintages")
 #'
 #' }
 #'
@@ -96,31 +96,59 @@ if (type == "values"){
 
 }
 
-if (type == "revisions"){
-nfsa_data <- full_join(nfsa_new_data,nfsa_prev_data,by= join_by(id)) |>
-  mutate(obs_value = round(new-prev)) |>
-  mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
-  select(-new,-prev)
+if (type == "vintages"){
+  nfsa_data <- dplyr::full_join(nfsa_new_data,nfsa_prev_data,by = dplyr::join_by(id)) |>
+    dplyr::mutate(obs_value = round(new-prev)) |>
+    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+    dplyr::select(-new,-prev)
 
-if (nrow(nfsa_data) == 0) {
-  cli::cli_alert_success("No revisions in T0800!")}
-
-
-wb <- loadWorkbook(template)
-writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+  if (nrow(nfsa_data) == 0) {
+    cli::cli_alert_success("No revisions in T0800!")}
 
 
-if(length(country) == 1) {
-  saveWorkbook(wb, ,file =paste0(output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  wb <- openxlsx::loadWorkbook(template)
+  openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  if(length(country) == 1) {
+    openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  }
+
+  if(length(country) > 1) {
+    openxlsx::saveWorkbook(wb, ,file = paste0(output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  }
 }
 
-if(length(country) > 1) {
-  saveWorkbook(wb, ,file = paste0(output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+if (type == "versions"){
+  nfsa_data <- nfsa_get_data_all(country = country,table = "T0800") |>
+    dplyr::filter(time_period >= time_min) |>
+    dplyr::group_by(ref_area,id,time_period) |>
+    dplyr::arrange(version,.by_group = TRUE) |>
+    dplyr::mutate(obs_value = round(obs_value-dplyr::lag(obs_value))) |>
+    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+    dplyr::ungroup() |>
+    tidyr::unite("id",c(version,time_period,ref_area,id),sep = ".")
 
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-    }
+  if (nrow(nfsa_data) == 0) {
+    cli::cli_alert_success("No revisions in T0800!")}
 
+
+  wb <- openxlsx::loadWorkbook(template)
+  openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+
+  if(length(country) == 1) {
+    openxlsx::saveWorkbook(wb, file =paste0(output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
   }
+
+  if(length(country) > 1) {
+    openxlsx::saveWorkbook(wb, file = paste0(output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+
+    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
+  }
+}
 }

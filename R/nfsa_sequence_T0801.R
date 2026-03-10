@@ -5,7 +5,7 @@
 #'
 #' @param country A character vector specifying the countries to process (e.g., "BE", "NL").
 #' @param time_min A numeric value specifying the minimum time period to consider (default: "2020-Q1").
-#' @param type Either "values" by default or "revisions"
+#' @param type Either "values" by default or "vintages" or "versions".
 #' @param template A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_T0801.xlsx")`.
 #' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","sequence")`.
 #'

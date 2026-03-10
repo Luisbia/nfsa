@@ -17,7 +17,7 @@ nfsa_sequence_T0800(
 
 \item{time_min}{A numeric value specifying the minimum time period to consider (default: 2020).}
 
-\item{type}{Either "values" by default or "revisions"}
+\item{type}{Either "values" by default or "vintages" or "versions".}
 
 \item{template}{A character string specifying the file path to the Excel template file. Default: \code{here("assets","seq_accounts_T0800.xlsx")}.}
 
@@ -49,7 +49,7 @@ The function performs the following steps:
   nfsa_sequence_T0800(country = "BE", type = "values")
 
   # Example usage with multiple countries and custom time period
-  nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "revisions")
+  nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "vintages")
 
 }
 

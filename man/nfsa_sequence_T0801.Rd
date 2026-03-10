@@ -17,7 +17,7 @@ nfsa_sequence_T0801(
 
 \item{time_min}{A numeric value specifying the minimum time period to consider (default: "2020-Q1").}
 
-\item{type}{Either "values" by default or "revisions"}
+\item{type}{Either "values" by default or "vintages" or "versions".}
 
 \item{template}{A character string specifying the file path to the Excel template file. Default: \code{here("assets","seq_accounts_T0801.xlsx")}.}
 
