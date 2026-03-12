@@ -108,7 +108,8 @@ nfsa_T0800_ANA <- function(country,
     mutate(validate = ifelse(threshold == TRUE &
                                sto == "B1GQ" &
                                time_period>= limit_validation,
-                             "NOT VALIDATED",""))
+                             "NOT VALIDATED",""))|>
+    dplyr::select(ref_area,ref_sector,sto,accounting_entry,time_period,nama_date = source_date,nama,nfsa,diff,as_GDP,`over 0.3 % GDP` = threshold, validate)
 
 
 

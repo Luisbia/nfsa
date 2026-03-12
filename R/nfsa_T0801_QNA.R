@@ -109,7 +109,8 @@ nfsa_T0801_QNA <- function(country,
       high_diff = abs(as_gdp) > 0.3,
       validate = dplyr::if_else(high_diff & sto == "B1GQ" & time_period >= limit_validation,
                                 "NOT VALIDATED", "OK")
-    )
+    ) |>
+    dplyr::select(ref_area,ref_sector,sto,accounting_entry,time_period,nama_date = source_date,nama,nfsa,diff,as_gdp,`over 0.3 % GDP` = high_diff, validate)
 
   # 5. Summary and Export
   if (nrow(nama_nfsa) == 0) {
