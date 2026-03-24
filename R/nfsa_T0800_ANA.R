@@ -51,6 +51,7 @@ nfsa_T0800_ANA <- function(country,
   cli::cli_progress_message("Collecting ANA...")
 
   # Build country pattern for faster file filtering
+  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   country_pattern <- paste0("(", paste(country, collapse = "|"), ")")
 
   nama_files <- list.files(
@@ -93,8 +94,10 @@ nfsa_T0800_ANA <- function(country,
   # Read XML files with progress feedback
   cli::cli_progress_message("Reading {length(nama_files)} XML file(s)...")
   nama_data <- map(nama_files, read_nama_files, .progress = TRUE) |>
-    list_rbind()
+    list_rbind() |>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
 
+  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
 
   nama_nfsa <- full_join(nama_data, nfsa_data,by = join_by(ref_area, ref_sector, sto, accounting_entry,
                                                            time_period)) |>

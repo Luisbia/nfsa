@@ -61,4 +61,7 @@
 * Re-factored internal consistency into a single function.
 * Ggplot2 theme more similar to Eurostat charts.
 
+# nfsa 1.0.2
+* Fixed issues with inconsistent naming for Greece (EL/GR) in NFSA,NAMA,GFS and BOP.
+* Remove nfsa_comext(). Back to a script!
 

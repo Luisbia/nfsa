@@ -50,6 +50,8 @@ nfsa_T0801_QNA <- function(country,
 
   # 2. Identify latest QNA XML Files
   cli::cli_progress_message("Locating latest QNA XML files...")
+
+  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input")
 
   # Build country pattern for faster file filtering
@@ -89,7 +91,10 @@ nfsa_T0801_QNA <- function(country,
   # Read XML files with progress feedback
   cli::cli_progress_message("Reading {length(nama_files)} XML file(s)...")
   nama_data <- purrr::map(nama_files, read_nama, .progress = TRUE) |>
-    dplyr::bind_rows()
+    dplyr::bind_rows() |>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
+
+  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
 
   # 4. Join and Calculate Consistency
   # Creating a GDP lookup ensures we don't lose rows if GDP is missing for some periods

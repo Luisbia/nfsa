@@ -51,7 +51,7 @@ nfsa_T0801_GFS <- function(country,
   # 2. Identify latest GFS XML Files
   cli::cli_progress_message("Locating latest GFS XML files...")
   base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input")
-
+  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   gfs_files <- list.files(path = base_path, pattern = "\\.xml$", full.names = TRUE, recursive = TRUE) |>
     tibble::enframe(name = NULL, value = "path") |>
     dplyr::mutate(
@@ -79,7 +79,11 @@ nfsa_T0801_GFS <- function(country,
       dplyr::distinct()
   }
 
-  gfs_data <- purrr::map(gfs_files, read_gfs) |> dplyr::bind_rows()
+  gfs_data <- purrr::map(gfs_files, read_gfs) |>
+    dplyr::bind_rows()|>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
+
+  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
 
   # 4. Join and Logic
   # We join and filter out rows that don't exist in BOTH datasets (consistency check)

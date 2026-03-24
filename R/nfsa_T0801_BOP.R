@@ -53,6 +53,7 @@ nfsa_T0801_BOP <- function(country,
   ## BOP
 
   cli::cli_progress_message("Collecting BOP...")
+  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   bop_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_6) Consistency checks - QSA vs BoP/Input"),
                                         pattern = "xml$",
                                         full.names = TRUE,
@@ -74,7 +75,11 @@ nfsa_T0801_BOP <- function(country,
   }
 
   bop_data <- map(bop_files,read_bop_files) |>
-    list_rbind()
+    list_rbind()|>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
+
+  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
+
 
   bop_nfsa <- full_join(bop_data, nfsa_data,
                         by = join_by(ref_area,ref_sector, sto,

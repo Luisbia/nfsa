@@ -15,12 +15,12 @@ nfsa_validation(
 specifying the minimum date for validation files to be considered.
 Files with timestamps earlier than this date will be ignored.}
 
-\item{output_sel}{A character string specifying the directory where the output
-Excel file will be saved. Defaults to \code{here::here("output", "logs")}.}
-
-\item{time_ax}{A date object or character string coercible to a date,
+\item{time_max}{A date object or character string coercible to a date,
 specifying the maximum date for validation files to be considered.
 Files with timestamps later than this date will be ignored. Defaults to current date}
+
+\item{output_sel}{A character string specifying the directory where the output
+Excel file will be saved. Defaults to \code{here::here("output", "logs")}.}
 }
 \value{
 This function creates and saves an Excel file. If validation files are found, a new excel document is generated in the specified directory.

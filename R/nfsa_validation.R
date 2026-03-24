@@ -8,7 +8,7 @@
 #'   specifying the minimum date for validation files to be considered.
 #'   Files with timestamps earlier than this date will be ignored.
 #'
-#' @param time_ax A date object or character string coercible to a date,
+#' @param time_max A date object or character string coercible to a date,
 #'   specifying the maximum date for validation files to be considered.
 #'   Files with timestamps later than this date will be ignored. Defaults to current date
 #' @param output_sel A character string specifying the directory where the output

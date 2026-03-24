@@ -35,6 +35,7 @@ nfsa_T0801SA_GFS <- function(country,
 
   ## GFS -----
   cli::cli_progress_message("Collecting GFS...")
+  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   gfs_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input"),
                                         pattern = "xml$",
                                         full.names = TRUE,
@@ -60,7 +61,10 @@ nfsa_T0801SA_GFS <- function(country,
   }
 
   gfs_data <- map(gfs_files,read_gfs_files) |>
-    list_rbind()
+    list_rbind()|>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
+
+  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
 
   gfs_nfsa <- full_join(gfs_data, nfsa_data,by = join_by(ref_area, ref_sector, sto, accounting_entry,
                                                          time_period)) |>
