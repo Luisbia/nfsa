@@ -6,12 +6,15 @@
 \usage{
 nfsa_completeness_aggregation(
   country,
+  requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx",
   file = FALSE,
   output_sel = here::here("output", "completeness")
 )
 }
 \arguments{
 \item{country}{A character vector specifying the country(ies) codes (e.g., "BE").}
+
+\item{requirements}{A link to the file to be checked, ny default \verb{""M:/nas/Rprod/assets/completeness_aggregation.xlsx"}.}
 
 \item{file}{If a file should be written. FALSE by default which will open a temporary Excel file.}
 

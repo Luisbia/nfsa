@@ -5,6 +5,7 @@
 #'   exports them to an Excel file.
 #'
 #' @param country A character vector specifying the country(ies) codes (e.g., "BE").
+#' @param requirements A link to the file to be checked, ny default `""M:/nas/Rprod/assets/completeness_aggregation.xlsx"`.
 #' @param file If a file should be written. FALSE by default which will open a temporary Excel file.
 #' @param output_sel A character string specifying the output directory for the completeness report.
 #'   Defaults to `here::here("output", "completeness")`.
@@ -18,6 +19,7 @@
 #'
 #' @export
 nfsa_completeness_aggregation <- function(country,
+                                          requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx",
                                           file = FALSE,
                                           output_sel = here::here("output", "completeness")) {
   library(tidyverse)
@@ -36,7 +38,7 @@ nfsa_completeness_aggregation <- function(country,
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
            "NL", "PL", "PT", "RO", "SE")
 
-  requirements <- "M:/nas/Rprod/assets/completeness_aggregation.xlsx"
+
   req <- readxl::read_xlsx(requirements)
 
   req_time <- nfsa_get_data (country = c("FR","SE"), table = "T0801",
