@@ -87,9 +87,9 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
     dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
                                     "consolidation", "accounting_entry", "sto",
                                     "instr_asset", "unit_measure", "prices")) |>
-    tidyr::drop_na() |>
     dplyr::select(ref_area, id, time_period, obs_value) |>
-    dplyr::arrange(time_period,ref_area,id) |>
+    tidyr::drop_na() |>
+     dplyr::arrange(time_period,ref_area,id) |>
     dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
   }
 

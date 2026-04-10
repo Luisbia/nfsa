@@ -65,3 +65,10 @@
 * Fixed issues with inconsistent naming for Greece (EL/GR) in NFSA,NAMA,GFS and BOP.
 * Remove nfsa_comext(). Back to a script!
 
+# nfsa 1.0.3
+* Bug in retrieving data when there were simultaneously embargo/no embargo date.
+
+# nfsa 1.0.4
+* New function to read files sent to Eurobase.
+* Update the lookup table to cope with different counterpart sectors for EMP in T0800/T0801.
+* Minor bugs.

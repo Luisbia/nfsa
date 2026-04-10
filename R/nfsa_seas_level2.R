@@ -54,7 +54,8 @@ nfsa_seas_level2 <- function(series = here::here("assets", "seas_level1.xlsx"),
                              default_spec_nsa_sel = "RSA1",
                              default_spec_sa_sel = "RSA2c"){
 
-  series_list <- readxl::read_xlsx(series)
+  series_list <- readxl::read_xlsx(series) |>
+    distinct()
 
   nsa <- nfsa_get_data(country = unique(series_list$ref_area),
                        table = "T0801",

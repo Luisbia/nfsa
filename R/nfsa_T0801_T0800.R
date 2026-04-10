@@ -43,15 +43,16 @@ nfsa_T0801_T0800 <- function(country,
   qnfsa_anfsa <- left_join(q_nfsa_data,a_nfsa_data, by = join_by(ref_area, ref_sector, sto, accounting_entry,
                                                                  time_period)) |>
     mutate(diff = round(qnfsa-anfsa,2)) |>
-    filter(abs(diff)> threshold)
+    filter(abs(diff)> threshold) |>
+    filter(str_detect(sto != "EMP"))
 
-  tmp <- a_nfsa_data |>
-    filter(sto == "B1GQ") |>
-    select(ref_area,time_period,gdp=anfsa)
-
-  qnfsa_anfsa <- left_join(qnfsa_anfsa,tmp, by = join_by(ref_area, time_period)) |>
-    mutate(as_GDP = round(diff*100/gdp,3)) |>
-    mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE))
+  # tmp <- a_nfsa_data |>
+  #   filter(sto == "B1GQ") |>
+  #   select(ref_area,time_period,gdp=anfsa)
+  #
+  # qnfsa_anfsa <- left_join(qnfsa_anfsa,tmp, by = join_by(ref_area, time_period)) |>
+  #   mutate(as_GDP = round(diff*100/gdp,3)) |>
+  #   mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE))
 
 
 

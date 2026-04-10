@@ -88,13 +88,6 @@ nfsa_T0801_BOP <- function(country,
     mutate(diff = round(nfsa-bop,1)) |>
     filter(abs(diff)>threshold)
 
-  tmp <- nfsa_data |>
-    filter(sto == "B1GQ") |>
-    select(ref_area,time_period,gdp=nfsa)
-
-  bop_nfsa <- left_join(bop_nfsa,tmp, by = join_by(ref_area, time_period)) |>
-    mutate(as_GDP = round(diff*100/gdp,3)) |>
-    mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE))
 
 
 
