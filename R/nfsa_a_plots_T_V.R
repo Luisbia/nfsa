@@ -23,7 +23,7 @@ nfsa_a_plots_T_V <- function(country,
                              output_sel = here::here("output", "plots"),
                              time_min = 1995,
                              my_theme = ggthemes::theme_fivethirtyeight(),
-                             my_colours = c("#B656BD","#208486")){
+                             my_colours = c("#672DC4", "#208486",)){
 
   lookup <- nfsa::nfsa_sto_lookup
   sto_label <- nfsa::nfsa_sto_label

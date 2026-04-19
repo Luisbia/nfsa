@@ -72,3 +72,7 @@
 * New function to read files sent to Eurobase.
 * Update the lookup table to cope with different counterpart sectors for EMP in T0800/T0801.
 * Minor bugs.
+
+# nfsa 1.0.5
+* P6, P61, P62 were not retrived in nfsa_T0801SA_QNA().
+* Added date of the GFS file used in nfsa_T0801_GFS().

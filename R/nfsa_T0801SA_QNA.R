@@ -49,7 +49,8 @@ nfsa_T0801SA_QNA <- function(country,
     mutate(accounting_entry = case_when(
       na_item %in% c("B1G", "B1GQ", "B2A3G", "B11", "B111", "B112") ~ "B",
       na_item %in% c("D1","P3", "P5", "P51G", "P6") ~ "D",
-      na_item %in% c("P7", "P71", "P72") ~ "C"
+      na_item %in% c("P7", "P71", "P72") ~ "C",
+      na_item %in% c("P6", "P61", "P62") ~ "D"
     )) |>
     unite("id", c(ref_sector, na_item, accounting_entry), sep=".") |>
     rename(time_period = time, ref_area = geo) |>
@@ -64,8 +65,7 @@ nfsa_T0801SA_QNA <- function(country,
     group_by(ref_area,time_period) |>
     mutate(as_GDP = round(diff*100/nama[id =="S1.B1GQ.B"],3)) |>
     ungroup() |>
-    filter(abs(diff)>threshold) |>
-    mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE))
+    filter(abs(diff)>threshold)
 
 
 

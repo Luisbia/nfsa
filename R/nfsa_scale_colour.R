@@ -8,7 +8,7 @@
 #' @export
 nfsa_scale_colour <- function(...) {
   scale_colour_manual(
-    values = c("#003399", "#FFB800", "#5694CA", "#9DC3E6",
+    values = c("#672DC4", "#208486", "#003399", "#AF155F","#FFB800", "#5694CA", "#9DC3E6",
                "#A6CE39", "#F47B20", "#C00000"),
     ...
   )

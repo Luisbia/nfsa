@@ -74,7 +74,8 @@ nfsa_T0801_GFS <- function(country,
       dplyr::filter(adjustment == "N") |>
       dplyr::transmute(
         ref_area, ref_sector, sto, accounting_entry, time_period,
-        gfs = as.numeric(obs_value)
+        gfs = as.numeric(obs_value),
+        source_date = as.Date(stringr::str_extract(basename(file), "\\d{12,14}"), format = "%Y%m%d")
       ) |>
       dplyr::distinct()
   }
@@ -104,8 +105,19 @@ nfsa_T0801_GFS <- function(country,
       high_diff = abs(as_gdp) > 0.3,
       # GFS validation usually focuses on B9 (Net Lending/Borrowing)
       validate = dplyr::if_else(high_diff & sto == "B9" & time_period >= limit_validation,
-                                "NOT VALIDATED", "OK")
-    )
+                                "NOT VALIDATED", "OK")) |>
+    dplyr::select(ref_area,
+                  ref_sector,
+                  sto,accounting_entry,
+                  time_period,
+                  gfs_date = source_date,
+                  gfs,
+                  nfsa,
+                  diff,
+                  as_gdp,
+                  `over 0.3 % GDP` = high_diff,
+                  validate)
+
 
   # 5. Reporting
   if (nrow(gfs_nfsa) == 0) {
@@ -124,7 +136,6 @@ nfsa_T0801_GFS <- function(country,
   nfsa::nfsa_to_excel(gfs_nfsa)
   return(gfs_nfsa)
 }
-
 
 
 
