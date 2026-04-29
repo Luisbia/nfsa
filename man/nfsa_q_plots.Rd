@@ -10,7 +10,7 @@ nfsa_q_plots(
   output_sel = here::here("output", "plots"),
   time_min = "1999-Q1",
   my_theme = ggthemes::theme_fivethirtyeight(),
-  my_colours = c("#B656BD", "#208486"),
+  my_colours = c("#672DC4", "#208486", ),
   ...
 )
 }

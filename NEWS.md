@@ -76,3 +76,5 @@
 # nfsa 1.0.5
 * P6, P61, P62 were not retrived in nfsa_T0801SA_QNA().
 * Added date of the GFS file used in nfsa_T0801_GFS().
+* Improved nfsa_completeness_aggregation()
+* nfsa_asset_sync() to bring newer versions of common dictionaries, Rmd

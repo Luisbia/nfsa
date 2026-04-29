@@ -18,7 +18,7 @@
 #' }
 #'
 #' @export
-nfsa_completeness_aggregation <- function(country,
+nfsa_completeness_aggregation <- function(country ,
                                           requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx",
                                           file = FALSE,
                                           output_sel = here::here("output", "completeness")) {
@@ -34,9 +34,9 @@ nfsa_completeness_aggregation <- function(country,
 
   lookup <- nfsa::nfsa_sto_lookup
 
-  small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
-  big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
-           "NL", "PL", "PT", "RO", "SE")
+  smallEA <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
+  bigEA <- c("AT", "BE", "DE", "EL", "ES", "FI", "FR", "IE", "IT", "NL", "PT")
+  bigEU <- c("CZ", "DK", "HU", "PL", "RO", "SE")
 
 
   req <- readxl::read_xlsx(requirements)
@@ -47,26 +47,34 @@ nfsa_completeness_aggregation <- function(country,
     filter(time_period >= "1999-Q1") |>
     arrange()
 
-  req_small <- req |>
-    dplyr::filter(countries == "ALL") |>
-    dplyr::select(-countries)  %>%
-    tidyr::crossing(.,data.frame(ref_area = small))
+  req_smallEA <- req |>
+    dplyr::filter(smallEA == "TRUE") |>
+    dplyr::select(id)  %>%
+    tidyr::crossing(.,data.frame(ref_area = smallEA))
 
-  req_big <- req |>
-    dplyr::select(-countries)  %>%
-    tidyr::crossing(.,data.frame(ref_area = big))
+  req_bigEA <- req |>
+    dplyr::filter(bigEA == "TRUE") |>
+    dplyr::select(id)  %>%
+    tidyr::crossing(.,data.frame(ref_area = bigEA))
 
-  req <- dplyr::bind_rows(req_small, req_big) |>
+  req_bigEU <- req |>
+    dplyr::filter(bigEU == "TRUE") |>
+    dplyr::select(id)  %>%
+    tidyr::crossing(.,data.frame(ref_area = bigEU))
+
+  req <- dplyr::bind_rows(req_smallEA, req_bigEA, req_bigEU) |>
     dplyr::filter(ref_area %in% country)%>%
     tidyr::crossing(., req_time) |>
-    select(ref_area,id,pub,time_period)
+    select(ref_area,id,time_period)
 
-  rm(req_small,req_big, req_time)
+  rm(req_smallEA,req_bigEA, req_bigEU, req_time)
 
 
 
   dat <- nfsa_get_data(country = country,complete = TRUE) |>
     select(ref_area, id, time_period, obs_value,obs_status) |>
+    mutate(obs_value = if_else(obs_status == "M",0,obs_value)) |>
+    select(-obs_status) |>
     nfsa::nfsa_separate_id() |>
     filter(time_period >= "1999-Q1",
            ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
@@ -78,19 +86,19 @@ nfsa_completeness_aggregation <- function(country,
 
 
   if (nrow(dat_missing) == 0) {
-    cli::cli_inform(paste0("Data requirements for ",table, " are fulfilled" ))
+    cli::cli_inform(paste0("Data requirements are fulfilled" ))
   } else if (file == FALSE) {
 
 
     dat_missing <- dat_missing |>
       mutate(
         from = min(time_period),
-        to = max(max(time_period))
+        to = max(max(time_period)),.by = c(id)
       ) |>
       select(-time_period) |>
       distinct() |>
       rename(missing_series = id) |>
-      select(ref_area,missing_series,from,to,obs_status,pub) |>
+      select(ref_area,missing_series,from,to) |>
       arrange(ref_area)
 
     nfsa::nfsa_to_excel(dat_missing)
@@ -100,15 +108,12 @@ nfsa_completeness_aggregation <- function(country,
     write.xlsx(dat_missing,
                asTable = TRUE,
                file = paste0(output_sel, "/completeness_aggregation_",
-                             table, "_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
+                             as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
                overwrite = TRUE
     )
 
     cli::cli_alert_success(paste0("File created in ", output_sel, "/completeness_aggregation_",
-                                  table, "_", as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+                                  as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
   }
   return(dat_missing)
 }
-
-
-

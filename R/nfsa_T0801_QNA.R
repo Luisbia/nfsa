@@ -107,7 +107,7 @@ nfsa_T0801_QNA <- function(country,
     dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
     dplyr::mutate(
       diff = round(nfsa - nama, 2),
-      as_gdp = round(diff * 100 / gdp, 3)
+      as_gdp = if_else(sto != "EMP",round(diff * 100 / gdp, 3), NA)
     ) |>
     dplyr::filter(abs(diff) > threshold) |>
     dplyr::mutate(
