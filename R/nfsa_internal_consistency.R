@@ -223,7 +223,11 @@ nfsa_internal_consistency <- function(dataset,
         rowSums(across(c(S2.D)), na.rm = TRUE)
     ) |>
     filter(abs(round(`S1.D - S2.D`, rounding)) > threshold)
-  
+   
+   if (clean_NA == TRUE) {
+    ur05 <- ur05 |>
+      filter(if_all(c("S1.D", "S2.D"), ~ !is.na(.x)))
+  }
   if (nrow(ur05) > 0) check_results$UR05 <- ur05
   
   

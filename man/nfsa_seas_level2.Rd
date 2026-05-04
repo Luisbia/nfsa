@@ -2,9 +2,11 @@
 % Please edit documentation in R/nfsa_seas_level2.R
 \name{nfsa_seas_level2}
 \alias{nfsa_seas_level2}
-\title{Perform Level 2 Seasonal Adjustment Validation for Eurostat Data}
+\title{Perform Level 2 Seasonal Adjustment Validation}
 \usage{
 nfsa_seas_level2(
+  mode = "country",
+  agg = NULL,
   series = here::here("assets", "seas_level1.xlsx"),
   time_min = "1999-Q1",
   input_sel = "M:/nas/Rprod/data/",
@@ -16,58 +18,63 @@ nfsa_seas_level2(
 )
 }
 \arguments{
+\item{mode}{A character string specifying the data loading mode. Either
+\code{"country"} (default) or \code{"agg"}.}
+
+\item{agg}{A character string specifying the aggregate area, used when
+\code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when
+\code{mode = "country"}.}
+
 \item{series}{Path to an Excel file containing a list of series to process.
 Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
 at least \code{ref_area} and \code{id} columns.}
 
-\item{time_min}{from which quarter the analysis starts}
+\item{time_min}{The earliest quarter to include in the analysis. Defaults to
+\code{"1999-Q1"}. Only applied when \code{mode = "country"}.}
 
-\item{input_sel}{Path to the directory where input data is stored. Defaults
-to \code{"M:/nas/Rprod/data/"}.}
+\item{input_sel}{Path to the directory containing input data files. Defaults
+to \code{"M:/nas/Rprod/data/"}. In \code{"agg"} mode this should point to
+the parent data directory (the function appends \code{<agg>_data/<agg>_new.csv}).}
 
-\item{output_sel}{Path to the directory where output reports should be
-saved. Defaults to \code{here::here("output", "seas")}.}
+\item{output_sel}{Path to the directory where Quarto reports will be saved.
+Defaults to \code{here::here("output", "seas")}.}
 
 \item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to
-\code{here::here("assets", "level3_eurostat.qmd")}.}
+\code{here::here("assets", "level2_eurostat_short.qmd")}.}
 
-\item{default_type_sel}{Default seasonal adjustment type. Defaults to \code{"X13"}.}
+\item{default_type_sel}{Default seasonal adjustment method. Defaults to
+\code{"X13"}.}
 
-\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults to
-\code{"RSA1"}.}
+\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults
+to \code{"RSA1"}.}
 
 \item{default_spec_sa_sel}{Default specification for SA series. Defaults to
 \code{"RSA2c"}.}
 }
 \value{
-This function does not explicitly return a value.  It generates
-Quarto dashboard reports and saves them to the \code{output_sel} directory.
+Called for its side effects. Generates one Quarto dashboard report
+per series in \code{output_sel}. Returns \code{NULL} invisibly.
 }
 \description{
-This function performs Level 2 seasonal adjustment validation on Eurostat
-data. It retrieves data, joins NSA and SCA series, and generates validation
-reports using a Quarto dashboard.
-}
-\details{
-The function performs the following steps:
-\enumerate{
-\item Reads the list of series from the Excel file specified by \code{series}.
-\item Retrieves Non-Seasonally Adjusted (NSA) and Seasonally Adjusted (SCA)
-data from Eurostat using \code{nfsa_get_data}.
-\item Joins the NSA and SCA series based on \code{ref_area}, \code{id}, and
-\code{time_period}.
-\item Creates time series objects from the joined data.
-\item Generates Level 3 validation reports for each series using the
-specified Quarto dashboard template.
-}
+Performs level 2 seasonal adjustment validation on quarterly
+non-financial sector accounts data, generating a Quarto dashboard report
+for each flagged series. Supports three modes: \code{"country"} for
+individual countries (loaded via \code{nfsa_get_data}), and \code{"agg"}
+for aggregates (EA, EU, etc.) loaded from a flat CSV file.
 }
 \examples{
 \dontrun{
-# Example usage with default parameters
-nfsa_seas_level3()
+# Country mode: process series listed in the default Excel file
+nfsa_seas_level2()
 
-# Example usage with custom output directory
-nfsa_seas_level3(output_sel = here::here("my_output"))
+# Country mode: custom output directory
+nfsa_seas_level2(output_sel = here::here("my_output"))
+
+# Aggregate mode: Euro Area
+nfsa_seas_level2(mode = "agg", agg = "EA")
+
+# Aggregate mode: European Union
+nfsa_seas_level2(mode = "agg", agg = "EU")
 }
 
 }

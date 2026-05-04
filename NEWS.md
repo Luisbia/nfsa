@@ -76,5 +76,9 @@
 # nfsa 1.0.5
 * P6, P61, P62 were not retrived in nfsa_T0801SA_QNA().
 * Added date of the GFS file used in nfsa_T0801_GFS().
-* Improved nfsa_completeness_aggregation()
-* nfsa_asset_sync() to bring newer versions of common dictionaries, Rmd
+* Improved nfsa_completeness_aggregation().
+* nfsa_asset_sync() to bring newer versions of common dictionaries, Rmd.
+* B6 and I9 can be used in nfsa_seas_level1() and nfsa_seas_level2().
+* new fill_M argument in nfsa_get_data() that allows replacing obs_status M by obs_value 0.
+* New function to read T0800 excel templates.
+* Putting back nfsa_comext() after adjusting for EA21.

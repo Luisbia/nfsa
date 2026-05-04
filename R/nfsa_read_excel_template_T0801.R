@@ -1,5 +1,5 @@
 
-#' Read excel template where T0801 is estimates
+#' Read excel template where T0801 is estimated
 #'
 #' @param file
 #'
@@ -22,7 +22,7 @@ S1 <- read_xlsx(file,
          D75.D,D76.D,D8.D,D9.D,D91.D,D9N.D,D92.D,D99.D,P51C.D,NP.D,
          P1.C,D1.C,D2.C,D21.C,D29.C,D3.C,D31.C,D39.C,D21X31.C,D4.C,
          D41.C,D4N.C, D42.C,D43.C,D44.C,D45.C,D41G.C,D5.C,D6.C,D61.C,
-         D62.C,D63.D,D7.C,D71.C,D72.C,D7N.C,D74.C,
+         D62.C,D63.C,D7.C,D71.C,D72.C,D7N.C,D74.C,
          D75.C,D8.C,D9.C,D91.C,D9N.C,D92.C,D99.C,P51C.C,B1GQ.B,
          B1NQ.B, B2A3G.B, B3G.B, B4G.B, B5G.B, B6G.B, B8G.B, B101.B,
          B9.B, B9X9F._Z) |>

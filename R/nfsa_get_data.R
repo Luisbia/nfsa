@@ -8,6 +8,7 @@
 #' @param type Character string specifying the type of data to retrieve ("new" or "prev").
 #' @param filters one or several filters to be applied before collecting the data using all columns in the original parquet files
 #' @param complete By default `FALSE` if we only want to bring `ref_area`,`id`,`time_period`,`obs_value`. If set to `TRUE` brings all columns.
+#' @param fill_M By default `TRUE`, convert obs_status M to obs_value 0 when complete is set to `FALSE`.
 #'
 #' @return A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
 #'
@@ -30,7 +31,8 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
                           table = "T0801",
                           type = "new",
                           filters = NULL,
-                          complete = FALSE) {
+                          complete = FALSE,
+                          fill_M = FALSE) {
 
   # 1. Config Map ----------------------------------------------------------
   # Maps table names to path segments and regex patterns
@@ -86,8 +88,21 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
     res <-res |>
     dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
                                     "consolidation", "accounting_entry", "sto",
-                                    "instr_asset", "unit_measure", "prices")) |>
-    dplyr::select(ref_area, id, time_period, obs_value) |>
+                                    "instr_asset", "unit_measure", "prices"))
+
+    if (fill_M == TRUE){
+    res <- res |>
+    dplyr::select(ref_area, id, time_period, obs_value,obs_status) |>
+    dplyr::mutate(obs_value = dplyr::if_else(obs_status == "M", 0, obs_value)) |>
+    dplyr::select(-obs_status)
+
+    }
+    if (fill_M == FALSE){
+      res <- res |>
+        dplyr::select(ref_area, id, time_period, obs_value)
+    }
+
+    res <- res |>
     tidyr::drop_na() |>
      dplyr::arrange(time_period,ref_area,id) |>
     dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/nfsa_read_excel_template_T0801.R
 \name{nfsa_read_excel_template_T0801}
 \alias{nfsa_read_excel_template_T0801}
-\title{Read excel template where T0801 is estimates}
+\title{Read excel template where T0801 is estimated}
 \usage{
 nfsa_read_excel_template_T0801(file)
 }
@@ -13,7 +13,7 @@ nfsa_read_excel_template_T0801(file)
 a data frame
 }
 \description{
-Read excel template where T0801 is estimates
+Read excel template where T0801 is estimated
 }
 \examples{
 nfsa_read_excel_template_T0801("C:/Users/biedmlu/OneDrive - European Commission/NFSA/EE1_2025Q3_F.xlsx")

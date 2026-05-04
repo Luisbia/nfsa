@@ -5,39 +5,63 @@
 \title{Perform Level 1 Seasonality Checks}
 \usage{
 nfsa_seas_level1(
-  country,
+  mode = "country",
+  country = NULL,
+  agg = NULL,
   time_min = "1999-Q1",
   input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "seas")
 )
 }
 \arguments{
-\item{country}{A character vector specifying the countries to process (e.g., c("BE", "IT", "FR")).}
+\item{mode}{A character string specifying the data loading mode. Either
+\code{"country"} (default) or \code{"agg"}.}
 
-\item{time_min}{From which quarter the series are analysed, by default "1999-Q1"}
+\item{country}{A character vector of country codes, used when \code{mode = "country"}
+(e.g., \code{c("BE", "IT", "FR")}). Ignored when \code{mode = "agg"}.}
 
-\item{input_sel}{The path to the directory containing the input data files. Defaults to \code{"M:/nas/Rprod/data/"}.}
+\item{agg}{A character string specifying the aggregate area, used when
+\code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when
+\code{mode = "country"}.}
 
-\item{output_sel}{The path to the directory where the output Excel file will be saved. Defaults to \code{here::here("output", "seas")}.}
+\item{time_min}{The earliest quarter to include in the analysis. Defaults to
+\code{"1999-Q1"}. Only used when \code{mode = "country"}.}
+
+\item{input_sel}{Path to the directory containing input data files. Defaults to
+\code{"M:/nas/Rprod/data/"}. Used in both modes.}
+
+\item{output_sel}{Path to the directory where the output Excel file will be saved.
+Defaults to \code{here::here("output", "seas")}.}
 }
 \value{
-A data frame containing the results of the level 1 seasonality checks, including the \code{ref_area} (country), \code{id}, and the \code{level1} result (either "PASS" or a specific "FAIL" or "WARNING" message).  Also saves the data frame as an Excel file in the \code{output_sel} directory.
+A data frame with columns \code{ref_area}, \code{id}, and \code{level1}
+(either a \code{"FAIL"} or \code{"WARNING"} message) for all flagged series.
+Also writes an Excel file to \code{output_sel} and calls \code{nfsa::nfsa_to_excel()}.
+Returns invisibly if no issues are found.
 }
 \description{
-This function performs level 1 seasonality checks on time series data, comparing seasonally adjusted (SCA) and non-seasonally adjusted (NSA) data.
-It identifies series with potential issues like residual seasonality, over-adjustment, or inconsistencies between NSA and SCA data.
+Performs level 1 seasonality checks on time series data, comparing
+seasonally adjusted (SCA) and non-seasonally adjusted (NSA) data. Supports two
+modes: \code{"country"} for individual countries (loaded via \code{nfsa_get_data}),
+and \code{"agg"} for aggregates like EA or EU (loaded from a flat CSV file).
+Identifies series with potential issues such as residual seasonality,
+over-adjustment, or inconsistencies between NSA and SCA data.
 }
 \examples{
 \dontrun{
-# Perform level 1 seasonality checks for Belgium and Italy,
-# using default input and output directories.
+# Country mode: check Belgium and Italy
 results <- nfsa_seas_level1(country = c("BE", "IT"))
 
-# Perform level 1 seasonality checks for France, specifying custom
-# input and output directories.
+# Country mode: check France with custom directories
 results <- nfsa_seas_level1(country = "FR",
-                             input_sel = "/path/to/input/data",
-                             output_sel = "/path/to/output/directory")
+                             input_sel = "/path/to/input",
+                             output_sel = "/path/to/output")
+
+# Aggregate mode: check the Euro Area aggregate
+results <- nfsa_seas_level1(mode = "agg", agg = "EA")
+
+# Aggregate mode: check the EU aggregate
+results <- nfsa_seas_level1(mode = "agg", agg = "EU")
 }
 
 }
