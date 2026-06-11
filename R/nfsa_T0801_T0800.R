@@ -44,7 +44,7 @@ nfsa_T0801_T0800 <- function(country,
                                                                  time_period)) |>
     mutate(diff = round(qnfsa-anfsa,2)) |>
     filter(abs(diff)> threshold) |>
-    filter(str_detect(sto != "EMP"))
+    filter(sto != "EMP")
 
   # tmp <- a_nfsa_data |>
   #   filter(sto == "B1GQ") |>
