@@ -82,3 +82,7 @@
 * new fill_M argument in nfsa_get_data() that allows replacing obs_status M by obs_value 0.
 * New function to read T0800 excel templates.
 * Putting back nfsa_comext() after adjusting for EA21.
+
+
+# nfsa 1.0.6
+* Small adjustments to EA21
