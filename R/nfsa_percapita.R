@@ -17,7 +17,6 @@
 #' }
 #' @export
 nfsa_percapita <- function(data, freq = "Q"){
-  library(tidyverse)
 
   if(freq == "Q"){
     pop <- restatapi::get_eurostat_data("namq_10_pe",

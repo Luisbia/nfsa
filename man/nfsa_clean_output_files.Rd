@@ -25,7 +25,7 @@ and total size before execution.
 }
 \examples{
 \dontrun{
-nfsa_remove_output_files("output/plots")
+nfsa_clean_output_files("output/plots")
 }
 Remove files from a directory with user confirmation
 

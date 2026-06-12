@@ -16,5 +16,7 @@ a data frame
 Read excel template where T0801 is estimated
 }
 \examples{
-nfsa_read_excel_template_T0801("C:/Users/biedmlu/OneDrive - European Commission/NFSA/EE1_2025Q3_F.xlsx")
+\dontrun{
+nfsa_read_excel_template_T0801("path/to/EE1_2025Q3_F.xlsx")
+}
 }

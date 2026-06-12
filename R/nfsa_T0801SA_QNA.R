@@ -25,7 +25,7 @@ nfsa_T0801SA_QNA <- function(country,
                              threshold = 1,
                              input_sel = "M:/nas/Rprod/data/q/new/sca/",
                              output_sel = here::here("output", "inter_domain")){
-  pacman::p_load(tidyverse,arrow,writexl,here,restatapi)
+
 
   cli::cli_progress_message("Collecting NFSA...")
   nfsa <- nfsa_get_data(country = country,table = "T0801SA", type = "new") |>

@@ -16,7 +16,7 @@
 #'
 #' @export
 nfsa_folders <- function(){
-library(fs)
+
 dir_create(path= paste0(getwd(),"/assets"))
 dir_create(path= paste0(getwd(),"/output"))
 dir_create(path= paste0(getwd(),"/output/completeness"))

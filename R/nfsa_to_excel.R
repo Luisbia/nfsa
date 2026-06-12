@@ -12,8 +12,8 @@
 #'
 #' @examples
 #'
-#'  mtcars %>%
-#'  nfsa_to_excel()
+#'  nfsa_to_excel(mtcars)
+
 nfsa_to_excel <- function(.data){
 
   if (interactive()) {

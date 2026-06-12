@@ -13,7 +13,7 @@
 #'   encode `ref_sector`, `sto`, and `accounting_entry` separated by dots
 #'   (for example, `"S1.A.B"`).
 #' @param template Path to the Excel template file to use for
-#'   table T0801. Defaults to `here("assets", "template_T0801.xlsx")`.
+#'   table T0801. Defaults to `"M:/nas/Rprod/assets/template_T0801.xlsx"`.
 #' @param output_sel Path to the output directory where the generated
 #'   Excel file will be saved. Defaults to
 #'   `here("output", "excel_template")`.
@@ -64,7 +64,7 @@
 #'
 #' @export
 nfsa_write_excel_template_T0801 <- function(data,
-                                            template = here::here("assets","template_T0801.xlsx"),
+                                            template = "M:/nas/Rprod/assets/template_T0801.xlsx",
                                             output_sel = here::here("output","excel_template")) {
 
   country <- unique(data$ref_area)

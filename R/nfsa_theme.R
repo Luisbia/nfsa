@@ -37,7 +37,6 @@ nfsa_theme <- function(base_size = 11,
                        grid = TRUE,
                        axis = TRUE) {
 
-  library(ggplot2)
 
   # Define Eurostat color palette
   eurostat_colors <- c(

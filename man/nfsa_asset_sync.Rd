@@ -26,5 +26,7 @@ Synchtonise common files in \verb{M:/nas/Rprod/assets} with local folder
 Checks if newer versions are available and copied it to the local folder
 }
 \examples{
+\dontrun{
 nfsa_asset_sync()
+}
 }

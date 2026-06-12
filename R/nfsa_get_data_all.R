@@ -2,7 +2,7 @@
 #'
 #' @description This function retrieves data from the NFSA database based on specified criteria.
 #'
-#' @param input_sel Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data")}.
+#' @param input_sel Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data"}.
 #' @param country Character vector specifying the country or countries to retrieve data for.
 #' @param table Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").
 #' @param filters one or several filters to be applied before collecting the data using all columns in the original parquet files.

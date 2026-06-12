@@ -35,7 +35,6 @@ nfsa_T0800_GFS <- function(country,
                            input_sel = "M:/nas/Rprod/data/a/new/",
                            output_sel = here::here("output", "inter_domain")){
 
-  pacman::p_load(tidyverse,here,arrow,openxlsx, readsdmx, readxl,janitor,cli)
 
   limit_validation <- paste0(as.numeric(str_sub(year,1,4)) -4)
 

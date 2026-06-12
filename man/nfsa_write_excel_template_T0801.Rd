@@ -6,7 +6,7 @@
 \usage{
 nfsa_write_excel_template_T0801(
   data,
-  template = here::here("assets", "template_T0801.xlsx"),
+  template = "M:/nas/Rprod/assets/template_T0801.xlsx",
   output_sel = here::here("output", "excel_template")
 )
 }
@@ -17,7 +17,7 @@ encode \code{ref_sector}, \code{sto}, and \code{accounting_entry} separated by d
 (for example, \code{"S1.A.B"}).}
 
 \item{template}{Path to the Excel template file to use for
-table T0801. Defaults to \code{here("assets", "template_T0801.xlsx")}.}
+table T0801. Defaults to \code{"M:/nas/Rprod/assets/template_T0801.xlsx"}.}
 
 \item{output_sel}{Path to the output directory where the generated
 Excel file will be saved. Defaults to

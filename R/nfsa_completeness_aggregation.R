@@ -22,8 +22,6 @@ nfsa_completeness_aggregation <- function(country ,
                                           requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx",
                                           file = FALSE,
                                           output_sel = here::here("output", "completeness")) {
-  library(tidyverse)
-  library(openxlsx)
 
 
   lookup <- nfsa::nfsa_sto_lookup

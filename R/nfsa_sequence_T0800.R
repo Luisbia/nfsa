@@ -39,10 +39,6 @@ nfsa_sequence_T0800 <- function(country,
                                 type = "values",
                                 template = here("assets","seq_accounts_T0800.xlsx"),
                                 output_sel = here("output","sequence")) {
-library(tidyverse)
-library(arrow)
-library(here)
-library(openxlsx)
 
 lookup <- nfsa::nfsa_sto_lookup
 

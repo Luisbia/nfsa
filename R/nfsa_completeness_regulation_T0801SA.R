@@ -23,8 +23,7 @@
 nfsa_completeness_regulation_T0801SA <- function(country,
                                                       file = FALSE,
                                                       output_sel = here::here("output", "completeness")) {
-  library(tidyverse)
-  library(openxlsx)
+
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",

@@ -26,7 +26,6 @@ nfsa_T0801SA_GFS <- function(country,
                              threshold = 1,
                              input_sel = "M:/nas/Rprod/q/new/sca/",
                              output_sel = here::here("output", "inter_domain")){
-  pacman::p_load(tidyverse,arrow,writexl,here,readsdmx)
 
   cli::cli_progress_message("Collecting NFSA...")
   nfsa_data <- nfsa_get_data(country = country,table = "T0801SA", type = "new") |>

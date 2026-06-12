@@ -13,7 +13,7 @@ nfsa_get_data_all(
 )
 }
 \arguments{
-\item{input_sel}{Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data")}.}
+\item{input_sel}{Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data"}.}
 
 \item{country}{Character vector specifying the country or countries to retrieve data for.}
 

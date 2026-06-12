@@ -86,3 +86,4 @@
 
 # nfsa 1.0.6
 * Small adjustments to EA21
+* Replaced local calls to libraries in functions by a global call.

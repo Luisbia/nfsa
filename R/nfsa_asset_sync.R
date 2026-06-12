@@ -8,14 +8,13 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' nfsa_asset_sync()
+#' }
 nfsa_asset_sync <- function(source_dir = "M:/nas/Rprod/assets" ,
                             target_dir = here::here("assets")  ,
                             recursive = FALSE) {
 
-  library(fs)
-  library(dplyr)
-  library(cli)
 
   # --- Validate directories --------------------------------------------------
   if (!dir_exists(source_dir)) stop("Source directory does not exist: ", source_dir)

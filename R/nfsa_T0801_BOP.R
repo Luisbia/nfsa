@@ -39,7 +39,6 @@ nfsa_T0801_BOP <- function(country,
                            output_sel = here::here("output", "inter_domain")
 ){
 
-  pacman::p_load(tidyverse,here,arrow,openxlsx, readsdmx, readxl,janitor,cli)
 
   cli::cli_progress_message("Collecting NFSA...")
 

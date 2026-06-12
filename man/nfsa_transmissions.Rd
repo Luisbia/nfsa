@@ -17,6 +17,8 @@ nfsa_transmissions(
 
 \item{time_max}{A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.}
 
+\item{input_sel}{A character string specifying the directory where incoming SDMX files should be scanned.}
+
 \item{output_sel}{A character string specifying the directory where the output Excel file should be saved. Defaults to \code{"output/logs"}.}
 
 \item{recursive}{A logical value. If \code{TRUE}, the function will recursively search for files in subdirectories within the specified path. Defaults to \code{FALSE}.}

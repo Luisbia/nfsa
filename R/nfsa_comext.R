@@ -31,8 +31,7 @@ nfsa_comext <- function(area,
   # Input validation ----
   validate_inputs(area, quarter, output_sel, input_sel)
 
-  # Load required packages ----
-  pacman::p_load(tidyverse, restatapi, cli)
+
 
   # Ensure output directory exists ----
   if (!dir.exists(output_sel)) {

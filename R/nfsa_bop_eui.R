@@ -45,9 +45,6 @@
 #'
 #' @export
 nfsa_bop_eui <- function(output_sel) {
-library(restatapi)
-library(tidyverse)
-library(openxlsx)
 
 ## Annual data
 eui_a <-get_eurostat_data("bop_euins6_a",

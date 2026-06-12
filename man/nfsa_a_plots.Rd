@@ -9,7 +9,7 @@ nfsa_a_plots(
   output_sel = here::here("output", "plots"),
   time_min = 1995,
   my_theme = ggthemes::theme_fivethirtyeight(),
-  my_colours = c("#672DC4", "#208486", )
+  my_colours = c("#672DC4", "#208486")
 )
 }
 \arguments{
