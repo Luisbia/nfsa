@@ -26,10 +26,10 @@
 #' @examples
 #' \dontrun{
 #'   # Example usage with specific country and default settings
-#'   nfsa_sequence_T0801(country = "BE", type = "values)
+#'   nfsa_sequence_T0801(country = "BE", type = "values")
 #'
 #'   # Example usage with multiple countries and custom time period
-#'   nfsa_sequence_T0801(country = c("BE", "NL"), time_min = 2021, type = "revisions)
+#'   nfsa_sequence_T0801(country = c("BE", "NL"), time_min = 2021, type = "revisions")
 #'
 #' }
 #'

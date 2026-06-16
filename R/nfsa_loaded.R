@@ -27,7 +27,7 @@
 #' nfsa_loaded(time_min = "2020-01-01",recursive = TRUE)
 #' }
 #' @export
-nfsa_loaded <- function(time_min,
+nfsa_loaded <- function(time_min ,
                         time_max = lubridate::today(),
                         output_sel = here::here("output", "logs"),
                         recursive = FALSE) {
@@ -86,6 +86,9 @@ nfsa_loaded <- function(time_min,
     tidyr::separate_wider_delim(value, delim = " = ", names = c("field", "result"), too_many = "merge") |>
     dplyr::mutate(result = stringr::str_trim(result)) |>
     dplyr::distinct() |>
+    dplyr::group_by(file,file_date,field) |>
+    dplyr::slice_tail() |>
+    dplyr::ungroup() |>
     tidyr::pivot_wider(names_from = field, values_from = result) |>
     janitor::clean_names() |>
     dplyr::transmute(

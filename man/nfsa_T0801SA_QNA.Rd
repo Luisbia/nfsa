@@ -24,7 +24,7 @@ nfsa_T0801SA_QNA(
 A data frame containing the comparison results, including the NFSA value, QNA value, the difference between them (\code{diff}), the difference as a percentage of GDP (\code{as_GDP}), and a logical flag (\code{threshold}) indicating if the absolute percentage difference exceeds 0.3.  Returns \code{nama_nfsa} data frame that contains comparison data.
 }
 \description{
-This function compares data from the NFSA (National Financial Statistics Accounts, table T0801SA)
+This function compares data from the NFSA  (table T0801SA)
 with corresponding data from the Quarterly National Accounts (QNA) from Eurostat. It identifies discrepancies
 between the two datasets and outputs the results to an Excel file.
 }

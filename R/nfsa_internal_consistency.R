@@ -1326,7 +1326,7 @@ nfsa_internal_consistency <- function(dataset,
     ensure_cols(needed_sit24) |>
     select(ref_area,ref_sector,accounting_entry,time_period, D43_I10, D43_J10, D43) |>
     mutate(
-      `D43_I9 + D43_J9` = rowSums(across(c(D43_I10, D43_J10)), na.rm = TRUE),
+      `D43_I10 + D43_J10` = rowSums(across(c(D43_I10, D43_J10)), na.rm = TRUE),
       `D43 - D43_I10 - D43_J10` = D43 - `D43_I10 + D43_J10`
     ) |>
     filter(abs(round(`D43 - D43_I10 - D43_J10`, rounding)) > threshold)

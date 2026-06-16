@@ -23,10 +23,9 @@ It also prints messages to the console indicating whether the data requirements 
 where the output file is saved.
 }
 \description{
-This function checks the completeness of NFSA (National Financial Statistics Authority)
-data against predefined regulatory requirements. It identifies missing data points
-for a specified country and table, and generates an Excel file detailing these
-gaps if any exist.
+This function checks the completeness of NFSA data against predefined regulatory requirements.
+It identifies missing data points for a specified country and table, and generates an Excel file detailing
+these gaps if any exist.
 }
 \examples{
 \dontrun{

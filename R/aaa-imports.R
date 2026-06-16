@@ -14,5 +14,6 @@
 #' @import stringr
 #' @import tidyr
 #' @import lubridate
+#' @import restatapi
 #' @importFrom magrittr %>%
 NULL

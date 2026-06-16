@@ -1,9 +1,8 @@
 #' @title Check NFSA Completeness Against Regulation for Table 0801SA
 #'
-#' @description This function checks the completeness of NFSA (National Financial Statistics Authority)
-#' data against predefined regulatory requirements. It identifies missing data points
-#' for a specified country and table, and generates an Excel file detailing these
-#' gaps if any exist.
+#' @description This function checks the completeness of NFSA data against predefined regulatory requirements.
+#' It identifies missing data points for a specified country and table, and generates an Excel file detailing
+#' these gaps if any exist.
 #'
 #' @param country A character vector specifying the countries for which to check data completeness.
 #' @param file If a file should be written. FALSE by default which will open a temporary Excel file.

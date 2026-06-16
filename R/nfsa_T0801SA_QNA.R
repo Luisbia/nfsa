@@ -1,6 +1,6 @@
 #' @title Compare NFSA (T0801SA) and Quarterly National Accounts (QNA) Data
 #'
-#' @description This function compares data from the NFSA (National Financial Statistics Accounts, table T0801SA)
+#' @description This function compares data from the NFSA  (table T0801SA)
 #'   with corresponding data from the Quarterly National Accounts (QNA) from Eurostat. It identifies discrepancies
 #'   between the two datasets and outputs the results to an Excel file.
 #'
