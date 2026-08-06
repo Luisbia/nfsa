@@ -34,6 +34,9 @@ nfsa_validation <- function(time_min,
                           pattern = "^valid_data2vintage_",
                           recursive = FALSE) |>
     as_tibble() |>
+    mutate(size = file.size(value)) |>
+    filter(size != 0) |>
+    select(-size) |>
     mutate(time = str_sub(value,-17,-12),
            time = lubridate::ymd(time)) |>
     filter(time >= time_min,
