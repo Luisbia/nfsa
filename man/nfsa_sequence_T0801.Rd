@@ -8,7 +8,7 @@ nfsa_sequence_T0801(
   country,
   time_min = "2020-Q1",
   type = "values",
-  template = here::here("assets", "seq_accounts_T0801.xlsx"),
+  template = "M:/nas/Rprod/assets/seq_accounts_T0801.xlsx",
   output_sel = here::here("output", "sequence")
 )
 }
@@ -19,7 +19,7 @@ nfsa_sequence_T0801(
 
 \item{type}{Either "values" by default or "vintages" or "versions".}
 
-\item{template}{A character string specifying the file path to the Excel template file. Default: \code{here("assets","seq_accounts_T0801.xlsx")}.}
+\item{template}{A character string specifying the file path to the Excel template file. Default: \verb{M:/nas/Rprod/assets/seq_accounts_T0801.xlsx}.}
 
 \item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here("output","sequence")}.}
 }

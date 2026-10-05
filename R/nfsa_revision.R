@@ -135,7 +135,7 @@ nfsa_revision <- function(country,
 
   new_prev_db <- dplyr::left_join(new_prev_db, tmp,
                                   by = dplyr::join_by(ref_area, time_period)) |>
-    dplyr::mutate(as_GDP = round(rev * 100 / GDP, 1)) |>
+    dplyr::mutate(as_GDP = round(rev * 100 / GDP, 3)) |>
     dplyr::select(-GDP) |>
     dplyr::filter(abs(rev) > abs_threshold) |>
     dplyr::filter(abs(as_GDP) > rel_threshold)

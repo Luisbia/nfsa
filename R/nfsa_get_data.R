@@ -32,7 +32,7 @@ nfsa_get_data <- function(input_sel = "M:/nas/Rprod/data/",
                           type = "new",
                           filters = NULL,
                           complete = FALSE,
-                          fill_M = FALSE) {
+                          fill_M = TRUE) {
 
   # 1. Config Map ----------------------------------------------------------
   # Maps table names to path segments and regex patterns

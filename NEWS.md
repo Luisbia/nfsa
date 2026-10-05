@@ -91,3 +91,6 @@
 # nfsa 1.0.7
 * Several small bugs/typos detected by Paul corrected.
 * Added S13.D75.C in nfsa_read_excel_template
+
+# nfsa 1.0.8
+* New function to automatically balance T0801/T0800

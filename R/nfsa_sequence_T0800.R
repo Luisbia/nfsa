@@ -6,7 +6,7 @@
 #' @param country A character vector specifying the countries to process (e.g., "BE", "NL").
 #' @param time_min A numeric value specifying the minimum time period to consider (default: 2020).
 #' @param type Either "values" by default or "vintages" or "versions".
-#' @param template A character string specifying the file path to the Excel template file. Default: `here("assets","seq_accounts_T0800.xlsx")`.
+#' @param template A character string specifying the file path to the Excel template file. Default: `M:/nas/Rprod/assets/seq_accounts_T0800.xlsx`.
 #' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","sequence")`.
 #'
 #' @return None. The function saves an Excel file to the specified output directory.
@@ -37,7 +37,7 @@
 nfsa_sequence_T0800 <- function(country,
                                 time_min = 2020,
                                 type = "values",
-                                template = here("assets","seq_accounts_T0800.xlsx"),
+                                template = "M:/nas/Rprod/assets/seq_accounts_T0800.xlsx",
                                 output_sel = here("output","sequence")) {
 
 lookup <- nfsa::nfsa_sto_lookup

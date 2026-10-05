@@ -11,7 +11,7 @@ nfsa_get_data(
   type = "new",
   filters = NULL,
   complete = FALSE,
-  fill_M = FALSE
+  fill_M = TRUE
 )
 }
 \arguments{
