@@ -4,6 +4,7 @@
 #' a specific set of columns relevant to NFSA data.
 #'
 #' @param file A character string specifying the path to the CSV file.
+#' @param full Bring collapsed columns by default (`FALSE`) or all columns (`TRUE`).
 #'
 #' @return A data frame containing the cleaned and selected NFSA data.
 #' The data frame includes the following columns: `table_identifier`,
@@ -12,7 +13,11 @@
 #' `instr_asset`, `maturity`, `expenditure`, `unit_measure`,
 #' `currency_denom`, `valuation`, `prices`, `transformation`,
 #' `cust_breakdown`, `time_period`, `obs_value`, `obs_status`,
-#' `conf_status`.
+#' `conf_status`, `id`.
+#' @importFrom janitor clean_names
+#' @importFrom readr read_delim
+#' @import dplyr
+
 #' @export
 #'
 #' @examples
@@ -23,21 +28,26 @@
 #' # Display the first few rows of the data
 #' head(nfsa_data)
 #' }
-nfsa_read_xlsx_csv <- function(file){
+nfsa_read_xlsx_csv <- function(file,
+                               full = FALSE){
 
   data <- readr::read_delim(file,
                             delim = ";",
                           , show_col_types = FALSE) |>
     janitor::clean_names() |>
-    select(table_identifier, freq, adjustment, ref_area,
+    dplyr::select(table_identifier, freq, adjustment, ref_area,
            counterpart_area,ref_sector, counterpart_sector,
            consolidation, accounting_entry, sto, instr_asset,
            maturity, expenditure,unit_measure,currency_denom,
            valuation, prices, transformation, cust_breakdown,
            time_period,obs_value,obs_status,conf_status)|>
-    left_join(y = nfsa_sto_lookup)
+    dplyr::left_join(y = nfsa_sto_lookup)
 
-    select(ref_area,id,time_period,obs_value)
+  if (full == FALSE){
+   data <- data |>
+    dplyr::select(ref_area,id,time_period,obs_value)
+  }
+return(data)
+  }
 
-}
 
