@@ -1,11 +1,10 @@
 #' @title Generate NFSA Transmission Report
 #'
-#' @description This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp and outputting the results to an Excel file.
+#' @description This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp.
 #'
 #' @param time_min A character string representing the minimum date and time for filtering received files (e.g., "2025-10-20").  Files received before this time will be excluded.
 #' @param time_max A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.
 #' @param input_sel A character string specifying the directory where incoming SDMX files should be scanned.
-#' @param output_sel A character string specifying the directory where the output Excel file should be saved. Defaults to `"output/logs"`.
 #' @param recursive A logical value. If `TRUE`, the function will recursively search for files in subdirectories within the specified path. Defaults to `FALSE`.
 #'
 #' @return This function does not return a value, instead outputs an Excel file with the transmission report.
@@ -17,19 +16,15 @@
 #' nfsa_transmissions(time_min = "2025-11-01")
 #'
 #' # Generate a report, save to alternative location and search in subdirectories
-#' nfsa_transmissions(time_min = "2025-10-25", output_sel = "my_output_folder", recursive = TRUE)
+#' nfsa_transmissions(time_min = "2025-10-25",recursive = TRUE)
 #' }
 #' @export
 nfsa_transmissions <- function(time_min,
                                time_max = lubridate::now(),
                                input_sel = "M:/nas/incoming_SDMX_files/",
-                               output_sel = here::here("output", "logs"),
                                recursive = FALSE) {
 
-  # Ensure output directory exists
-  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
-
-  cli::cli_inform("Scanning server for NASEC files...")
+   cli::cli_inform("Scanning server for NASEC files...")
 
   # 1. Get files and metadata together
   files <- list.files(path = input_sel, pattern = "NASEC_",
@@ -74,15 +69,8 @@ nfsa_transmissions <- function(time_min,
     dplyr::select(ref_area, file = file_name, table, period, version, received) |>
     dplyr::arrange(desc(received))
 
-  # 4. Export to Excel
-  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  file_out <- file.path(output_sel, paste0("received_", ts, ".xlsx"))
-
-  openxlsx::write.xlsx(received_df, file = file_out, overwrite = TRUE, asTable = TRUE)
-
-  cli::cli_alert_success("Transmission log created: {.file {file_out}}")
-  nfsa::nfsa_to_excel(received_df)
   return(received_df)
 }
+
 
 

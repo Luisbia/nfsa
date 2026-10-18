@@ -4,10 +4,12 @@
 \alias{nfsa_read_xlsx_csv}
 \title{Reads and cleans NFSA data from a semicolon-separated CSV file.}
 \usage{
-nfsa_read_xlsx_csv(file)
+nfsa_read_xlsx_csv(file, full = FALSE)
 }
 \arguments{
 \item{file}{A character string specifying the path to the CSV file.}
+
+\item{full}{Bring collapsed columns by default (\code{FALSE}) or all columns (\code{TRUE}).}
 }
 \value{
 A data frame containing the cleaned and selected NFSA data.
@@ -17,7 +19,7 @@ The data frame includes the following columns: \code{table_identifier},
 \code{instr_asset}, \code{maturity}, \code{expenditure}, \code{unit_measure},
 \code{currency_denom}, \code{valuation}, \code{prices}, \code{transformation},
 \code{cust_breakdown}, \code{time_period}, \code{obs_value}, \code{obs_status},
-\code{conf_status}.
+\code{conf_status}, \code{id}.
 }
 \description{
 This function reads a CSV file, normally found in \verb{I:/econ/NFSA/OUTPUT/} cleans the column names, and selects

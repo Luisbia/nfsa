@@ -35,11 +35,9 @@ nfsa_read_xlsx_csv <- function(file){
            maturity, expenditure,unit_measure,currency_denom,
            valuation, prices, transformation, cust_breakdown,
            time_period,obs_value,obs_status,conf_status)|>
-    left_join(y = nfsa_sto_lookup) |> 
-    mutate(time_period = paste0(str_sub(time_period,1,4), "-",
-                              str_sub(time_period,5,6)))|> 
-  
-    select(ref_area,id,time_period,obs_value) 
+    left_join(y = nfsa_sto_lookup)
+
+    select(ref_area,id,time_period,obs_value)
 
 }
 

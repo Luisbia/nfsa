@@ -10,12 +10,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' nfsa_folders()
+#' nfsa_create_folders()
 #' # Creates the NFSA directory structure in the current working directory.
 #' }
 #'
 #' @export
-nfsa_folders <- function(){
+nfsa_create_folders <- function(){
 
 dir_create(path= paste0(getwd(),"/assets"))
 dir_create(path= paste0(getwd(),"/output"))

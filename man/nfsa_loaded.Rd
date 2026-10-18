@@ -4,12 +4,7 @@
 \alias{nfsa_loaded}
 \title{Check NFSA Loading Logs}
 \usage{
-nfsa_loaded(
-  time_min,
-  time_max = lubridate::today(),
-  output_sel = here::here("output", "logs"),
-  recursive = FALSE
-)
+nfsa_loaded(time_min, time_max = lubridate::today(), recursive = FALSE)
 }
 \arguments{
 \item{time_min}{A date specifying the minimum time for log files to be considered.
@@ -17,20 +12,15 @@ Defaults to the beginning of the current day.}
 
 \item{time_max}{A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.}
 
-\item{output_sel}{Path to the directory where the output Excel file will be saved.
-Defaults to "output/logs" within the project directory (using \code{here::here()}).}
-
 \item{recursive}{Logical. Should the function search for log files recursively within subdirectories?
 Defaults to \code{FALSE}.}
 }
 \value{
 Invisibly returns a tibble containing the processed log data if any files were loaded, otherwise
-invisibly returns \code{NULL}. An Excel file containing the processed data is saved in the
-\code{output_sel} directory.
+invisibly returns \code{NULL}.
 }
 \description{
-This function scans NFSA loading logs, extracts relevant information,
-and saves it to an Excel file.
+This function scans NFSA loading logs and extracts relevant information.
 }
 \examples{
 \dontrun{

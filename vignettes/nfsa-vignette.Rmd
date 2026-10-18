@@ -1,0 +1,192 @@
+---
+title: "nfsa-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{nfsa-vignette}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(nfsa)
+```
+
+We will review how to use the functions of the package with several examples and will remain the main source of documentation.
+
+## Server logging functions
+
+There are two functions `nfsa_transmissions()` and `nfsa_loaded()` that will scan the server (M: and I:) and provide some information of what has happened there.
+
+`nfsa_transmissions()` will list the files received during a period defined by the user. For example, to get the list of files received from 2026-10-01 we will use
+
+```{r}
+library(nfsa)
+nfsa_transmissions(time_min = "2026-10-01")
+```
+
+This can work on other folders. For example, the 2025Q1 folder 
+
+```{r}
+nfsa_transmissions(time_min = "2025-01-01",
+                   input_sel = "M:/nas/QSA10/Production/2025Q1/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files")
+```
+
+`nfsa_loaded()` will scan the logs in `I:/econ/NFSA/LOG/` to inform us what has been loaded (or not) how and when in Matis.
+
+```{r}
+nfsa_loaded(time_min = "2026-10-16",
+            time_max = "2026-10-18")
+```
+
+## Data importing functions
+
+### From countries deliveries
+
+`nfsa_get_data()` is probably the function we will use more so we will spend some time looking at it and its arguments.
+
+```{r, eval=FALSE}
+nfsa_get_data(
+  input_sel = "M:/nas/Rprod/data/",
+  country,
+  table = "T0801",
+  type = "new",
+  filters = NULL,
+  complete = FALSE,
+  fill_M = TRUE
+)
+```
+
+Using the default parameters we only need to provide the country (or countries) for which we want to extract data.
+
+```{r}
+head(
+  nfsa_get_data(country = "IT")
+  )
+```
+
+This will get us the latest `T0801` file sent by the country (or countries). If we want `T0800` or `T0801SA` we need to change the table argument.
+
+```{r}
+head(
+  nfsa_get_data(country = "IT",
+                   table = "T0800")
+  )
+```
+
+If we want the latest version from the previous vintage, we need to change the argument `type`.
+
+```{r}
+head(
+  nfsa_get_data(country = "IT",
+                   table = "T0801SA",
+                   type = "prev")
+  )
+```
+
+We can filter what to extract using any of the fields of the original XML file. For example to extract only transactions with `counterpart area` 4Y.
+
+```{r}
+head(
+  nfsa_get_data(country = "IT", 
+                   filters = "counterpart_area == '4Y'")
+  )
+
+```
+
+We can put together several filters.
+
+```{r}
+nfsa_get_data(country = "IT", 
+             filters = c("counterpart_area == '4Y'",
+                         "time_period == '2026-Q2'"))
+
+```
+
+Is it possible to retrieve the data as reported in the original xml file (and some additional info) if we use the argument `complete`.
+
+```{r}
+nfsa_get_data(country = "IT", 
+             filters = c("counterpart_area == '4Y'",
+                         "time_period == '2026-Q2'"),
+             complete = TRUE)
+
+```
+
+By default observation values with `obs_status M` are converted to zero unless `complete = TRUE`, but we can change the behavior with the fill_M argument.
+
+```{r}
+nfsa_get_data(country = "EE", 
+              filters = "sto == 'D8'") |> 
+  dplyr::filter(obs_value == 0,time_period == "2026-Q2")
+```
+
+```{r}
+nfsa_get_data(country = "EE",
+              filters = "sto == 'D8'",
+              fill_M = FALSE) |> 
+  dplyr::filter(obs_value == 0, time_period == "2026-Q2")
+```
+
+`nfsa_get_data()` is a bit restrictive by construction in the data we want to query. If we need other deliveries which are not the last or other quarters we will need to rely on `nfsa_get_data_all()`. The arguments are the same. The main difference is that it will collect all the versions of the data it finds in the folder we are looking at. If it is the default option (`"M:/nas/Rprod/data/"`) it will bring all the files in this and the previous reference period.
+
+```{r}
+nfsa_get_data_all(country = "IT", 
+                  filters = c("sto == 'B1GQ'",
+                              "time_period == '2023-Q1'") )
+```
+
+
+If we change the `input_sel` argument to `"M:/nas/Rprod/copy_data/"` (or any other one when you store a group of parquet files)it will bring all files stored there.
+
+```{r}
+nfsa_get_data_all(country = "IT",
+                  input_sel = "M:/nas/Rprod/copy_data/",# faster if you select the subfolder
+                                                        # "M:/nas/Rprod/copy_data/q/nsa"
+                  filters = c("sto == 'B1GQ'",
+                              "time_period == '2023-Q1'"))
+```
+
+We can always load original countries xml files with `nfsa_read_xml` but it we want to get the column `id` we need to to join the data with the internal lookup_table `nfsa_sto_lookup`.
+
+```{r}
+head(
+  nfsa_read_xml("M:/nas/Incoming_SDMX_files/NASEC_T0801SA_Q_DK_2026_0002_V0002.xml") |> 
+    dplyr::left_join(y = nfsa_sto_lookup)
+)
+```
+
+### Our own files
+
+As long as they respect a required structure (sheets, columns) we should be able to load excel templates created for example for estimation purposes.
+
+```{r}
+head(
+  nfsa_read_excel_template("I:/econ/NFSA/DONE/SE1_2026Q2_ESTIM.xlsx")
+)
+```
+
+```{r}
+head(
+  nfsa_read_excel_template("I:/econ/NFSA/DONE/NASEC_T0800_A_BG_2024_0000_ESTIM.xlsx",
+                           table = "T0800")
+)
+```
+
+
+We will need to add the column `ref_area`, it is not possible to collect flags and it is relatively slow. If we do not need to use the data before loading it in Matis, it is better to use the parsed csv file generated when loading the file. This will give as a file with all the columns (as xml) if we set `full = TRUE`. By default it collapses to the usual 4 columns. 
+
+```{r}
+head(
+  nfsa_read_xlsx_csv(file ="I:/econ/NFSA/OUTPUT/SE1_2026Q2_ESTIM.xlsx.csv",
+                     full = TRUE)
+)
+```

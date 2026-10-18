@@ -8,7 +8,6 @@ nfsa_transmissions(
   time_min,
   time_max = lubridate::now(),
   input_sel = "M:/nas/incoming_SDMX_files/",
-  output_sel = here::here("output", "logs"),
   recursive = FALSE
 )
 }
@@ -19,15 +18,13 @@ nfsa_transmissions(
 
 \item{input_sel}{A character string specifying the directory where incoming SDMX files should be scanned.}
 
-\item{output_sel}{A character string specifying the directory where the output Excel file should be saved. Defaults to \code{"output/logs"}.}
-
 \item{recursive}{A logical value. If \code{TRUE}, the function will recursively search for files in subdirectories within the specified path. Defaults to \code{FALSE}.}
 }
 \value{
 This function does not return a value, instead outputs an Excel file with the transmission report.
 }
 \description{
-This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp and outputting the results to an Excel file.
+This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp.
 }
 \examples{
 \dontrun{
@@ -35,6 +32,6 @@ This function generates a report of NFSA data transmissions received, filtering 
 nfsa_transmissions(time_min = "2025-11-01")
 
 # Generate a report, save to alternative location and search in subdirectories
-nfsa_transmissions(time_min = "2025-10-25", output_sel = "my_output_folder", recursive = TRUE)
+nfsa_transmissions(time_min = "2025-10-25",recursive = TRUE)
 }
 }

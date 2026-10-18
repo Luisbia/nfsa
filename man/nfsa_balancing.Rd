@@ -10,10 +10,11 @@ nfsa_balancing(
   run_name = NULL,
   output_dir = NULL,
   scale_floor = NULL,
-  weight_rules = data.frame(match_type = "exact", pattern = "S1.B1GQ.B", weight = 1e+10),
+  weight_rules = data.frame(match_type = c("exact", "exact"), pattern = c("S1.B1GQ.B",
+    "S13.B9.B"), weight = c(1e+10, 1e+10)),
   osqp_eps_abs = 1e-06,
   osqp_eps_rel = 1e-06,
-  osqp_max_iter = 100000L,
+  osqp_max_iter = 10000000L,
   osqp_verbose = FALSE,
   check_tolerance = 0.1,
   equation_file = "M:/nas/Rprod/assets/balancing_equations.xlsx"

@@ -4,30 +4,32 @@ export(nfsa_T0800_ANA)
 export(nfsa_T0800_GFS)
 export(nfsa_T0801SA_GFS)
 export(nfsa_T0801SA_QNA)
+export(nfsa_T0801SA_report)
+export(nfsa_T0801SA_retransmit)
 export(nfsa_T0801_BOP)
 export(nfsa_T0801_GFS)
 export(nfsa_T0801_QNA)
 export(nfsa_T0801_T0800)
 export(nfsa_T0801_T0801SA)
-export(nfsa_a_plots)
-export(nfsa_asset_sync)
 export(nfsa_balancing)
 export(nfsa_bop_eui)
+export(nfsa_check_equations)
 export(nfsa_clean_output_files)
 export(nfsa_comext)
 export(nfsa_completeness_aggregation)
 export(nfsa_completeness_regulation_T0801SA)
-export(nfsa_folders)
+export(nfsa_create_folders)
 export(nfsa_get_data)
 export(nfsa_get_data_all)
 export(nfsa_internal_consistency)
+export(nfsa_is_seasonal)
 export(nfsa_loaded)
 export(nfsa_move_convert)
+export(nfsa_outliers)
 export(nfsa_percapita)
-export(nfsa_q_plots)
+export(nfsa_plots)
 export(nfsa_read_eurobase)
-export(nfsa_read_excel_template_T0800)
-export(nfsa_read_excel_template_T0801)
+export(nfsa_read_excel_template)
 export(nfsa_read_matis)
 export(nfsa_read_xlsx_csv)
 export(nfsa_read_xml)
@@ -50,22 +52,62 @@ export(nfsa_validation)
 export(nfsa_write_excel_template_T0801)
 import(cli)
 import(dplyr)
-import(fs)
 import(ggplot2)
-import(here)
-import(janitor)
-import(lubridate)
-import(openxlsx)
 import(purrr)
-import(readsdmx)
-import(readxl)
-import(restatapi)
-import(stringr)
+import(seastests)
 import(tidyr)
-importFrom(arrow,open_dataset)
-importFrom(arrow,read_parquet)
-importFrom(arrow,write_parquet)
-importFrom(fs,file_show)
-importFrom(fs,file_temp)
-importFrom(magrittr,"%>%")
-importFrom(readr,write_excel_csv)
+importFrom(dplyr,
+  across,
+  all_of,
+  arrange,
+  filter,
+  full_join,
+  group_by,
+  group_split,
+  join_by,
+  left_join,
+  mutate,
+  n,
+  rename,
+  select,
+  summarise,
+  ungroup
+)
+importFrom(fs,
+  file_show,
+  file_temp
+)
+importFrom(ggplot2,
+  aes,
+  element_blank,
+  facet_wrap,
+  geom_area,
+  geom_hline,
+  geom_line,
+  ggplot,
+  ggsave,
+  labs,
+  scale_colour_manual,
+  scale_fill_manual,
+  scale_y_continuous,
+  theme
+)
+importFrom(janitor,clean_names)
+importFrom(purrr,
+  imap_dfr,
+  map,
+  pwalk
+)
+importFrom(quarto,quarto_render)
+importFrom(readr,
+  read_delim,
+  write_excel_csv
+)
+importFrom(readxl,read_xlsx)
+importFrom(rlang,.data)
+importFrom(stringr,str_sub)
+importFrom(tibble,tibble)
+importFrom(tidyr,
+  pivot_longer,
+  separate_wider_delim
+)

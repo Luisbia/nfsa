@@ -48,7 +48,20 @@ nfsa_read_matis <- function(file) {
       too_many = "merge"
     ) |>
     # 4. Convert values to numeric at the end
-    dplyr::mutate(obs_value = readr::parse_number(obs_value))
+    dplyr::mutate(obs_value = readr::parse_number(obs_value)) |>
+    dplyr::left_join (y = nfsa_sto_lookup,by = join_by(counterpart_area, ref_sector,
+                                                       counterpart_sector, consolidation, accounting_entry, sto, instr_asset,
+                                                       unit_measure, prices)) |>
+    dplyr::select(type,ref_area,id,time_period,obs_value)
+
+   if (stringr::str_detect(head(data$time_period,n=1),"Q") == TRUE){
+     data <- data |>
+       dplyr::mutate(time_period = paste0(stringr::str_sub(time_period,1,4),
+                                          "-",
+                                          stringr::str_sub(time_period,5,6)))
+   }
+
+
 
   return(data)
 }

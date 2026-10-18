@@ -1,75 +1,136 @@
-#' Check Consistency Between NFSA Tables T0801 and T0800
+
+#' Check Consistency Between Quarterly and Annual NFSA Data
 #'
-#' This function compares data from NFSA tables T0801 and T0800 for a given country,
-#' identifies discrepancies exceeding a specified threshold, and outputs the results to an Excel file.
+#' @description
+#' Compares quarterly NFSA data (T0801) with annual NFSA data
+#' (T0800) and identifies discrepancies exceeding a specified
+#' threshold.
 #'
-#' @param country A character string specifying the country code for the NFSA data.
-#' @param threshold A numeric value indicating the threshold for acceptable differences between T0801 and T0800 (default is 2).
-#' @param output_sel A character string specifying the directory where the output Excel file should be saved (default is "output/frequency" relative to the project root).
+#' @details
+#' Quarterly observations are aggregated by calendar year,
+#' country, institutional sector, transaction, and accounting
+#' entry.
 #'
-#' @return This function primarily operates for its side effect of writing an Excel file.
-#'   It returns NULL invisibly. A success message is printed to the console if the tables are consistent or if the output file is created.
+#' Only years containing exactly four quarterly observations
+#' are considered. The annual totals are then compared with
+#' the corresponding annual observations.
+#'
+#' The comparison uses a left join, meaning that only series
+#' present in the quarterly dataset are considered.
+#'
+#'
+#' The function returns only observations for which the
+#' absolute difference exceeds the specified threshold.
+#' If no discrepancies are found, an empty tibble is returned.
+#'
+#' @param quarterly_data Data frame containing quarterly NFSA
+#'   observations, typically from T0801.
+#'   Must contain `ref_area`, `id`, `time_period`, and `obs_value`.
+#'   Time periods must begin with a four-digit year.
+#' @param annual_data Data frame containing annual NFSA
+#'   observations, typically from T0800.
+#'   Must contain `ref_area`, `id`, `time_period`, and `obs_value`.
+#'   Annual time periods must be expressed as "YYYY".
+#' @param threshold Numeric. Maximum acceptable absolute
+#'   difference between the sum of quarterly observations and
+#'   the annual observation. Defaults to 5.
+#'
+#' @return
+#' A tibble containing discrepancies exceeding `threshold`,
+#' with the following columns:
+#' \describe{
+#'   \item{ref_area}{Country code.}
+#'   \item{ref_sector}{Institutional sector.}
+#'   \item{sto}{Transaction code.}
+#'   \item{accounting_entry}{Accounting entry.}
+#'   \item{time_period}{Reference year.}
+#'   \item{qnfsa}{Sum of four quarterly observations.}
+#'   \item{anfsa}{Corresponding annual observation.}
+#'   \item{diff}{Difference between quarterly and annual values,
+#'     rounded to two decimal places.}
+#' }
 #'
 #' @examples
 #' \dontrun{
-#' nfsa_T0801_T0800(country = "BE", threshold = 1.5)
+#' quarterly <- nfsa_get_data(
+#'   country = "BE",
+#'   table = "T0801"
+#' )
+#'
+#' annual <- nfsa_get_data(
+#'   country = "BE",
+#'   table = "T0800"
+#' )
+#'
+#' nfsa_T0801_T0800(
+#'   quarterly_data = quarterly,
+#'   annual_data = annual,
+#'   threshold = 2
+#' )
 #' }
 #'
+#' @importFrom dplyr mutate group_by ungroup filter
+#' @importFrom dplyr select rename summarise left_join
+#' @importFrom dplyr join_by n
+#' @importFrom stringr str_sub
+#'
 #' @export
-nfsa_T0801_T0800 <- function(country,
-                             threshold = 2,
-                             output_sel = here::here("output", "frequency")){
+nfsa_T0801_T0800 <- function(
+    quarterly_data = q,
+    annual_data = a,
+    threshold = 5
+) {
 
+  # 1. Aggregate quarterly data to annual frequency
+  q_nfsa_data <- quarterly_data |>
+    dplyr::mutate(
+      year = stringr::str_sub(time_period, 1, 4)
+    ) |>
+    dplyr::group_by(
+      ref_area, id, year
+    ) |>
+    dplyr::filter(dplyr::n() == 4) |>
+    dplyr::ungroup() |>
+    dplyr::select(
+      ref_area, id, year, obs_value
+    ) |>
+    dplyr::rename(time_period = year) |>
+    dplyr::group_by(ref_area, id, time_period) |>
+    dplyr::mutate(
+      T0801 = dplyr::if_else(!stringr::str_detect(id,".PS"), sum(obs_value),mean(obs_value)
+      )
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::select(-obs_value) |>
+    dplyr::distinct()
 
-  # T0801
-  q_nfsa_data <- nfsa::nfsa_get_data(country = country, table = "T0801", type = "new")  |>
-    nfsa::nfsa_separate_id() |>
-    mutate(year=str_sub(time_period,1,4)) |>
-    group_by(ref_area,ref_sector,sto,accounting_entry,year) |>
-    mutate(n=n()) |>
-    ungroup() |>
-    filter(n==4) |>
-    select(-n,-time_period) |>
-    rename(time_period = year) |>
-    summarise(qnfsa = sum(obs_value),.by = c(ref_area,ref_sector,sto,accounting_entry,time_period))
+  # 2. Prepare annual data
+  a_nfsa_data <- annual_data |>
+    dplyr::select(
+      ref_area, id, time_period, obs_value
+    ) |>
+    dplyr::rename(T0800 = obs_value)
 
-  # T0800
-  a_nfsa_data <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "new")  |>
-    nfsa::nfsa_separate_id() |>
-    rename(anfsa= obs_value)
+  # 3. Compare quarterly and annual observations
+  qnfsa_anfsa <- q_nfsa_data |>
+    dplyr::left_join(
+      a_nfsa_data,
+      by = dplyr::join_by(
+        ref_area, id, time_period
+      )
+    ) |>
+    dplyr::mutate(
+      Difference = round(T0801 - T0800, 1)
+    ) |>
+    dplyr::filter(
+      !is.na(Difference),
+      abs(Difference) > threshold,
+    ) |>
+    dplyr::mutate(
+      `In %` = round(Difference * 100/T0800, 1)
+    )
 
-
-  qnfsa_anfsa <- left_join(q_nfsa_data,a_nfsa_data, by = join_by(ref_area, ref_sector, sto, accounting_entry,
-                                                                 time_period)) |>
-    mutate(diff = round(qnfsa-anfsa,2)) |>
-    filter(abs(diff)> threshold) |>
-    filter(sto != "EMP")
-
-  # tmp <- a_nfsa_data |>
-  #   filter(sto == "B1GQ") |>
-  #   select(ref_area,time_period,gdp=anfsa)
-  #
-  # qnfsa_anfsa <- left_join(qnfsa_anfsa,tmp, by = join_by(ref_area, time_period)) |>
-  #   mutate(as_GDP = round(diff*100/gdp,3)) |>
-  #   mutate(threshold = ifelse(abs(as_GDP) > 0.3, TRUE,FALSE))
-
-
-
-  if (nrow(qnfsa_anfsa) == 0) {
-    cli::cli_alert_success("T0801 and T0800 fully consistent!")
-
-  } else {
-
-  openxlsx::write.xlsx(qnfsa_anfsa,
-                       file = paste0(output_sel,"/T0801_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-  overwrite = TRUE,
-  asTable = TRUE)
-cli::cli_alert_success(paste0("File created in", paste0(output_sel,"/T0801_T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx")))
-nfsa::nfsa_to_excel(qnfsa_anfsa)
-return(qnfsa_anfsa)
- }
-
+  # 4. Return results
+  return(qnfsa_anfsa)
 }
-
-
 

@@ -90,7 +90,19 @@
 
 # nfsa 1.0.7
 * Several small bugs/typos detected by Paul corrected.
-* Added S13.D75.C in nfsa_read_excel_template
+* Added S13.D75.C in nfsa_read_excel_template.
 
 # nfsa 1.0.8
-* New function to automatically balance T0801/T0800
+* New function to automatically balance T0801 (nfsa_balancing).
+
+# nfsa 1.0.9
+* New function for exploratory detection of outliers in T0801 (nfsa_outliers).
+* New function to justify a new transmission of T0801SA it a T0801 transmission 
+is received after the transmission of T0801SA (nfsa_T0801SA_retransmit).
+* New function to detect seasonality(nfsa_is_seasonal).
+* New function to render T0801SA reports (nfsa_T0801SA_report).
+* Stopped sending output as excel files in most functions and returning only dataframes.
+* nfsa_q_plots and nfsa_a_plots replaced by the more general nfsa_plots.
+* Added a vignete.
+* nfsa_read_excel_template_T0801 and nfsa_read_excel_template_T0800 replaced by 
+a single function nfsa_read_excel_template. 

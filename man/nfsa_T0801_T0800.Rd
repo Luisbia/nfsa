@@ -2,32 +2,78 @@
 % Please edit documentation in R/nfsa_T0801_T0800.R
 \name{nfsa_T0801_T0800}
 \alias{nfsa_T0801_T0800}
-\title{Check Consistency Between NFSA Tables T0801 and T0800}
+\title{Check Consistency Between Quarterly and Annual NFSA Data}
 \usage{
-nfsa_T0801_T0800(
-  country,
-  threshold = 2,
-  output_sel = here::here("output", "frequency")
-)
+nfsa_T0801_T0800(quarterly_data = q, annual_data = a, threshold = 5)
 }
 \arguments{
-\item{country}{A character string specifying the country code for the NFSA data.}
+\item{quarterly_data}{Data frame containing quarterly NFSA
+observations, typically from T0801.
+Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
+Time periods must begin with a four-digit year.}
 
-\item{threshold}{A numeric value indicating the threshold for acceptable differences between T0801 and T0800 (default is 2).}
+\item{annual_data}{Data frame containing annual NFSA
+observations, typically from T0800.
+Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
+Annual time periods must be expressed as "YYYY".}
 
-\item{output_sel}{A character string specifying the directory where the output Excel file should be saved (default is "output/frequency" relative to the project root).}
+\item{threshold}{Numeric. Maximum acceptable absolute
+difference between the sum of quarterly observations and
+the annual observation. Defaults to 5.}
 }
 \value{
-This function primarily operates for its side effect of writing an Excel file.
-It returns NULL invisibly. A success message is printed to the console if the tables are consistent or if the output file is created.
+A tibble containing discrepancies exceeding \code{threshold},
+with the following columns:
+\describe{
+\item{ref_area}{Country code.}
+\item{ref_sector}{Institutional sector.}
+\item{sto}{Transaction code.}
+\item{accounting_entry}{Accounting entry.}
+\item{time_period}{Reference year.}
+\item{qnfsa}{Sum of four quarterly observations.}
+\item{anfsa}{Corresponding annual observation.}
+\item{diff}{Difference between quarterly and annual values,
+rounded to two decimal places.}
+}
 }
 \description{
-This function compares data from NFSA tables T0801 and T0800 for a given country,
-identifies discrepancies exceeding a specified threshold, and outputs the results to an Excel file.
+Compares quarterly NFSA data (T0801) with annual NFSA data
+(T0800) and identifies discrepancies exceeding a specified
+threshold.
+}
+\details{
+Quarterly observations are aggregated by calendar year,
+country, institutional sector, transaction, and accounting
+entry.
+
+Only years containing exactly four quarterly observations
+are considered. The annual totals are then compared with
+the corresponding annual observations.
+
+The comparison uses a left join, meaning that only series
+present in the quarterly dataset are considered.
+
+The function returns only observations for which the
+absolute difference exceeds the specified threshold.
+If no discrepancies are found, an empty tibble is returned.
 }
 \examples{
 \dontrun{
-nfsa_T0801_T0800(country = "BE", threshold = 1.5)
+quarterly <- nfsa_get_data(
+  country = "BE",
+  table = "T0801"
+)
+
+annual <- nfsa_get_data(
+  country = "BE",
+  table = "T0800"
+)
+
+nfsa_T0801_T0800(
+  quarterly_data = quarterly,
+  annual_data = annual,
+  threshold = 2
+)
 }
 
 }

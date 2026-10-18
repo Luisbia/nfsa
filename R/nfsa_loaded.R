@@ -1,19 +1,15 @@
 #' @title Check NFSA Loading Logs
 #'
-#' @description This function scans NFSA loading logs, extracts relevant information,
-#' and saves it to an Excel file.
+#' @description This function scans NFSA loading logs and extracts relevant information.
 #'
 #' @param time_min A date specifying the minimum time for log files to be considered.
 #'   Defaults to the beginning of the current day.
 #' @param time_max A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.
-#' @param output_sel Path to the directory where the output Excel file will be saved.
-#'   Defaults to "output/logs" within the project directory (using `here::here()`).
 #' @param recursive Logical. Should the function search for log files recursively within subdirectories?
 #'   Defaults to `FALSE`.
 #'
 #' @return Invisibly returns a tibble containing the processed log data if any files were loaded, otherwise
-#'   invisibly returns `NULL`. An Excel file containing the processed data is saved in the
-#'   `output_sel` directory.
+#'   invisibly returns `NULL`.
 #'
 #' @examples
 #' \dontrun{
@@ -26,10 +22,12 @@
 #' # Check logs recursively within subdirectories
 #' nfsa_loaded(time_min = "2020-01-01",recursive = TRUE)
 #' }
+#' @import cli
+#' @import tidyr
+#' @import dplyr
 #' @export
 nfsa_loaded <- function(time_min ,
                         time_max = lubridate::today(),
-                        output_sel = here::here("output", "logs"),
                         recursive = FALSE) {
 
   # 1. Setup Fields & Pattern
@@ -113,14 +111,5 @@ nfsa_loaded <- function(time_min ,
                                  .default = feed_rc)
     )
 
-  # 6. Export
-  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
-
-  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  file_out <- file.path(output_sel, paste0("loaded_", timestamp, ".xlsx"))
-
-  openxlsx::write.xlsx(final_data, file = file_out, overwrite = TRUE, asTable = TRUE)
-  cli::cli_alert_success("Log report created: {.file {file_out}}")
-  nfsa::nfsa_to_excel(final_data)
-  return(final_data)
+    return(final_data)
 }
