@@ -7,7 +7,7 @@
 #' @param input_sel A character string specifying the directory where incoming SDMX files should be scanned.
 #' @param recursive A logical value. If `TRUE`, the function will recursively search for files in subdirectories within the specified path. Defaults to `FALSE`.
 #'
-#' @return This function does not return a value, instead outputs an Excel file with the transmission report.
+#' @return a data frame.
 #'
 #'
 #' @examples

@@ -47,6 +47,14 @@ nfsa_loaded(time_min = "2026-10-16",
             time_max = "2026-10-18")
 ```
 
+The last one is `nfsa_validated` which scans Matis logs to find what files have been validated. PLease note that it also includes TM to VM, not just T to V.
+
+```{r}
+nfsa_validated(time_min = "2026-10-16",
+            time_max = "2026-10-18")
+```
+
+
 ## Data importing functions
 
 ### From countries deliveries
