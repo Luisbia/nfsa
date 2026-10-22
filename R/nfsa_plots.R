@@ -3,7 +3,9 @@
 #' @description
 #' Creates a multipage PDF comparing two user-supplied NFSA datasets.
 #' One page is produced per country and transaction/accounting-entry
-#' combination, with institutional sectors displayed as facets.
+#' combination, with institutional sectors displayed as facets. Within each
+#' country, PDF pages are ordered by transaction prefix (P, D, B, then others)
+#' and then by transaction number (e.g. P2 before P10).
 #'
 #' @details
 #' Both inputs must have columns `ref_area`, `id`, `time_period`, and
@@ -173,10 +175,24 @@ nfsa_plots <- function(
   combined$sto_entry <- sub("^[^.]+\\.", "", combined$id)
   combined$difference <- combined$value1 - combined$value2
 
-  groups <- dplyr::group_split(
-    dplyr::group_by(combined, .data$ref_area, .data$sto_entry),
-    .keep = TRUE
-  )
+  # PDF page order, within each country: P, D, B, then other entries.
+  transaction <- sub("\\..*$", "", combined$sto_entry)
+  prefix <- substr(transaction, 1L, 1L)
+  order_group <- match(prefix, c("P", "D", "B"))
+  order_group[is.na(order_group)] <- 4L
+
+  # Natural numerical order (e.g. P2 before P10).
+  order_number <- suppressWarnings(as.integer(
+    sub("^([0-9]+).*$", "\\1", substring(transaction, 2L))
+  ))
+
+  combined <- combined[order(combined$ref_area, order_group,
+                             order_number, combined$sto_entry,
+                             na.last = TRUE), , drop = FALSE]
+
+  # split() respects the level order of a factor (unlike group_by()).
+  group_id <- paste(combined$ref_area, combined$sto_entry, sep = "\r")
+  groups <- unname(split(combined, factor(group_id, levels = unique(group_id))))
 
   make_chart <- function(df) {
     df <- dplyr::arrange(df, .data$ref_sector, .data$plot_date)
