@@ -40,6 +40,9 @@
 #' @param my_colours Two colours: version 1, then version 2/difference.
 #' @param version_labels Two labels used in legends. Defaults to
 #'   `c("Version 1", "Version 2")`.
+#' @param ... Additional ggplot2 components, such as `theme()`, `labs()`,
+#'   `ggtitle()`, scales, or layers. Added to every chart in the supplied
+#'   order after the defaults, so they can override existing settings.
 #'
 #' @return Invisibly returns the path to the generated multipage PDF.
 #' @examples
@@ -49,6 +52,9 @@
 #' nfsa_q_plots_test(v1, v2, chart_type = "lines", facet_scales = "fixed")
 #' nfsa_q_plots_test(v1, v2, chart_type = "line_area",
 #'                   facet_scales = "free_y", show_all_series = TRUE)
+#' nfsa_plots(v1, v2,
+#'            theme = ggplot2::theme(legend.position = "bottom"),
+#'            labels = ggplot2::labs(title = "NFSA comparison", caption = "Source: MATIS"))
 #' }
 #' @importFrom dplyr select mutate filter left_join full_join arrange group_by group_split
 #' @importFrom ggplot2 ggplot aes geom_line geom_area geom_hline facet_wrap
@@ -67,9 +73,10 @@ nfsa_plots <- function(
     show_all_series = FALSE,
     my_theme = ggthemes::theme_fivethirtyeight(),
     my_colours = c("#9DC3E6", "#AF155F"),
-    version_labels = c("Version 1", "Version 2")
+    version_labels = c("Version 1", "Version 2"),
+    ...
 ) {
-
+  plot_elements <- list(...)
 
   if (!is.logical(show_all_series) || length(show_all_series) != 1L ||
       is.na(show_all_series)) {
@@ -212,7 +219,7 @@ nfsa_plots <- function(
         }
       }
     }
-    gg
+    gg + plot_elements
   }
   charts <- purrr::map(groups, make_chart)
   dir.create(output_sel, recursive = TRUE, showWarnings = FALSE)
