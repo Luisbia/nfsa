@@ -21,7 +21,7 @@ nfsa_transmissions(
 \item{recursive}{A logical value. If \code{TRUE}, the function will recursively search for files in subdirectories within the specified path. Defaults to \code{FALSE}.}
 }
 \value{
-This function does not return a value, instead outputs an Excel file with the transmission report.
+a data frame.
 }
 \description{
 This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp.
