@@ -14,7 +14,8 @@ nfsa_plots(
   show_all_series = FALSE,
   my_theme = ggthemes::theme_fivethirtyeight(),
   my_colours = c("#9DC3E6", "#AF155F"),
-  version_labels = c("Version 1", "Version 2")
+  version_labels = c("Version 1", "Version 2"),
+  ...
 )
 }
 \arguments{
@@ -45,6 +46,10 @@ observations/series from either dataset (\code{full_join}).}
 
 \item{version_labels}{Two labels used in legends. Defaults to
 \code{c("Version 1", "Version 2")}.}
+
+\item{...}{Additional ggplot2 components, such as \code{theme()}, \code{labs()},
+\code{ggtitle()}, scales, or layers. Added to every chart in the supplied
+order after the defaults, so they can override existing settings.}
 }
 \value{
 Invisibly returns the path to the generated multipage PDF.
@@ -78,5 +83,8 @@ v2 <- nfsa::nfsa_get_data(country = "IE", type = "prev")
 nfsa_q_plots_test(v1, v2, chart_type = "lines", facet_scales = "fixed")
 nfsa_q_plots_test(v1, v2, chart_type = "line_area",
                   facet_scales = "free_y", show_all_series = TRUE)
+nfsa_plots(v1, v2,
+           theme = ggplot2::theme(legend.position = "bottom"),
+           labels = ggplot2::labs(title = "NFSA comparison", caption = "Source: MATIS"))
 }
 }

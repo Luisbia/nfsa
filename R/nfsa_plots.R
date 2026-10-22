@@ -40,6 +40,9 @@
 #' @param my_colours Two colours: version 1, then version 2/difference.
 #' @param version_labels Two labels used in legends. Defaults to
 #'   `c("Version 1", "Version 2")`.
+#' @param ... Additional ggplot2 components, such as `theme()`, `labs()`,
+#'   `ggtitle()`, scales, or layers. Added to every chart in the supplied
+#'   order after the defaults, so they can override existing settings.
 #'
 #' @return Invisibly returns the path to the generated multipage PDF.
 #' @examples
@@ -49,6 +52,9 @@
 #' nfsa_q_plots_test(v1, v2, chart_type = "lines", facet_scales = "fixed")
 #' nfsa_q_plots_test(v1, v2, chart_type = "line_area",
 #'                   facet_scales = "free_y", show_all_series = TRUE)
+#' nfsa_plots(v1, v2,
+#'            theme = ggplot2::theme(legend.position = "bottom"),
+#'            labels = ggplot2::labs(title = "NFSA comparison", caption = "Source: MATIS"))
 #' }
 #' @importFrom dplyr select mutate filter left_join full_join arrange group_by group_split
 #' @importFrom ggplot2 ggplot aes geom_line geom_area geom_hline facet_wrap
@@ -67,10 +73,11 @@ nfsa_plots <- function(
     show_all_series = FALSE,
     my_theme = ggthemes::theme_fivethirtyeight(),
     my_colours = c("#9DC3E6", "#AF155F"),
-    version_labels = c("Version 1", "Version 2")
+    version_labels = c("Version 1", "Version 2"),
+    ...
 ) {
+  plot_elements <- list(...)
 
-  
   if (!is.logical(show_all_series) || length(show_all_series) != 1L ||
       is.na(show_all_series)) {
     stop("show_all_series must be a single TRUE or FALSE.", call. = FALSE)
@@ -81,7 +88,7 @@ nfsa_plots <- function(
     stop("my_colours and version_labels must each contain two valid values; labels must differ.",
          call. = FALSE)
   }
-  
+
   required_cols <- c("ref_area", "id", "time_period", "obs_value")
   for (nm in c("version1", "version2")) {
     dat <- get(nm)
@@ -90,7 +97,7 @@ nfsa_plots <- function(
            paste(required_cols, collapse = ", "), call. = FALSE)
     }
   }
-  
+
   # Convert all supported period formats to a comparable quarter index.
   parse_period <- function(period) {
     period <- trimws(as.character(period))
@@ -106,12 +113,12 @@ nfsa_plots <- function(
          index = year * 4L + quarter - 1L,
          date = as.Date(sprintf("%04d-%02d-01", year, (quarter - 1L) * 3L + 1L)))
   }
-  
+
   if (length(time_min) != 1L || is.na(time_min)) {
     stop("time_min must be a single valid period.", call. = FALSE)
   }
   first_period <- parse_period(time_min)$index
-  
+
   prepare <- function(df, value_name) {
     df <- dplyr::select(df, dplyr::all_of(required_cols))
     if (nrow(df) == 0L) {
@@ -137,7 +144,7 @@ nfsa_plots <- function(
     attr(df, "frequencies") <- unique(period$frequency)
     df
   }
-  
+
   v1 <- prepare(version1, "value1")
   v2 <- prepare(version2, "value2")
   freq1 <- attr(v1, "frequencies")
@@ -146,7 +153,7 @@ nfsa_plots <- function(
   if (length(all_freq) > 1L) {
     stop("Inputs contain mixed annual and quarterly frequencies.", call. = FALSE)
   }
-  
+
   by_cols <- c("ref_area", "id", "plot_date", "period_index")
   combined <- if (show_all_series) {
     dplyr::full_join(v1, v2, by = by_cols)
@@ -156,7 +163,7 @@ nfsa_plots <- function(
   if (!nrow(combined)) {
     stop("No observations available to plot after filtering and joining.", call. = FALSE)
   }
-  
+
   # Group by transaction and accounting entry, facet by institutional sector.
   if (any(!grepl("^[^.]+\\.[^.]+\\.[^.]+$", combined$id))) {
     stop("id values must follow sector.transaction.entry (e.g. S13.B9.B).",
@@ -165,12 +172,12 @@ nfsa_plots <- function(
   combined$ref_sector <- sub("\\..*$", "", combined$id)
   combined$sto_entry <- sub("^[^.]+\\.", "", combined$id)
   combined$difference <- combined$value1 - combined$value2
-  
+
   groups <- dplyr::group_split(
     dplyr::group_by(combined, .data$ref_area, .data$sto_entry),
     .keep = TRUE
   )
-  
+
   make_chart <- function(df) {
     df <- dplyr::arrange(df, .data$ref_sector, .data$plot_date)
     gg <- ggplot2::ggplot(df, ggplot2::aes(x = .data$plot_date)) +
@@ -180,7 +187,7 @@ nfsa_plots <- function(
       ggplot2::labs(title = paste(df$ref_area[1], df$sto_entry[1], sep = " — "),
                     x = NULL, y = NULL) +
       ggplot2::theme(axis.ticks.y = ggplot2::element_blank())
-    
+
     if (chart_type == "lines") {
       gg <- gg +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1,
@@ -192,10 +199,10 @@ nfsa_plots <- function(
         ggplot2::scale_colour_manual(
           name = NULL, values = stats::setNames(my_colours, version_labels))
     } else {
-      
+
       gg <- gg +
         ggplot2::geom_hline(yintercept = 0, colour = "grey30") +
-        ggplot2::geom_area(ggplot2::aes(y = is.finite(.data$difference)),
+        ggplot2::geom_area(ggplot2::aes(y = .data$difference),
                            fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1),
                            colour = my_colours[1], linewidth = 0.65, na.rm = TRUE)
@@ -212,7 +219,7 @@ nfsa_plots <- function(
         }
       }
     }
-    gg
+    gg + plot_elements
   }
   charts <- purrr::map(groups, make_chart)
   dir.create(output_sel, recursive = TRUE, showWarnings = FALSE)
