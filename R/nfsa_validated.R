@@ -6,7 +6,7 @@
 #'
 #' @param time_min A date object or character string coercible to a date,
 #'   specifying the minimum date for validation files to be considered.
-#'   Files with timestamps earlier than this date will be ignored.
+#'   Files with timestamps earlier than this date will be ignored. Defaults to current date
 #'
 #' @param time_max A date object or character string coercible to a date,
 #'   specifying the maximum date for validation files to be considered.
@@ -21,9 +21,10 @@
 #'
 #' @import dplyr
 #' @import tidyr
+#' @import stringr
 #' @import tibble
 #' @export
-nfsa_validated <- function(time_min,
+nfsa_validated <- function(time_min = lubridate::ymd(lubridate::today()),
                             time_max = lubridate::ymd(lubridate::today())){
 
   cli::cli_progress_message("Searching for files in the server...")

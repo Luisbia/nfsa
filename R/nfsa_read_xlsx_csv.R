@@ -33,21 +33,26 @@ nfsa_read_xlsx_csv <- function(file,
 
   data <- readr::read_delim(file,
                             delim = ";",
-                          , show_col_types = FALSE) |>
+                            , show_col_types = FALSE) |>
     janitor::clean_names() |>
     dplyr::select(table_identifier, freq, adjustment, ref_area,
-           counterpart_area,ref_sector, counterpart_sector,
-           consolidation, accounting_entry, sto, instr_asset,
-           maturity, expenditure,unit_measure,currency_denom,
-           valuation, prices, transformation, cust_breakdown,
-           time_period,obs_value,obs_status,conf_status)|>
+                  counterpart_area,ref_sector, counterpart_sector,
+                  consolidation, accounting_entry, sto, instr_asset,
+                  maturity, expenditure,unit_measure,currency_denom,
+                  valuation, prices, transformation, cust_breakdown,
+                  time_period,obs_value,obs_status,conf_status)|>
     dplyr::left_join(y = nfsa_sto_lookup)
 
   if (full == FALSE){
-   data <- data |>
-    dplyr::select(ref_area,id,time_period,obs_value)
+    data <- data |>
+      dplyr::select(ref_area,id,adjustment,time_period,obs_value)
   }
-return(data)
+  if (stringr::str_detect(head(data$time_period,n=1),"Q") == TRUE){
+    data <- data |>
+      dplyr::mutate(time_period = paste0(stringr::str_sub(time_period,1,4),
+                                         "-",
+                                         stringr::str_sub(time_period,5,6)))
   }
 
-
+  return(data)
+}

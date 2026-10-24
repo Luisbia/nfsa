@@ -11,6 +11,8 @@
 #' @param file Character string. Path to the Excel template.
 #' @param table Character string. Table identifier, either
 #'   "T0801" (default) or "T0800".
+#' @param quiet Logical. If `TRUE` (default), suppresses console output,
+#'   messages, and warnings during import. Errors are still reported.
 #'
 #' @return A tibble containing:
 #' \describe{
@@ -25,6 +27,7 @@
 #' @importFrom tidyr pivot_longer separate_wider_delim
 #' @importFrom purrr imap_dfr
 #' @importFrom stringr str_sub
+#' @importFrom utils capture.output
 #'
 #' @examples
 #' \dontrun{
@@ -35,17 +38,23 @@
 #'
 #' nfsa_read_excel_template(
 #'   file = "path/to/EE1_2026_Q1.xlsx",
-#'   table = "T0801"
+#'   table = "T0801",
+#'   quiet = FALSE
 #' )
 #' }
 #'
 #' @export
 nfsa_read_excel_template <- function(
     file,
-    table = "T0801"
+    table = "T0801",
+    quiet = TRUE
 ) {
 
-  table <- table
+  table <- match.arg(table, c("T0801", "T0800"))
+
+  if (!is.logical(quiet) || length(quiet) != 1L || is.na(quiet)) {
+    stop("`quiet` must be TRUE or FALSE.")
+  }
 
   if (!file.exists(file)) {
     stop("File does not exist: ", file)
@@ -437,19 +446,33 @@ nfsa_read_excel_template <- function(
   # READ ALL SECTORS AND RETURN DATA
   # ============================================================
 
-  data <- purrr::imap_dfr(
-    config,
-    ~ read_sector(
-      sector = .y,
-      settings = .x
+  import_data <- function() {
+    purrr::imap_dfr(
+      config,
+      ~ read_sector(
+        sector = .y,
+        settings = .x
+      )
+    ) |>
+      nfsa_unite_id() |>
+      dplyr::select(
+        id,
+        time_period,
+        obs_value
+      )
+  }
+
+  if (quiet) {
+    # Silence regular console output, messages, and warnings,
+    # but allow errors to propagate normally.
+    utils::capture.output(
+      data <- suppressMessages(suppressWarnings(import_data()))
     )
-  ) |>
-    nfsa_unite_id() |>
-    dplyr::select(
-      id,
-      time_period,
-      obs_value
-    )
+  } else {
+    data <- import_data()
+  }
 
   return(data)
 }
+
+
