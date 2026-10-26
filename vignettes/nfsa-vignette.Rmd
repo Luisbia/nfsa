@@ -28,30 +28,30 @@ There are two functions `nfsa_transmissions()` and `nfsa_loaded()` that will sca
 
 `nfsa_transmissions()` will list the files received during a period defined by the user. For example, to get the list of files received from 2026-10-01 we will use
 
-```{r}
+```{r 1}
 library(nfsa)
 nfsa_transmissions(time_min = "2026-10-01")
 ```
 
 This can work on other folders. For example, the 2025Q1 folder 
 
-```{r}
+```{r 2}
 nfsa_transmissions(time_min = "2025-01-01",
                    input_sel = "M:/nas/QSA10/Production/2025Q1/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files")
 ```
 
 `nfsa_loaded()` will scan the logs in `I:/econ/NFSA/LOG/` to inform us what has been loaded (or not) how and when in Matis.
 
-```{r}
+```{r 3}
 nfsa_loaded(time_min = "2026-10-16",
             time_max = "2026-10-18")
 ```
 
 The last one is `nfsa_validated` which scans Matis logs to find what files have been validated. PLease note that it also includes TM to VM, not just T to V.
 
-```{r}
+```{r 4}
 nfsa_validated(time_min = "2026-10-16",
-            time_max = "2026-10-18")
+               time_max = "2026-10-18")
 ```
 
 
@@ -76,7 +76,7 @@ nfsa_get_data <- function(
 
 Using the default parameters we only need to provide the country (or countries) for which we want to extract data.
 
-```{r}
+```{r 5}
 head(
   nfsa_get_data(country = "IT")
   )
@@ -84,7 +84,7 @@ head(
 
 This will get us the latest `T0801` file sent by the country (or countries) in each reference quarter available in the server. If we want `T0800` or `T0801SA` we need to change the table argument.
 
-```{r}
+```{r 6}
 head(
   nfsa_get_data(country = "IT",
                    table = "T0800")
@@ -93,7 +93,7 @@ head(
 
 If we want the latest version a particular reference period we have to provide it.
 
-```{r}
+```{r 7}
 head(
   nfsa_get_data(country = "IT",
                    table = "T0801SA",
@@ -102,7 +102,7 @@ head(
 ```
 
 If we want to have all the versions, and not only the last one, we have to set the argument last to FALSE
-```{r}
+```{r 8}
 head(
   nfsa_get_data(country = "IT",
                    table = "T0801SA",
@@ -115,7 +115,7 @@ head(
 
 We can filter what to extract using any of the fields of the original XML file. For example to extract only transactions with `counterpart area` 4Y.
 
-```{r}
+```{r 9}
 head(
   nfsa_get_data(country = "IT", 
                 ref_period = "2026_0002",
@@ -126,16 +126,16 @@ head(
 
 We can put together several filters.
 
-```{r}
+```{r 10}
 nfsa_get_data(country = "IT", 
              filters = c("counterpart_area == '4Y'",
                          "time_period == '2026-Q1'"))
 
 ```
 
-Is it possible to retrieve the data as reported in the original xml file (and some additional info) if we use the argument `complete`.
+It is possible to retrieve the data as reported in the original xml file (and some additional info) if we use the argument `complete`.
 
-```{r}
+```{r 11}
 nfsa_get_data(country = "IT", 
              filters = c("counterpart_area == '4Y'",
                          "time_period == '2026-Q2'"),
@@ -145,13 +145,13 @@ nfsa_get_data(country = "IT",
 
 By default observation values with `obs_status M` are converted to zero unless `complete = TRUE`, but we can change the behavior with the fill_M argument.
 
-```{r}
+```{r 12}
 nfsa_get_data(country = "EE", 
               filters = "sto == 'D8'") |> 
   dplyr::filter(obs_value == 0,time_period == "2026-Q2")
 ```
 
-```{r}
+```{r 13}
 nfsa_get_data(country = "EE",
               filters = "sto == 'D8'",
               fill_M = FALSE) |> 
@@ -161,7 +161,7 @@ nfsa_get_data(country = "EE",
 
 We can always load original countries xml files with `nfsa_read_xml()` but it we want to get the column `id` we need to to join the data with the internal lookup_table `nfsa_sto_lookup`.
 
-```{r}
+```{r 14}
 head(
   nfsa_read_xml("M:/nas/Incoming_SDMX_files/NASEC_T0801SA_Q_DK_2026_0002_V0002.xml") |> 
     dplyr::left_join(y = nfsa_sto_lookup)
@@ -172,13 +172,13 @@ head(
 
 As long as they respect a required structure (sheets, columns) we should be able to load excel templates created for example for estimation purposes.
 
-```{r}
+```{r 15}
 head(
   nfsa_read_excel_template("I:/econ/NFSA/DONE/SE1_2026Q2_ESTIM.xlsx")
 )
 ```
 
-```{r}
+```{r 16}
 head(
   nfsa_read_excel_template("I:/econ/NFSA/DONE/NASEC_T0800_A_BG_2024_0000_ESTIM.xlsx",
                            table = "T0800")
@@ -188,9 +188,59 @@ head(
 
 We will need to add the column `ref_area`, it is not possible to collect flags and it is relatively slow. If we do not need to use the data before loading it in Matis, it is better to use the parsed csv file generated when loading the file. This will give as a file with all the columns (as xml) if we set `full = TRUE`. By default it collapses to the usual 4 columns. 
 
-```{r}
+```{r 17}
 head(
   nfsa_read_xlsx_csv(file ="I:/econ/NFSA/OUTPUT/SE1_2026Q2_ESTIM.xlsx.csv",
                      full = TRUE)
 )
 ```
+
+## Plotting
+
+`nfsa_plots()` will create a pdf file comparing two data sets (annual or quarterly). 
+
+```{r 18, eval=FALSE}
+nfsa_plots <- function(
+    version1,
+    version2,
+    output_sel = here::here(),
+    time_min = "1999-Q1",
+    chart_type = "line_col",
+    facet_scales = "free_y",
+    show_all_series = FALSE,
+    my_theme = ggthemes::theme_fivethirtyeight(),
+    my_colours = c("#003399", "#AF155F"),
+    version_labels = c("Version 1", "Version 2"),
+    ...
+)
+```
+
+We can set many options: the type of charts (two lines, line and column, line and area), from which period, colours, theme, labels of the series, scales fixed to see absolute magnitudes or that change with the data, if series in one dataset and not present in the other are displayed, pass additional ggplot arguments to change the gridlines, add a title).
+
+```{r 19}
+new_data <- nfsa_get_data(country = "IT", ref_period = "2026_0002")
+prev_data <- nfsa_get_data(country = "IT", ref_period = "2026_0001")
+
+nfsa_plots(version1 = new_data,
+           version2 = prev_data,
+           chart_type = "line_col",
+           time_min = "2020-Q1",
+           output_sel = "C:/users/biedmlu/R")
+```
+
+```{r 20}
+new_data<- new_data |> 
+  dplyr::filter(id == "S1.B1GQ.B")
+
+prev_data<- prev_data |> 
+  dplyr::filter(id == "S1.B1GQ.B")
+
+nfsa_plots(version1 = new_data,
+           version2 = prev_data,
+           output_sel = "C:/users/biedmlu/R",
+           chart_type = "lines",
+           time_min = "2015-Q1",
+           version_labels = c("2026_0002", "2026_001"),
+           labels = ggplot2::labs(title = "GDP comparison", caption = "Source: Eurostat NFSA"))
+```
+

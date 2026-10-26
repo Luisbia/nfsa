@@ -31,8 +31,9 @@
 #'   Defaults to `here::here("output", "plots")`.
 #' @param time_min Earliest period to plot. Use `YYYY-Qn`, `YYYY`, or
 #'   `YYYYA00`. Defaults to `"1999-Q1"`.
-#' @param chart_type Either `"lines"` (two lines) or `"line_area"`,`"line_col"`
-#'   (version 1 line and difference area).
+#' @param chart_type One of `"lines"` (two lines), `"line_area"`
+#'   (version 1 line and difference area), or `"line_col"`
+#'   (version 1 line and difference columns).
 #' @param facet_scales Either `"fixed"` or `"free_y"` for `facet_wrap()`.
 #' @param show_all_series Logical. If `FALSE` (default), keep the
 #'   observations/series in version 1 (`left_join`). If `TRUE`, retain
@@ -58,7 +59,7 @@
 #'            labels = ggplot2::labs(title = "NFSA comparison", caption = "Source: MATIS"))
 #' }
 #' @importFrom dplyr select mutate filter left_join full_join arrange group_by group_split
-#' @importFrom ggplot2 ggplot aes geom_line geom_area geom_hline facet_wrap
+#' @importFrom ggplot2 ggplot aes geom_line geom_area geom_col geom_hline facet_wrap
 #' @importFrom ggplot2 scale_y_continuous scale_colour_manual scale_fill_manual
 #' @importFrom ggplot2 labs theme element_blank ggsave
 #' @importFrom purrr map
@@ -78,6 +79,8 @@ nfsa_plots <- function(
     ...
 ) {
   plot_elements <- list(...)
+  chart_type <- match.arg(chart_type, c("lines", "line_area", "line_col"))
+  facet_scales <- match.arg(facet_scales, c("fixed", "free_y"))
 
   if (!is.logical(show_all_series) || length(show_all_series) != 1L ||
       is.na(show_all_series)) {
@@ -219,34 +222,35 @@ nfsa_plots <- function(
       gg <- gg +
         ggplot2::geom_hline(yintercept = 0, colour = "grey30") +
         ggplot2::geom_col(ggplot2::aes(y = .data$difference),
-                           fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
+                          fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1),
                            colour = my_colours[1], linewidth = 0.65, na.rm = TRUE)
     }
 
-      if (chart_type == "line_area") {
-
+    if (chart_type == "line_area") {
       gg <- gg +
         ggplot2::geom_hline(yintercept = 0, colour = "grey30") +
         ggplot2::geom_area(ggplot2::aes(y = .data$difference),
                            fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1),
                            colour = my_colours[1], linewidth = 0.65, na.rm = TRUE)
-      }
-       # If a series exists exclusively in version 2, show it as a line.
-      if (show_all_series) {
-        missing_v1 <- df |>
-          dplyr::group_by(.data$ref_sector) |>
-          dplyr::filter(all(is.na(.data$value1))) |>
-          dplyr::ungroup()
-        if (nrow(missing_v1)) {
-          gg <- gg + ggplot2::geom_line(
-            data = missing_v1, ggplot2::aes(y = .data$value2),
-            colour = my_colours[2], linewidth = 0.65, na.rm = TRUE)
-        }
+    }
+
+    # In difference charts, show version 2 when version 1 has no series.
+    # In the lines chart, version 2 is already drawn above.
+    if (show_all_series && chart_type != "lines") {
+      missing_v1 <- df |>
+        dplyr::group_by(.data$ref_sector) |>
+        dplyr::filter(all(is.na(.data$value1))) |>
+        dplyr::ungroup()
+      if (nrow(missing_v1)) {
+        gg <- gg + ggplot2::geom_line(
+          data = missing_v1, ggplot2::aes(y = .data$value2),
+          colour = my_colours[2], linewidth = 0.65, na.rm = TRUE)
       }
     }
     gg + plot_elements
+  }
 
   charts <- purrr::map(groups, make_chart)
   dir.create(output_sel, recursive = TRUE, showWarnings = FALSE)
