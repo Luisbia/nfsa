@@ -49,8 +49,7 @@
 #' @return Invisibly returns the path to the generated multipage PDF.
 #' @examples
 #' \dontrun{
-#' v1 <- nfsa::nfsa_get_data(country = "IE")
-#' v2 <- nfsa::nfsa_get_data(country = "IE", type = "prev")
+#
 #' nfsa_q_plots_test(v1, v2, chart_type = "lines", facet_scales = "fixed")
 #' nfsa_q_plots_test(v1, v2, chart_type = "line_area",
 #'                   facet_scales = "free_y", show_all_series = TRUE)
@@ -68,13 +67,13 @@
 nfsa_plots <- function(
     version1,
     version2,
-    output_sel = here::here("output", "plots"),
+    output_sel = here::here(),
     time_min = "1999-Q1",
-    chart_type = "line_area",
+    chart_type = "line_col",
     facet_scales = "free_y",
     show_all_series = FALSE,
     my_theme = ggthemes::theme_fivethirtyeight(),
-    my_colours = c("#9DC3E6", "#AF155F"),
+    my_colours = c("#003399", "#AF155F"),
     version_labels = c("Version 1", "Version 2"),
     ...
 ) {
@@ -223,8 +222,9 @@ nfsa_plots <- function(
                            fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1),
                            colour = my_colours[1], linewidth = 0.65, na.rm = TRUE)
+    }
 
-   } else {
+      if (chart_type == "line_area") {
 
       gg <- gg +
         ggplot2::geom_hline(yintercept = 0, colour = "grey30") +
@@ -232,7 +232,8 @@ nfsa_plots <- function(
                            fill = my_colours[2], alpha = 0.6, na.rm = TRUE) +
         ggplot2::geom_line(ggplot2::aes(y = .data$value1),
                            colour = my_colours[1], linewidth = 0.65, na.rm = TRUE)
-      # If a series exists exclusively in version 2, show it as a line.
+      }
+       # If a series exists exclusively in version 2, show it as a line.
       if (show_all_series) {
         missing_v1 <- df |>
           dplyr::group_by(.data$ref_sector) |>
@@ -246,7 +247,7 @@ nfsa_plots <- function(
       }
     }
     gg + plot_elements
-  }
+
   charts <- purrr::map(groups, make_chart)
   dir.create(output_sel, recursive = TRUE, showWarnings = FALSE)
   stamp <- format(Sys.time(), "%Y%m%d_%H%M%S")

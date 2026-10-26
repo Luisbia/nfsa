@@ -55,11 +55,11 @@
 #' @export
 nfsa_get_data <- function(
     input_sel = "M:/nas/Rprod/db/",
-    country = "PL",
-    table = "T0800",
+    country ,
+    table = "T0801",
     filters = NULL,
     complete = FALSE,
-    ref_period = "2025_0000",
+    ref_period = NULL,
     last = TRUE
 ) {
   # 1. Setup configuration ------------------------------------------
@@ -175,7 +175,3 @@ nfsa_get_data <- function(
   return(res)
 }
 
-tmp <- nfsa_get_data(country = "PL",
-                     table = "T0800",
-                     ref_period = "2025_0000",
-                     last = FALSE)
