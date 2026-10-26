@@ -1,12 +1,10 @@
 #' @title Check NFSA Completeness Against Regulation for Table 0801SA
 #'
 #' @description This function checks the completeness of NFSA data against predefined regulatory requirements.
-#' It identifies missing data points for a specified country and table, and generates an Excel file detailing
-#' these gaps if any exist.
 #'
 #' @param country A character vector specifying the countries for which to check data completeness.
-#' @param file If a file should be written. FALSE by default which will open a temporary Excel file.
-#' @param output_sel A file path specifying the directory where the output Excel file should be saved. Defaults to "output/completeness" inside the project.
+#' @param end_quarter Last quarter that should have been reported (e.g.: "2026-Q3")
+#' @param requirements A link to the file to be checked, by default `"M:/nas/Rprod/assets/completeness_T0801SA.xlsx"`.
 #'
 #' @return Invisible. The function's primary side effect is to produce an Excel file when data is missing.
 #'   It also prints messages to the console indicating whether the data requirements are fulfilled or
@@ -19,21 +17,30 @@
 
 #' }
 #' @export
-nfsa_completeness_regulation_T0801SA <- function(country,
-                                                      file = FALSE,
-                                                      output_sel = here::here("output", "completeness")) {
+nfsa_completeness_regulation_T0801SA <- function(data,
+                                                 end_quarter,
+                                                 requirements = "M:/nas/Rprod/assets/completeness_T0801SA.xlsx") {
+
+  country <- unique(data$ref_area)
 
   lookup <- nfsa::nfsa_sto_lookup
   small <- c("BG", "EE", "HR", "CY", "LT", "LV", "LU", "MT", "SI", "SK")
   big <- c("AT", "BE", "CZ", "DE", "DK","EL", "ES", "FI", "FR", "HU", "IE", "IT",
            "NL", "PL", "PT", "RO", "SE")
-  requirements <- "M:/nas/Rprod/assets/completeness_T0801SA.xlsx"
   req <- readxl::read_xlsx(requirements)
-  req_time <- nfsa_get_data (country = "FR", table = "T0801SA",
-                             filters = "sto == 'B1GQ'") |>
-    select(time_period) |>
-    filter(time_period >= "1999-Q1") |>
-    arrange()
+  max_year <- as.numeric(stringr::str_sub(end_quarter, 1, 4))
+  max_quarter <- as.numeric(stringr::str_sub(end_quarter, 7))
+
+  time_period <- tidyr::expand_grid(
+    year = 1999:max_year,
+    quarter = 1:4
+  ) |>
+    dplyr::filter(
+      year < max_year |
+        (year == max_year & quarter <= max_quarter)
+    ) |>
+    dplyr::mutate(time_period = paste0(year, "-Q", quarter)) |>
+    dplyr::pull(time_period)
 
   req_small <- req |>
     dplyr::filter(countries == "ALL") |>
@@ -46,13 +53,12 @@ nfsa_completeness_regulation_T0801SA <- function(country,
 
   req <- dplyr::bind_rows(req_small, req_big) |>
     dplyr::filter(ref_area %in% country)%>%
-    tidyr::crossing(., req_time) |>
+    tidyr::crossing(., time_period) |>
     select(ref_area,id,time_period)
 
-  rm(req_small,req_big, req_time)
+  rm(req_small,req_big, time_period)
 
-  dat <- nfsa_get_data(country = country, table = "T0801SA", complete = TRUE) |>
-    dplyr::select(ref_area, id, time_period,obs_value,obs_status) |>
+  dat <- data |>
     nfsa::nfsa_separate_id() |>
     dplyr::filter(time_period >= "1999-Q1",
                   ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
@@ -61,12 +67,12 @@ nfsa_completeness_regulation_T0801SA <- function(country,
 
 
   dat_missing <- dat |>
-    dplyr::filter(is.na(obs_value)| obs_status == "M")|>
-    select(ref_area,id, time_period,obs_status)
+    dplyr::filter(is.na(obs_value))|>
+    select(ref_area,id, time_period)
 
   if (nrow(dat_missing) == 0) {
     cli::cli_inform(paste0("Data requirements for T0801SA are fulfilled" ))
-  } else if (file == FALSE) {
+  } else  {
 
     dat_missing <- dat_missing |>
       mutate(
@@ -76,27 +82,10 @@ nfsa_completeness_regulation_T0801SA <- function(country,
       select(-time_period) |>
       distinct() |>
       rename(missing_series = id) |>
-      select(ref_area,missing_series,from,to,obs_status) |>
+      select(ref_area,missing_series,from,to) |>
       arrange(ref_area)
 
-
-
-    nfsa::nfsa_to_excel(dat_missing)
-
-  } else {
-    openxlsx::write.xlsx(dat_missing,
-                         asTable = TRUE,
-                         file = paste0(output_sel, "/completeness_regulation_T0801SA_",
-                                       as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE
-    )
-
-    cli::cli_alert_success(paste0("File created in ", output_sel, "/completeness_regulation_T0801SA_"
-                                  ,as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-  }
-
-
   return(dat_missing)
+  }
 }
-
 
