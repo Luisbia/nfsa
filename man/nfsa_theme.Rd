@@ -4,7 +4,7 @@
 \alias{nfsa_theme}
 \title{NFSA Theme for ggplot2}
 \usage{
-nfsa_theme(base_size = 11, base_family = "sans", grid = TRUE, axis = TRUE)
+nfsa_theme(base_size = 13, base_family = "sans", grid = TRUE, axis = TRUE)
 }
 \arguments{
 \item{base_size}{Numeric. Base font size for the theme (default is 11).}
