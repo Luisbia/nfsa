@@ -6,11 +6,11 @@
 \usage{
 nfsa_get_data(
   input_sel = "M:/nas/Rprod/db/",
-  country = "PL",
-  table = "T0800",
+  country,
+  table = "T0801",
   filters = NULL,
   complete = FALSE,
-  ref_period = "2025_0000",
+  ref_period = NULL,
   last = TRUE
 )
 }

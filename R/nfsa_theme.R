@@ -32,7 +32,7 @@
 #' }
 #' @export
 # Main theme function
-nfsa_theme <- function(base_size = 11,
+nfsa_theme <- function(base_size = 13,
                        base_family = "sans",
                        grid = TRUE,
                        axis = TRUE) {
@@ -73,10 +73,10 @@ nfsa_theme <- function(base_size = 11,
       axis.ticks = element_line(color = "#707070", linewidth = 0.5),
       axis.ticks.y = element_blank(),
       axis.text = element_text(color = "#707070", size = rel(0.9)),
-      axis.title = element_text(color = "#333333", size = rel(1.0),
-                                face = "plain"),
-      axis.title.y = element_text(angle = 90, margin = margin(r = 10)),
-      axis.title.x = element_text(margin = margin(t = 10)),
+      # axis.title = element_text(color = "#333333", size = rel(1.0),
+      #                           face = "plain"),
+      # axis.title.y = element_text(angle = 90, margin = margin(r = 10)),
+      # axis.title.x = element_text(margin = margin(t = 10)),
 
       # Plot title and subtitle
       plot.title = element_text(

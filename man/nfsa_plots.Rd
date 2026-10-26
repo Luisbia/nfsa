@@ -7,13 +7,13 @@
 nfsa_plots(
   version1,
   version2,
-  output_sel = here::here("output", "plots"),
+  output_sel = here::here(),
   time_min = "1999-Q1",
-  chart_type = "line_area",
+  chart_type = "line_col",
   facet_scales = "free_y",
   show_all_series = FALSE,
   my_theme = ggthemes::theme_fivethirtyeight(),
-  my_colours = c("#9DC3E6", "#AF155F"),
+  my_colours = c("#003399", "#AF155F"),
   version_labels = c("Version 1", "Version 2"),
   ...
 )
@@ -30,8 +30,9 @@ Defaults to \code{here::here("output", "plots")}.}
 \item{time_min}{Earliest period to plot. Use \code{YYYY-Qn}, \code{YYYY}, or
 \code{YYYYA00}. Defaults to \code{"1999-Q1"}.}
 
-\item{chart_type}{Either \code{"lines"} (two lines) or \code{"line_area"},\code{"line_col"}
-(version 1 line and difference area).}
+\item{chart_type}{One of \code{"lines"} (two lines), \code{"line_area"}
+(version 1 line and difference area), or \code{"line_col"}
+(version 1 line and difference columns).}
 
 \item{facet_scales}{Either \code{"fixed"} or \code{"free_y"} for \code{facet_wrap()}.}
 
@@ -80,8 +81,6 @@ The difference is only computed for matched observations.
 }
 \examples{
 \dontrun{
-v1 <- nfsa::nfsa_get_data(country = "IE")
-v2 <- nfsa::nfsa_get_data(country = "IE", type = "prev")
 nfsa_q_plots_test(v1, v2, chart_type = "lines", facet_scales = "fixed")
 nfsa_q_plots_test(v1, v2, chart_type = "line_area",
                   facet_scales = "free_y", show_all_series = TRUE)
