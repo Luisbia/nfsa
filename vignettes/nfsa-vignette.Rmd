@@ -62,14 +62,15 @@ nfsa_validated(time_min = "2026-10-16",
 `nfsa_get_data()` is probably the function we will use more so we will spend some time looking at it and its arguments.
 
 ```{r, eval=FALSE}
-nfsa_get_data(
-  input_sel = "M:/nas/Rprod/data/",
-  country,
-  table = "T0801",
-  type = "new",
-  filters = NULL,
-  complete = FALSE,
-  fill_M = TRUE
+nfsa_get_data <- function(
+    input_sel = "M:/nas/Rprod/db/",
+    country,
+    table = "T0801",
+    filters = NULL,
+    complete = FALSE,
+    ref_period = NULL,
+    last = TRUE,
+    fill_M = TRUE
 )
 ```
 
@@ -81,7 +82,7 @@ head(
   )
 ```
 
-This will get us the latest `T0801` file sent by the country (or countries). If we want `T0800` or `T0801SA` we need to change the table argument.
+This will get us the latest `T0801` file sent by the country (or countries) in each reference quarter available in the server. If we want `T0800` or `T0801SA` we need to change the table argument.
 
 ```{r}
 head(
@@ -90,21 +91,34 @@ head(
   )
 ```
 
-If we want the latest version from the previous vintage, we need to change the argument `type`.
+If we want the latest version a particular reference period we have to provide it.
 
 ```{r}
 head(
   nfsa_get_data(country = "IT",
                    table = "T0801SA",
-                   type = "prev")
+                   ref_period = "2026_0002")
   )
 ```
+
+If we want to have all the versions, and not only the last one, we have to set the argument last to FALSE
+```{r}
+head(
+  nfsa_get_data(country = "IT",
+                   table = "T0801SA",
+                   ref_period = "2026_0002",
+                last = FALSE) |> 
+    dplyr::arrange(time_period,id)
+  )
+```
+
 
 We can filter what to extract using any of the fields of the original XML file. For example to extract only transactions with `counterpart area` 4Y.
 
 ```{r}
 head(
   nfsa_get_data(country = "IT", 
+                ref_period = "2026_0002",
                    filters = "counterpart_area == '4Y'")
   )
 
@@ -115,7 +129,7 @@ We can put together several filters.
 ```{r}
 nfsa_get_data(country = "IT", 
              filters = c("counterpart_area == '4Y'",
-                         "time_period == '2026-Q2'"))
+                         "time_period == '2026-Q1'"))
 
 ```
 
@@ -144,26 +158,8 @@ nfsa_get_data(country = "EE",
   dplyr::filter(obs_value == 0, time_period == "2026-Q2")
 ```
 
-`nfsa_get_data()` is a bit restrictive by construction in the data we want to query. If we need other deliveries which are not the last or other quarters we will need to rely on `nfsa_get_data_all()`. The arguments are the same. The main difference is that it will collect all the versions of the data it finds in the folder we are looking at. If it is the default option (`"M:/nas/Rprod/data/"`) it will bring all the files in this and the previous reference period.
 
-```{r}
-nfsa_get_data_all(country = "IT", 
-                  filters = c("sto == 'B1GQ'",
-                              "time_period == '2023-Q1'") )
-```
-
-
-If we change the `input_sel` argument to `"M:/nas/Rprod/copy_data/"` (or any other one when you store a group of parquet files)it will bring all files stored there.
-
-```{r}
-nfsa_get_data_all(country = "IT",
-                  input_sel = "M:/nas/Rprod/copy_data/",# faster if you select the subfolder
-                                                        # "M:/nas/Rprod/copy_data/q/nsa"
-                  filters = c("sto == 'B1GQ'",
-                              "time_period == '2023-Q1'"))
-```
-
-We can always load original countries xml files with `nfsa_read_xml` but it we want to get the column `id` we need to to join the data with the internal lookup_table `nfsa_sto_lookup`.
+We can always load original countries xml files with `nfsa_read_xml()` but it we want to get the column `id` we need to to join the data with the internal lookup_table `nfsa_sto_lookup`.
 
 ```{r}
 head(
