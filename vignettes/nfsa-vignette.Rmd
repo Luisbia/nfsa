@@ -158,10 +158,21 @@ nfsa_get_data(country = "EE",
   dplyr::filter(obs_value == 0, time_period == "2026-Q2")
 ```
 
+`nfsa_get_data_validated` goes a step further and compared the files with a matching (experimental) table extracted from Matis of what files were actually validated. A word of caution is that many files seem to have been validated from non-standard file names (corr, reload_8) and will not be matched.
+
+```{r}
+head(
+nfsa_get_data_validated(country = "IT",
+                        filters = "sto == 'B1GQ'") |> 
+  dplyr::arrange(time_period),
+  n=16
+)
+```
+
 
 We can always load original countries xml files with `nfsa_read_xml()` but it we want to get the column `id` we need to to join the data with the internal lookup_table `nfsa_sto_lookup`.
 
-```{r 14}
+```{r 15}
 head(
   nfsa_read_xml("M:/nas/Incoming_SDMX_files/NASEC_T0801SA_Q_DK_2026_0002_V0002.xml") |> 
     dplyr::left_join(y = nfsa_sto_lookup)
@@ -172,13 +183,13 @@ head(
 
 As long as they respect a required structure (sheets, columns) we should be able to load excel templates created for example for estimation purposes.
 
-```{r 15}
+```{r 16}
 head(
   nfsa_read_excel_template("I:/econ/NFSA/DONE/SE1_2026Q2_ESTIM.xlsx")
 )
 ```
 
-```{r 16}
+```{r 17}
 head(
   nfsa_read_excel_template("I:/econ/NFSA/DONE/NASEC_T0800_A_BG_2024_0000_ESTIM.xlsx",
                            table = "T0800")
@@ -188,7 +199,7 @@ head(
 
 We will need to add the column `ref_area`, it is not possible to collect flags and it is relatively slow. If we do not need to use the data before loading it in Matis, it is better to use the parsed csv file generated when loading the file. This will give as a file with all the columns (as xml) if we set `full = TRUE`. By default it collapses to the usual 4 columns. 
 
-```{r 17}
+```{r 18}
 head(
   nfsa_read_xlsx_csv(file ="I:/econ/NFSA/OUTPUT/SE1_2026Q2_ESTIM.xlsx.csv",
                      full = TRUE)
@@ -199,7 +210,7 @@ head(
 
 `nfsa_plots()` will create a pdf file comparing two data sets (annual or quarterly). 
 
-```{r 18, eval=FALSE}
+```{r 19, eval=FALSE}
 nfsa_plots <- function(
     version1,
     version2,
@@ -217,7 +228,7 @@ nfsa_plots <- function(
 
 We can set many options: the type of charts (two lines, line and column, line and area), from which period, colours, theme, labels of the series, scales fixed to see absolute magnitudes or that change with the data, if series in one dataset and not present in the other are displayed, pass additional ggplot arguments to change the gridlines, add a title).
 
-```{r 19}
+```{r 20}
 new_data <- nfsa_get_data(country = "IT", ref_period = "2026_0002")
 prev_data <- nfsa_get_data(country = "IT", ref_period = "2026_0001")
 
@@ -228,7 +239,7 @@ nfsa_plots(version1 = new_data,
            output_sel = "C:/users/biedmlu/R")
 ```
 
-```{r 20}
+```{r 21}
 new_data<- new_data |> 
   dplyr::filter(id == "S1.B1GQ.B")
 
@@ -247,7 +258,7 @@ nfsa_plots(version1 = new_data,
 
 Apart from `nfsa_plots()` we can use ´nfsa_theme()` and `nfsa_scale_colour()` and  `nfsa_scale_fill()` to quickly improve ggplot2 defaults.
 
-```{r 21}
+```{r 22}
 ggplot(new_data,aes(x = lubridate::yq(time_period),
                 y = obs_value,
                 colour = ref_area))+

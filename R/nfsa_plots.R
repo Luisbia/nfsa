@@ -201,7 +201,12 @@ nfsa_plots <- function(
     gg <- ggplot2::ggplot(df, ggplot2::aes(x = .data$plot_date)) +
       ggplot2::facet_wrap(~ref_sector, scales = facet_scales) +
       my_theme +
-      ggplot2::scale_y_continuous(labels = scales::label_number(), position = "right") +
+      ggplot2::scale_y_continuous(labels = scales::label_number(),
+                         position = "right",
+                         breaks = scales::pretty_breaks(n = 4),
+                         sec.axis = sec_axis( trans=~.*1,
+                                              labels = scales::label_number(),
+                                              breaks = scales::pretty_breaks(n = 4)))+
       ggplot2::labs(title = paste(df$ref_area[1], df$sto_entry[1], sep = " — "),
                     x = NULL, y = NULL) +
       ggplot2::theme(axis.ticks.y = ggplot2::element_blank())

@@ -63,7 +63,7 @@ nfsa_move_convert <- function(country,
       version_regex_extract = "(?<=_A_...).{15}",
       filename_length = 35,
       default_input = "M:/nas/Incoming_SDMX_files/",
-      default_output = "M:/nas/Rprod/data/a/new/"
+      default_output = "M:/nas/Rprod/db/a/"
     ),
     "T0801" = list(
       freq_code = "Q",
@@ -72,7 +72,7 @@ nfsa_move_convert <- function(country,
       version_regex_extract = "(?<=_Q_...).{15}",
       filename_length = 35,
       default_input = "M:/nas/Incoming_SDMX_files/",
-      default_output = "M:/nas/Rprod/data/q/new/nsa/"
+      default_output = "M:/nas/Rprod/db/q/nsa/"
     ),
     "T0801SA" = list(
       freq_code = "Q",
@@ -81,7 +81,7 @@ nfsa_move_convert <- function(country,
       version_regex_extract = "(?<=_Q_...).{15}",
       filename_length = 37,
       default_input = "M:/nas/Incoming_SDMX_files/",
-      default_output = "M:/nas/Rprod/data/q/new/sca/"
+      default_output = "M:/nas/Rprod/db/q/sca/"
     )
   )
 
