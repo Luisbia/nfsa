@@ -2,72 +2,106 @@
 % Please edit documentation in R/nfsa_is_seasonal.R
 \name{nfsa_is_seasonal}
 \alias{nfsa_is_seasonal}
-\title{Test Seasonality in Quarterly T0801SA Series}
+\title{Test Residual Seasonality in Quarterly T0801SA Series}
 \usage{
-nfsa_is_seasonal(
-  data = NULL,
-  time_min = "1999-Q1",
-  min_obs = 12L,
-  test = "combined"
-)
+nfsa_is_seasonal(data = NULL, time_min = "1999-Q1", min_obs = 12L)
 }
 \arguments{
-\item{data}{a data.frame with the standard nfsa columns.}
+\item{data}{A data.frame containing the standard NFSA
+columns \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.}
 
 \item{time_min}{Character. First quarter to consider,
 in "YYYY-Qn" format. Default is "1999-Q1".}
 
 \item{min_obs}{Integer. Minimum number of quarterly
 observations required. Default is 12.}
-
-\item{test}{Character. Seasonality test passed to
-\code{seastests::isSeasonal()}. Default is "combined".}
 }
 \value{
-A tibble containing:
+A tibble with one row per country and series containing:
 \describe{
 \item{ref_area}{Country code.}
 \item{id}{Series identifier.}
 \item{n_obs}{Number of observations.}
-\item{is_seasonal}{TRUE if seasonal, FALSE if not,
-or NA if the test could not be performed.}
+\item{is_seasonal}{Combined test result (TRUE/FALSE/NA).}
+\item{test_qs, test_fried, test_kw, test_seasdum,
+test_welch}{Logical results of individual tests.}
+\item{p_value_qs, p_value_fried, p_value_kw,
+p_value_seasdum, p_value_welch}{
+P-values from the individual tests.}
+\item{n_tests_positive}{Number of individual tests
+detecting seasonality.}
+\item{n_tests_completed}{Number of individual tests
+successfully completed.}
 }
+
+Individual test results are NA when the combined test
+does not identify seasonality or cannot be performed.
 }
 \description{
-Tests whether quarterly T0801SA time series exhibit
-statistically significant seasonality using the
-\code{seastests::isSeasonal()} function.
+Identifies quarterly T0801SA series with residual seasonality
+using the Ollech-Webel combined seasonality test.
+
+For series identified as seasonal, five additional tests are
+performed, returning their logical results and p-values.
 }
 \details{
-Data are provided by the user with the standard columns \code{ref_area}, \code{id}, \code{time_period}, \code{obs_value} and filtered
-from \code{time_min} onwards.
+Input data must contain \code{ref_area}, \code{id}, \code{time_period},
+and \code{obs_value}.
 
 Each series is identified by \code{ref_area} and \code{id}.
-Observations are sorted chronologically before creating
-a quarterly time-series object.
+Observations are filtered from \code{time_min} onwards and sorted
+chronologically before constructing a quarterly time series.
 
-Series with fewer than \code{min_obs} observations, missing
-quarters, duplicate periods, or invalid values are
-assigned NA for the seasonality result.
+The primary screening criterion is always the combined
+seasonality test implemented in \code{seastests::isSeasonal()}.
 
+For series identified as seasonal, the following individual
+tests are performed:
+\describe{
+\item{qs}{QS seasonality test.}
+\item{fried}{Friedman rank test.}
+\item{kw}{Kruskal-Wallis test.}
+\item{seasdum}{F-test on seasonal dummy variables.}
+\item{welch}{Welch seasonality test.}
+}
+
+The individual tests use the significance level of 0.01,
+matching the implementation of \code{seastests::isSeasonal()}.
+
+The combined test and individual tests are not statistically
+independent. Consequently, the number of positive individual
+tests is provided as supplementary diagnostic information,
+not as a separate decision criterion.
+
+Series with insufficient observations, missing quarters,
+duplicate periods, or invalid values receive NA results.
+
+Individual test errors are handled independently.
 Zero observations are retained.
-
-The default seasonality test is the combined test
-implemented in the \code{seastests} package.
 }
 \examples{
 \dontrun{
-dat <- nfsa::nfsa_get_data(country = "PL",table = "T0801SA")
-results_sa <-nfsa_is_seasonal(data =  dat) |>
- dplyr::filter(is_seasonal == TRUE)
-nfsa_is_seasonal(data = dat)
-
-nfsa_is_seasonal(
-  time_min = "2010-Q1"
+dat <- nfsa::nfsa_get_data(
+  country = "PL",
+  table = "T0801SA"
 )
+
+results <- nfsa_is_seasonal(data = dat)
+
+# Series with residual seasonality
+results |>
+  dplyr::filter(is_seasonal == TRUE)
+
+# Inspect individual test p-values
+results |>
+  dplyr::filter(is_seasonal == TRUE) |>
+  dplyr::select(
+    ref_area, id, dplyr::starts_with("p_value_")
+  )
 }
 
 }
 \seealso{
-\code{\link[seastests:isSeasonal]{seastests::isSeasonal()}}
+\code{\link[seastests:isSeasonal]{seastests::isSeasonal()}},
+\code{\link[seastests:combined_test]{seastests::combined_test()}}
 }

@@ -4,12 +4,15 @@
 \alias{nfsa_validated}
 \title{Find and Compile Validation Timestamps}
 \usage{
-nfsa_validated(time_min, time_max = lubridate::ymd(lubridate::today()))
+nfsa_validated(
+  time_min = lubridate::ymd(lubridate::today()),
+  time_max = lubridate::ymd(lubridate::today())
+)
 }
 \arguments{
 \item{time_min}{A date object or character string coercible to a date,
 specifying the minimum date for validation files to be considered.
-Files with timestamps earlier than this date will be ignored.}
+Files with timestamps earlier than this date will be ignored. Defaults to current date}
 
 \item{time_max}{A date object or character string coercible to a date,
 specifying the maximum date for validation files to be considered.

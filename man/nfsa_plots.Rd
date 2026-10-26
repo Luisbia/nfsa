@@ -30,7 +30,7 @@ Defaults to \code{here::here("output", "plots")}.}
 \item{time_min}{Earliest period to plot. Use \code{YYYY-Qn}, \code{YYYY}, or
 \code{YYYYA00}. Defaults to \code{"1999-Q1"}.}
 
-\item{chart_type}{Either \code{"lines"} (two lines) or \code{"line_area"}
+\item{chart_type}{Either \code{"lines"} (two lines) or \code{"line_area"},\code{"line_col"}
 (version 1 line and difference area).}
 
 \item{facet_scales}{Either \code{"fixed"} or \code{"free_y"} for \code{facet_wrap()}.}
@@ -57,7 +57,9 @@ Invisibly returns the path to the generated multipage PDF.
 \description{
 Creates a multipage PDF comparing two user-supplied NFSA datasets.
 One page is produced per country and transaction/accounting-entry
-combination, with institutional sectors displayed as facets.
+combination, with institutional sectors displayed as facets. Within each
+country, PDF pages are ordered by transaction prefix (P, D, B, then others)
+and then by transaction number (e.g. P2 before P10).
 }
 \details{
 Both inputs must have columns \code{ref_area}, \code{id}, \code{time_period}, and
@@ -70,8 +72,8 @@ same frequency. Observations are joined on \code{ref_area}, \code{id}, and
 \code{time_period}, after standardizing period labels.
 
 With \code{chart_type = "lines"}, both versions are displayed as lines.
-With \code{chart_type = "line_area"}, version 1 is a line and the difference
-\verb{(version 1 - version 2)} is drawn as an area around zero. For a series
+With \code{chart_type = "line_area"} or \code{chart_type = "line_col"}, version 1 is a line and the difference
+\verb{(version 1 - version 2)} is drawn as an area/column around zero. For a series
 present only in version 2 and \code{show_all_series = TRUE}, the version 2
 line is drawn so that the series is not represented by an empty panel.
 The difference is only computed for matched observations.

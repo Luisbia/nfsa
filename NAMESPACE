@@ -16,10 +16,11 @@ export(nfsa_bop_eui)
 export(nfsa_check_equations)
 export(nfsa_clean_output_files)
 export(nfsa_comext)
+export(nfsa_completeness)
 export(nfsa_completeness_aggregation)
 export(nfsa_completeness_regulation_T0801SA)
 export(nfsa_get_data)
-export(nfsa_get_data_all)
+export(nfsa_get_data_validated)
 export(nfsa_internal_consistency)
 export(nfsa_is_seasonal)
 export(nfsa_loaded)
@@ -52,24 +53,36 @@ export(nfsa_write_excel_template_T0801)
 import(cli)
 import(dplyr)
 import(ggplot2)
-import(purrr)
-import(seastests)
+import(stringr)
 import(tibble)
 import(tidyr)
+importFrom(arrow,open_dataset)
+importFrom(cli,
+  cli_abort,
+  cli_alert_danger
+)
+importFrom(data.table,fread)
 importFrom(dplyr,
   across,
   all_of,
+  any_of,
   arrange,
+  bind_rows,
+  collect,
+  distinct,
   filter,
   full_join,
   group_by,
   group_split,
+  if_else,
   join_by,
   left_join,
   mutate,
   n,
+  pull,
   rename,
   select,
+  slice_max,
   summarise,
   ungroup
 )
@@ -96,6 +109,7 @@ importFrom(janitor,clean_names)
 importFrom(purrr,
   imap_dfr,
   map,
+  map_int,
   pwalk
 )
 importFrom(quarto,quarto_render)
@@ -104,10 +118,36 @@ importFrom(readr,
   write_excel_csv
 )
 importFrom(readxl,read_xlsx)
-importFrom(rlang,.data)
-importFrom(stringr,str_sub)
-importFrom(tibble,tibble)
-importFrom(tidyr,
-  pivot_longer,
-  separate_wider_delim
+importFrom(rlang,
+  .data,
+  parse_exprs
 )
+importFrom(seastests,
+  fried,
+  isSeasonal,
+  kw,
+  qs,
+  seasdum,
+  welch
+)
+importFrom(stats,ts)
+importFrom(stringr,
+  fixed,
+  str_detect,
+  str_extract,
+  str_match,
+  str_sub
+)
+importFrom(tibble,
+  as_tibble,
+  tibble
+)
+importFrom(tidyr,
+  crossing,
+  drop_na,
+  nest,
+  pivot_longer,
+  separate_wider_delim,
+  unnest_wider
+)
+importFrom(utils,capture.output)

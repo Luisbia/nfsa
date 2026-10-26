@@ -4,13 +4,16 @@
 \alias{nfsa_read_excel_template}
 \title{Read NFSA T0800 or T0801 Excel Template}
 \usage{
-nfsa_read_excel_template(file, table = "T0801")
+nfsa_read_excel_template(file, table = "T0801", quiet = TRUE)
 }
 \arguments{
 \item{file}{Character string. Path to the Excel template.}
 
 \item{table}{Character string. Table identifier, either
 "T0801" (default) or "T0800".}
+
+\item{quiet}{Logical. If \code{TRUE} (default), suppresses console output,
+messages, and warnings during import. Errors are still reported.}
 }
 \value{
 A tibble containing:
@@ -39,7 +42,8 @@ nfsa_read_excel_template(
 
 nfsa_read_excel_template(
   file = "path/to/EE1_2026_Q1.xlsx",
-  table = "T0801"
+  table = "T0801",
+  quiet = FALSE
 )
 }
 

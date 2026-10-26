@@ -5,46 +5,68 @@
 \title{Get NFSA Data}
 \usage{
 nfsa_get_data(
-  input_sel = "M:/nas/Rprod/data/",
-  country,
-  table = "T0801",
-  type = "new",
+  input_sel = "M:/nas/Rprod/db/",
+  country = "PL",
+  table = "T0800",
   filters = NULL,
   complete = FALSE,
-  fill_M = TRUE
+  ref_period = "2025_0000",
+  last = TRUE
 )
 }
 \arguments{
-\item{input_sel}{Character string specifying the path to the data directory. Default is \code{"M:/nas/Rprod/data"}.}
+\item{input_sel}{Character string specifying the Parquet data directory.}
 
-\item{country}{Character vector specifying the country or countries to retrieve data for.}
+\item{country}{Character vector specifying countries to retrieve.}
 
-\item{table}{Character string specifying the table to retrieve data from (e.g., "T0801", "T0801SA", "T0800").}
+\item{table}{Character scalar. One of "T0800", "T0801", or "T0801SA".}
 
-\item{type}{Character string specifying the type of data to retrieve ("new" or "prev").}
+\item{filters}{Optional character vector of filter expressions applied
+using Arrow before collecting the data.}
 
-\item{filters}{one or several filters to be applied before collecting the data using all columns in the original parquet files}
+\item{complete}{Logical. If \code{FALSE}, returns selected columns; if \code{TRUE},
+returns all columns after joining the lookup, subject to version removal.}
 
-\item{complete}{By default \code{FALSE} if we only want to bring \code{ref_area},\code{id},\code{time_period},\code{obs_value}. If set to \code{TRUE} brings all columns.}
+\item{ref_period}{Optional character vector of reference periods in the
+format "YYYY_NNNN". \code{NULL} includes all reference periods.}
 
-\item{fill_M}{By default \code{TRUE}, convert obs_status M to obs_value 0 when complete is set to \code{FALSE}.}
+\item{last}{Logical. If \code{TRUE} (default), retrieves only the highest
+version for each country and reference period. If \code{FALSE}, retrieves
+all available versions. The \code{version} column is retained whenever
+\code{last = FALSE}, \code{ref_period = NULL}, or multiple reference periods are
+requested. It is excluded only when \code{last = TRUE} and exactly one
+reference period is specified.}
 }
 \value{
-A tibble containing the selected NFSA data with columns: \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
+A tibble containing the selected NFSA observations, or \code{NULL} if
+no matching files are found.
 }
 \description{
-This function retrieves data from the NFSA database based on specified criteria.
+Retrieves NFSA data from Parquet files, optionally filtering by country,
+table, reference period, and data conditions.
+}
+\details{
+Filenames follow a convention such as
+\code{NASEC_T0801_Q_PL_2026_0002_V0002.parquet}.
+When \code{last = TRUE}, the highest numeric V-version is selected separately
+for each country and reference period. When \code{last = FALSE}, all versions
+are retrieved.
+
+The \code{version} column is included if \code{last = FALSE}, if \code{ref_period = NULL},
+or if more than one distinct reference period is supplied. It is omitted
+only when \code{last = TRUE} and exactly one reference period is requested.
+Note that keeping \code{version} does not automatically deduplicate observations.
 }
 \examples{
 \dontrun{
-# Example usage:
-# Assuming you have data stored in a directory accessible via here("data")
-# and you want to retrieve the newest version of table T0800 for "IT":
-# data <- nfsa_get_data(country = "IT", table = "T0800", type = "new")
-Single filter
-data <- nfsa_get_data(country = "IT", filters = "ref_sector == 'S13'")
-Multiple filters
-data <- nfsa_get_data(country = "IT", filters = c("ref_sector == 'S13'","sto == 'B9'"))
+nfsa_get_data(country = "PL")
+nfsa_get_data(country = "PL", ref_period = "2026_0002")
+nfsa_get_data(country = "PL", ref_period = "2026_0002", last = FALSE)
+nfsa_get_data(
+  country = c("PL", "DE"),
+  ref_period = c("2026_0001", "2026_0002"),
+  last = TRUE
+)
 }
 
 }
