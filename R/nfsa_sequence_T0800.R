@@ -1,79 +1,62 @@
-#' @title Show data or revisions as sequence of accounts
+#' @title Show data or revisions as sequence of accounts for T0800
 #'
-#' @description This function takes T0800 data or revisions, formats the output, and exports it to an Excel file based on a
-#'   specified template. It processes data for selected countries and time periods.
+#' @description This function takes T0800 data if there is not a version `column` or calculates the revision of the two more
+#' recent versions, formats the output, and exports it to an Excel file based on a
+#'   specified template.
 #'
-#' @param country A character vector specifying the countries to process (e.g., "BE", "NL").
-#' @param time_min A numeric value specifying the minimum time period to consider (default: 2020).
-#' @param type Either "values" by default or "vintages" or "versions".
+#' @param data A data frame with T0800 data for one or several countries and years.
 #' @param template A character string specifying the file path to the Excel template file. Default: `M:/nas/Rprod/assets/seq_accounts_T0800.xlsx`.
-#' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here("output","sequence")`.
+#' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here::here()`.
 #'
 #' @return None. The function saves an Excel file to the specified output directory.
 #'   The filename includes the country code(s) and a timestamp. A success message is printed to the console
 #'   indicating the location of the created file, or if there are no revisions.
 #'
-#' @details The function performs the following steps:
-#'   \enumerate{
-#'     \item Reads the data from the parquet files using `arrow::open_dataset()`.
-#'     \item Filters the data based on sector, time period, and other criteria.
-#'     \item Joins the new and previous data based on common identifiers.
-#'     \item Calculates the revisions (new - previous).
-#'     \item Formats the revisions and creates an Excel file using the specified template via `openxlsx`.
-#'     \item Saves the Excel file to the output directory with a timestamped filename.
-#'   }
 #'
 #' @examples
 #' \dontrun{
 #'   # Example usage with specific country and default settings
-#'   nfsa_sequence_T0800(country = "BE", type = "values")
+#'   nfsa_sequence_T0800(data = dataset)
 #'
-#'   # Example usage with multiple countries and custom time period
-#'   nfsa_sequence_T0800(country = c("BE", "NL"), time_min = 2021, type = "vintages")
+#'   # Example usage with specifit output holder
+#'   nfsa_sequence_T0800(data = dataset, output_sel = "C:/tmp/")
 #'
 #' }
-#'
+#' @import dplyr
+#' @import tidyr
+#' @import openxlsx
+#' @import cli
 #' @export
-nfsa_sequence_T0800 <- function(country,
-                                time_min = 2020,
-                                type = "values",
+nfsa_sequence_T0800 <- function(data,
                                 template = "M:/nas/Rprod/assets/seq_accounts_T0800.xlsx",
-                                output_sel = here("output","sequence")) {
+                                output_sel = here::here()) {
 
-lookup <- nfsa::nfsa_sto_lookup
+country <-sort(unique(data$ref_area))
 
+if ("version" %in% names(data) == FALSE){
 
-nfsa_new_data <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "new") |>
-  separate_wider_delim(cols = id,
-                       delim = ".",
-                       names = c("ref_sector", "sto", "accounting_entry")) |>
-  filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M","S14","S15", "S2"),
-         time_period >= time_min) |>
-  na.omit() |>
-  unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
-  select(ref_area,id,time_period,obs_value) |>
-  unite("id",c(time_period,ref_area,id),sep = ".") |>
-  rename(new = obs_value)
+  nfsa_data <- data |>
+    dplyr::mutate(obs_value = round(obs_value,1)) |>
+    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+    tidyr::unite("id",time_period,ref_area,id,sep = ".")
 
-nfsa_prev_data <- nfsa::nfsa_get_data(country = country, table = "T0800", type = "prev") |>
-  separate_wider_delim(cols = id,
-                       delim = ".",
-                       names = c("ref_sector", "sto", "accounting_entry")) |>
-  filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S14", "S15", "S2"),
-         time_period >= time_min) |>
-  na.omit() |>
-  unite("id",c(ref_sector,sto,accounting_entry),sep = ".") |>
-  select(ref_area,id,time_period,obs_value) |>
-  unite("id",c(time_period,ref_area,id),sep = ".") |>
-  rename(prev = obs_value)
+  } else {
 
-if (type == "values"){
+  nfsa_data <- data |>
+    dplyr::arrange(version) |>
+    dplyr::group_by(ref_area,id,time_period) |>
+    dplyr::slice_tail(n=2) |>
+    dplyr::mutate(obs_value = obs_value - dplyr::lag(obs_value,1)) |>
+    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
+    dplyr::ungroup() |>
+    tidyr::unite("id",time_period,ref_area,id,sep = ".") |>
+    dplyr::arrange(desc(version)) |>
+    dplyr::group_by(id) |>
+    dplyr::slice_head(n=1) |>
+    dplyr::select(-version) |>
+    dplyr::ungroup()
 
-  nfsa_data <- nfsa_new_data |>
-    rename(obs_value = new) |>
-    mutate(obs_value = round(obs_value,1)) |>
-    mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value))
-
+}
   wb <- loadWorkbook(template)
   writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
 
@@ -92,59 +75,3 @@ if (type == "values"){
 
 }
 
-if (type == "vintages"){
-  nfsa_data <- dplyr::full_join(nfsa_new_data,nfsa_prev_data,by = dplyr::join_by(id)) |>
-    dplyr::mutate(obs_value = round(new-prev)) |>
-    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
-    dplyr::select(-new,-prev)
-
-  if (nrow(nfsa_data) == 0) {
-    cli::cli_alert_success("No revisions in T0800!")}
-
-
-  wb <- openxlsx::loadWorkbook(template)
-  openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
-
-  if(length(country) == 1) {
-    openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-  }
-
-  if(length(country) > 1) {
-    openxlsx::saveWorkbook(wb, ,file = paste0(output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-  }
-}
-
-if (type == "versions"){
-  nfsa_data <- nfsa_get_data_all(country = country,table = "T0800") |>
-    dplyr::filter(time_period >= time_min) |>
-    dplyr::group_by(ref_area,id,time_period) |>
-    dplyr::arrange(version,.by_group = TRUE) |>
-    dplyr::mutate(obs_value = round(obs_value-dplyr::lag(obs_value))) |>
-    dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
-    dplyr::ungroup() |>
-    tidyr::unite("id",c(version,time_period,ref_area,id),sep = ".")
-
-  if (nrow(nfsa_data) == 0) {
-    cli::cli_alert_success("No revisions in T0800!")}
-
-
-  wb <- openxlsx::loadWorkbook(template)
-  openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
-
-  if(length(country) == 1) {
-    openxlsx::saveWorkbook(wb, file =paste0(output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-  }
-
-  if(length(country) > 1) {
-    openxlsx::saveWorkbook(wb, file = paste0(output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-
-    cli::cli_alert_success(paste0("File created in ",output_sel,"/T0800_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),"_seq_accounts.xlsx"))
-  }
-}
-}
