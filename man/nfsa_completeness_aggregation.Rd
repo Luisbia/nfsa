@@ -5,34 +5,29 @@
 \title{NFSA Completeness Aggregation}
 \usage{
 nfsa_completeness_aggregation(
-  country,
-  requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx",
-  file = FALSE,
-  output_sel = here::here("output", "completeness")
+  data,
+  end_quarter,
+  requirements = "M:/nas/Rprod/assets/completeness_aggregation.xlsx"
 )
 }
 \arguments{
-\item{country}{A character vector specifying the country(ies) codes (e.g., "BE").}
+\item{data}{A data frame containing \code{ref_area}, \code{id},
+\code{time_period} and \code{obs_value}.}
 
-\item{requirements}{A link to the file to be checked, ny default \verb{""M:/nas/Rprod/assets/completeness_aggregation.xlsx"}.}
+\item{end_quarter}{Last quarter that should have been reported (e.g.: "2026-Q3")}
 
-\item{file}{If a file should be written. FALSE by default which will open a temporary Excel file.}
-
-\item{output_sel}{A character string specifying the output directory for the completeness report.
-Defaults to \code{here::here("output", "completeness")}.}
+\item{requirements}{A link to the file to be checked, by default \verb{""M:/nas/Rprod/assets/completeness_aggregation.xlsx"}.}
 }
 \value{
 A data frame containing the missing data points. Returns an empty dataframe if data requirements are fulfilled.
 }
 \description{
 This function checks the completeness of NFSA data for a given country for Table 801,
-comparing it against predefined data requirements. It identifies missing data points and
-exports them to an Excel file.
+comparing it against predefined data requirements. .
 }
 \examples{
 \dontrun{
-# Check completeness for Belgium (BE) for table T0801 and save the report to the default output directory
-missing_data <- nfsa_completeness_aggregation(country = "BE")
+missing_data <- nfsa_completeness_aggregation(dat)
 }
 
 }
