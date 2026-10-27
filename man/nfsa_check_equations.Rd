@@ -2,7 +2,7 @@
 % Please edit documentation in R/nfsa_check_equations.R
 \name{nfsa_check_equations}
 \alias{nfsa_check_equations}
-\title{Validate accounting equations and export consolidated failed checks}
+\title{Validate accounting equations using vectorized country-period evaluation}
 \usage{
 nfsa_check_equations(
   data_input,
@@ -19,21 +19,10 @@ may optionally contain a \code{Left}, \code{Mid}, or \code{Right} fill column.}
 
 \item{threshold}{Non-negative tolerance used to determine whether an
 equation is satisfied. Defaults to 3.}
-
-\item{output_dir}{Directory in which the diagnostic Excel workbook is saved.
-Defaults to \code{getwd()}.}
 }
 \value{
-Invisibly returns the path to a workbook with one \code{Validation} sheet.
-Each row represents a failed check for one \code{ref_area} and \code{time_period}.
-Includes evaluated left and right sides and the component values used
-on each side as arithmetic expressions (\code{lhs_values}, \code{rhs_values}).
-Output filenames include a creation timestamp (\code{YYYYMMDD_HHMMSS}).
-For a single input \code{ref_area}, its code prefixes the filename; otherwise
-the filename has no country prefix.
-Missing-variable checks, unparsable equations, and groups with conflicting
-duplicate observations are skipped, as in the original function.
+a data frame with the rules that do not satisfy the equations
 }
 \description{
-Validate accounting equations and export consolidated failed checks
+Validate accounting equations using vectorized country-period evaluation
 }

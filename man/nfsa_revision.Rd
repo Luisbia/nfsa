@@ -5,36 +5,25 @@
 \title{Detect and Report Revisions in NFSA Data Between Versions}
 \usage{
 nfsa_revision(
-  country,
-  table = c("T0800", "T0801", "T0801SA"),
-  type = c("vintage", "version"),
-  abs_threshold = NULL,
-  rel_threshold = 0,
-  output_sel = here::here("output", "revisions"),
-  ...
+  data = data,
+  abs_threshold = 100,
+  rel_threshold = 5,
+  gdp_threshold = 1
 )
 }
 \arguments{
-\item{country}{A character vector specifying the countries to analyze (ISO2 codes).}
-
-\item{table}{A character string specifying which table to analyze. Must be one of: "T0800", "T0801", or "T0801SA".}
-
-\item{type}{Either "vintage" to compare with the last version of the previous period, or "version"
-to compare with the previous version of this period. Defaults to "vintage".}
+\item{data}{A data frame with the columns \code{ref_area}, \code{version}, \code{id},\code{time_period} and \code{obs_value}.}
 
 \item{abs_threshold}{A numeric value specifying the absolute threshold for revision detection.
 Revisions with an absolute difference greater than this threshold are flagged.
-If NULL (default), automatically sets to 100 for T0800 and 10 for T0801/T0801SA.}
+Default is 100}
 
-\item{rel_threshold}{A numeric value specifying the relative threshold (percentage of GDP) for
+\item{rel_threshold}{A numeric value specifying the relative threshold for revision detection.
+Revisions with a relative difference greater than this threshold are flagged. Defaults to 5\%.}
+
+\item{gdp_threshold}{A numeric value specifying the gdp threshold (percentage of GDP) for
 revision detection. Revisions with a relative difference greater than this threshold are flagged.
-Defaults to 0.}
-
-\item{output_sel}{Path to the directory where the output Excel file containing the revisions will be saved.
-Defaults to \code{here("output", "revisions")}.}
-
-\item{...}{Additional filter arguments passed to \code{nfsa_get_data()}. Can be one or more filter expressions
-applied to columns in the original parquet files (e.g., \code{filters = "ref_sector == 'S13'"}).}
+Defaults to 2\%.}
 }
 \value{
 A data frame containing the identified revisions with columns for reference area, sector,
@@ -58,5 +47,4 @@ nfsa_revision(country = c("ES", "IT"), table = "T0801",
 # Compare with previous version instead of vintage:
 nfsa_revision(country = "DE", table = "T0801SA", type = "version")
 }
-
 }

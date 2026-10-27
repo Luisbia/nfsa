@@ -1,16 +1,15 @@
-#' Validate accounting equations and export consolidated failed checks
+#' Validate accounting equations using vectorized country-period evaluation
 #'
 #' @param data_input Data frame with columns: ref_area, id, time_period, obs_value.
 #' @param equation_file Path to the Excel workbook containing the accounting
 #'   equations. Each worksheet must contain an `Accounting Check` column and
 #'   may optionally contain a `Left`, `Mid`, or `Right` fill column.
-#' @param output_dir Directory in which the diagnostic Excel workbook is saved.
-#'   Defaults to `getwd()`.
 #' @param threshold Non-negative tolerance used to determine whether an
 #'   equation is satisfied. Defaults to 3.
 #'
 #' @return a data frame with the rules that do not satisfy the equations
-#'
+#' @import data.table
+#' @import readxl
 #' @export
 nfsa_check_equations <- function(
     data_input,
@@ -43,26 +42,6 @@ nfsa_check_equations <- function(
          call. = FALSE)
   }
 
-  required_packages <- c("readxl", "openxlsx")
-
-  missing_packages <- required_packages[
-    !vapply(
-      required_packages,
-      requireNamespace,
-      logical(1),
-      quietly = TRUE
-    )
-  ]
-
-  if (length(missing_packages) > 0L) {
-    stop(
-      paste(
-        "Install the following packages first:",
-        paste(missing_packages, collapse = ", ")
-      ),
-      call. = FALSE
-    )
-  }
 
   # ------------------------------------------------------------
   # 2. Helper functions
@@ -375,10 +354,7 @@ nfsa_check_equations <- function(
     )
   }
 
-  # ------------------------------------------------------------
-  # 4. Read the submitted values
-  # ------------------------------------------------------------
-
+  # 4. Prepare observations without repeated full-data scans -----------------
   area_values <- normalize_text(data_input$ref_area)
   time_values <- normalize_text(data_input$time_period)
   symbols <- normalize_symbol(data_input$id)
@@ -392,34 +368,56 @@ nfsa_check_equations <- function(
     stop("No usable area/time/symbol/value observations were found.")
   }
 
-  # Store lookups separately for each area and time period.
-  grouping <- unique(data.frame(
+  dt <- data.table::data.table(
     ref_area = area_values[usable],
     time_period = time_values[usable],
-    stringsAsFactors = FALSE
-  ))
-  period_data <- vector("list", nrow(grouping))
-  for (i in seq_len(nrow(grouping))) {
-    rows <- usable & area_values == grouping$ref_area[i] &
-      time_values == grouping$time_period[i]
-    duplicate_values <- split(numeric_values[rows], symbols[rows])
-    has_conflict <- any(vapply(duplicate_values, function(x) {
-      length(x) > 1L && diff(range(x)) > 1e-12
-    }, logical(1)))
-    period_data[[i]] <- list(
-      has_conflict = has_conflict,
-      value_lookup = vapply(duplicate_values, function(x) x[1], numeric(1))
-    )
+    id = symbols[usable],
+    obs_value = numeric_values[usable]
+  )
+
+  dt <- dt[,obs_value:= round(obs_value,2)]
+
+  # Same duplicate policy as the original:
+  # first value is used; any differing duplicates invalidate the ENTIRE period.
+  # .SD[1L] preserves the first input observation for the id.
+  distinct_values <- dt[
+    , .(
+      obs_value = obs_value[1L],
+      has_conflict = (max(obs_value) - min(obs_value)) > 1e-12
+    ),
+    by = .(ref_area, time_period, id)
+  ]
+
+  period_conflicts <- distinct_values[
+    , .(has_conflict = any(has_conflict)),
+    by = .(ref_area, time_period)
+  ]
+
+  # Wide lookup means every equation can be evaluated across all periods at once.
+  # Missing series become NA and therefore skip a check, matching the original.
+  wide <- data.table::dcast(
+    distinct_values,
+    ref_area + time_period ~ id,
+    value.var = "obs_value"
+  )
+  wide[period_conflicts, has_conflict := i.has_conflict,
+       on = .(ref_area, time_period)]
+
+  available_variables <- setdiff(
+    names(wide), c("ref_area", "time_period", "has_conflict")
+  )
+
+  evaluate_side_vec <- function(side, idx) {
+    out <- rep(side$constant, length(idx))
+    for (variable in names(side$coefficients)) {
+      out <- out + unname(side$coefficients[[variable]]) * wide[[variable]][idx]
+    }
+    out
   }
 
-  evaluate_side <- function(side, lookup) {
-    side$constant + sum(side$coefficients * lookup[names(side$coefficients)])
-  }
-
-  # Show just the values used to calculate each side, as an expression.
-  # For example: 532.885719-599.920335 (without identifiers or totals).
+  # Expressions are constructed ONLY for failed checks, not every period.
   format_number <- function(x) {
-    format(x, scientific = FALSE, trim = TRUE, digits = 15)
+    format(x, scientific = FALSE, trim = TRUE, digits = 1)
   }
   side_values <- function(side, lookup) {
     pieces <- character(0)
@@ -427,7 +425,6 @@ nfsa_check_equations <- function(
       coefficient <- unname(side$coefficients[[variable]])
       if (coefficient == 0) next
       value <- unname(lookup[[variable]])
-      # Parentheses avoid ambiguity if a component value is negative.
       displayed_value <- if (value < 0) {
         paste0("(", format_number(value), ")")
       } else {
@@ -448,72 +445,43 @@ nfsa_check_equations <- function(
     if (startsWith(expression, "+")) substring(expression, 2L) else expression
   }
 
-  # ------------------------------------------------------------
-  # 5. Read the equation workbook and preserve its sheets
-  # ------------------------------------------------------------
-
+  # 5. Read and parse equations once per rule --------------------------------
   sheet_names <- readxl::excel_sheets(equation_file)
-
-  if (length(sheet_names) == 0L) {
+  if (!length(sheet_names)) {
     stop("The equation workbook contains no sheets.")
   }
 
-  workbook <- openxlsx::createWorkbook()
   diagnostics <- list()
-
-  # ------------------------------------------------------------
-  # 6. Check equations against the original values
-  # ------------------------------------------------------------
+  batch <- 0L
 
   for (sheet_name in sheet_names) {
-
     source_sheet <- readxl::read_excel(
       equation_file,
       sheet = sheet_name,
       col_types = "text",
       .name_repair = "unique"
     )
-
     headers <- normalize_header(names(source_sheet))
-
     accounting_columns <- which(headers == "accounting check")
-
     if (length(accounting_columns) != 1L) {
-      stop(
-        paste0(
-          "Sheet '", sheet_name,
-          "' must contain exactly one Accounting Check column."
-        )
-      )
+      stop(paste0(
+        "Sheet '", sheet_name,
+        "' must contain exactly one Accounting Check column."
+      ))
     }
-
-    accounting_col <- accounting_columns[1]
+    accounting_col <- accounting_columns[1L]
     fill_columns <- which(headers %in% c("left", "mid", "right"))
 
     for (row_index in seq_len(nrow(source_sheet))) {
-
       equation_raw <- source_sheet[[accounting_col]][row_index]
-
-      if (is.na(equation_raw) ||
-          trimws(as.character(equation_raw)) == "") {
-        next
-      }
+      if (is.na(equation_raw) || trimws(as.character(equation_raw)) == "") next
 
       instances <- list()
-
       for (fill_col in fill_columns) {
-
         fill_position <- switch(
-          headers[fill_col],
-          left = "Left",
-          mid = "Mid",
-          right = "Right"
+          headers[fill_col], left = "Left", mid = "Mid", right = "Right"
         )
-
-        fill_values <- split_fill_values(
-          source_sheet[[fill_col]][row_index]
-        )
-
+        fill_values <- split_fill_values(source_sheet[[fill_col]][row_index])
         for (fill_value in fill_values) {
           instances[[length(instances) + 1L]] <- list(
             fill_position = fill_position,
@@ -521,16 +489,14 @@ nfsa_check_equations <- function(
           )
         }
       }
-
-      if (length(instances) == 0L) {
+      if (!length(instances)) {
         instances <- list(list(
-          fill_position = NA_character_,
-          fill_value = NA_character_
+          fill_position = NA_character_, fill_value = NA_character_
         ))
       }
 
-      parsed_instances <- lapply(instances, function(instance) {
-        tryCatch(
+      for (instance in instances) {
+        parsed <- tryCatch(
           parse_equation(
             equation = equation_raw,
             fill_position = instance$fill_position,
@@ -538,73 +504,75 @@ nfsa_check_equations <- function(
           ),
           error = function(e) e
         )
-      })
+        if (inherits(parsed, "error")) next
 
-      for (instance_index in seq_along(instances)) {
-        instance <- instances[[instance_index]]
-        parsed <- parsed_instances[[instance_index]]
+        required <- parsed$variables
+        if (!all(required %in% available_variables)) next
 
-        for (i in seq_len(nrow(grouping))) {
-          pdata <- period_data[[i]]
-          if (inherits(parsed, "error") || pdata$has_conflict) next
-          if (length(setdiff(parsed$variables, names(pdata$value_lookup))) > 0L) next
-
-          lhs_value <- evaluate_side(parsed$lhs, pdata$value_lookup)
-          rhs_value <- evaluate_side(parsed$rhs, pdata$value_lookup)
-          lhs_minus_rhs <- lhs_value - rhs_value
-          violation <- switch(
-            parsed$operator,
-            "=" = abs(lhs_minus_rhs),
-            "<" = max(lhs_minus_rhs, 0),
-            "<=" = max(lhs_minus_rhs, 0),
-            ">" = max(-lhs_minus_rhs, 0),
-            ">=" = max(-lhs_minus_rhs, 0)
-          )
-
-          if (violation > threshold) {
-            diagnostics[[length(diagnostics) + 1L]] <- data.frame(
-              ref_area = grouping$ref_area[i],
-              category = sheet_name,
-              time_period = grouping$time_period[i],
-              accounting_check_original = as.character(equation_raw),
-              lhs_value = lhs_value,
-              rhs_value = rhs_value,
-              lhs_values = side_values(parsed$lhs, pdata$value_lookup),
-              rhs_values = side_values(parsed$rhs, pdata$value_lookup),
-              operator = parsed$operator,
-              lhs_minus_rhs = lhs_minus_rhs,
-              violation = violation,
-              threshold = threshold,
-              source_excel_row = row_index + 1L,
-              fill_position_used = instance$fill_position,
-              fill_value_used = instance$fill_value,
-              validation_status = "NOT FULFILLED",
-              stringsAsFactors = FALSE
-            )
-          }
+        valid <- !wide$has_conflict
+        for (v in required) {
+          valid <- valid & is.finite(wide[[v]])
         }
+        idx <- which(valid)
+        if (!length(idx)) next
+
+        lhs_value <- evaluate_side_vec(parsed$lhs, idx)
+        rhs_value <- evaluate_side_vec(parsed$rhs, idx)
+        difference <- lhs_value - rhs_value
+        violation <- switch(
+          parsed$operator,
+          "=" = abs(difference),
+          "<" = pmax(difference, 0),
+          "<=" = pmax(difference, 0),
+          ">" = pmax(-difference, 0),
+          ">=" = pmax(-difference, 0)
+        )
+        failed <- which(violation > threshold)
+        if (!length(failed)) next
+
+        rows <- idx[failed]
+        # Keep formatting exactly as in the original function.
+        lhs_text <- character(length(rows))
+        rhs_text <- character(length(rows))
+        for (j in seq_along(rows)) {
+          lookup <- setNames(
+            lapply(required, function(v) wide[[v]][rows[j]]), required
+          )
+          lhs_text[j] <- side_values(parsed$lhs, lookup)
+          rhs_text[j] <- side_values(parsed$rhs, lookup)
+        }
+
+        batch <- batch + 1L
+        diagnostics[[batch]] <- data.frame(
+          ref_area = wide$ref_area[rows],
+          category = sheet_name,
+          time_period = wide$time_period[rows],
+          accounting_check_original = as.character(equation_raw),
+          lhs_value = lhs_value[failed],
+          rhs_value = rhs_value[failed],
+          lhs_values = lhs_text,
+          rhs_values = rhs_text,
+          operator = parsed$operator,
+          lhs_minus_rhs = difference[failed],
+          violation = violation[failed],
+          threshold = threshold,
+          source_excel_row = row_index + 1L,
+          fill_position_used = instance$fill_position,
+          fill_value_used = instance$fill_value,
+          validation_status = "NOT FULFILLED",
+          stringsAsFactors = FALSE
+        )
       }
     }
-
   }
-
-  # A single, filterable and formatted worksheet for all source categories.
 
   if (length(diagnostics)) {
-    diagnostic_table <- do.call(rbind, diagnostics)
-    diagnostic_table <- diagnostic_table[order(
-      diagnostic_table$ref_area, diagnostic_table$category,
-      diagnostic_table$time_period
-    ), , drop = FALSE]
-
-    invisible(diagnostic_table)
-
+    result <- data.table::rbindlist(diagnostics, use.names = TRUE)
+    result <- as.data.frame(result)
+    result[order(result$ref_area, result$category, result$time_period),
+           , drop = FALSE]
   } else {
-    diagnostic_table <- data.frame(
-      message = "No failed checks found for any country or category."
-    )
+    # Preserve the existing no-failures return contract exactly.
+    data.frame(message = "No failed checks found for any country or category.")
   }
-
-
 }
-

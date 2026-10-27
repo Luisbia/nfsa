@@ -29,7 +29,6 @@ Annual time periods must be expressed as "YYYY".}
 A tibble containing discrepancies exceeding the thresholds,
 with the following columns:
 }
-}
 \description{
 Compares quarterly data (T0801) with annual data
 and identifies discrepancies exceeding a specified

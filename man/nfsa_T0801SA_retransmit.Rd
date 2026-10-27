@@ -4,7 +4,7 @@
 \alias{nfsa_T0801SA_retransmit}
 \title{#' Identify the need to ask for a new T0801SA}
 \usage{
-nfsa_T0801SA_retransmit(country_sel = "SK")
+nfsa_T0801SA_retransmit(country, ref_period)
 }
 \arguments{
 \item{country_sel}{a character string for an individual country.}

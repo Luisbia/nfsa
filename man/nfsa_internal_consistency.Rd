@@ -6,7 +6,7 @@
 \usage{
 nfsa_internal_consistency(
   dataset,
-  output_sel = here::here("output", "internal"),
+  output_sel = here::here(),
   threshold = 1,
   rounding = 1,
   clean_NA = TRUE
