@@ -9,15 +9,7 @@
 #' @param threshold Non-negative tolerance used to determine whether an
 #'   equation is satisfied. Defaults to 3.
 #'
-#' @return Invisibly returns the path to a workbook with one `Validation` sheet.
-#'   Each row represents a failed check for one `ref_area` and `time_period`.
-#'   Includes evaluated left and right sides and the component values used
-#'   on each side as arithmetic expressions (`lhs_values`, `rhs_values`).
-#'   Output filenames include a creation timestamp (`YYYYMMDD_HHMMSS`).
-#'   For a single input `ref_area`, its code prefixes the filename; otherwise
-#'   the filename has no country prefix.
-#'   Missing-variable checks, unparsable equations, and groups with conflicting
-#'   duplicate observations are skipped, as in the original function.
+#' @return a data frame with the rules that do not satisfy the equations
 #'
 #' @export
 nfsa_check_equations <- function(

@@ -57,10 +57,10 @@
 #'
 #' @export
 nfsa_internal_consistency <- function(dataset,
-                                            output_sel = here::here("output", "internal"),
-                                            threshold = 1,
-                                            rounding = 1,
-                                            clean_NA = TRUE) {
+                                      output_sel = here::here(),
+                                      threshold = 1,
+                                      rounding = 1,
+                                      clean_NA = TRUE) {
 
   # Helper: Ensures specific columns exist to prevent "Column not found" crashes
   # We fill with NA as requested, not 0.

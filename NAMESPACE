@@ -9,16 +9,13 @@ export(nfsa_T0801SA_retransmit)
 export(nfsa_T0801_BOP)
 export(nfsa_T0801_GFS)
 export(nfsa_T0801_QNA)
-export(nfsa_T0801_T0800)
-export(nfsa_T0801_T0801SA)
 export(nfsa_balancing)
 export(nfsa_bop_eui)
 export(nfsa_check_equations)
-export(nfsa_clean_output_files)
 export(nfsa_comext)
-export(nfsa_completeness)
+export(nfsa_completeness_T0801)
+export(nfsa_completeness_T0801SA)
 export(nfsa_completeness_aggregation)
-export(nfsa_completeness_regulation_T0801SA)
 export(nfsa_get_data)
 export(nfsa_get_data_validated)
 export(nfsa_internal_consistency)
@@ -28,6 +25,7 @@ export(nfsa_move_convert)
 export(nfsa_outliers)
 export(nfsa_percapita)
 export(nfsa_plots)
+export(nfsa_quartely_annual)
 export(nfsa_read_eurobase)
 export(nfsa_read_excel_template)
 export(nfsa_read_matis)
@@ -53,6 +51,8 @@ export(nfsa_write_excel_template_T0801)
 import(cli)
 import(dplyr)
 import(ggplot2)
+import(janitor)
+import(readxl)
 import(stringr)
 import(tibble)
 import(tidyr)
@@ -67,9 +67,7 @@ importFrom(dplyr,
   all_of,
   any_of,
   arrange,
-  bind_rows,
   collect,
-  distinct,
   filter,
   full_join,
   group_by,
@@ -78,12 +76,9 @@ importFrom(dplyr,
   join_by,
   left_join,
   mutate,
-  n,
   pull,
-  rename,
   select,
   slice_max,
-  summarise,
   ungroup
 )
 importFrom(fs,
@@ -144,7 +139,6 @@ importFrom(tibble,
   tibble
 )
 importFrom(tidyr,
-  crossing,
   drop_na,
   nest,
   pivot_longer,

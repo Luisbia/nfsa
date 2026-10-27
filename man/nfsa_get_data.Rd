@@ -6,12 +6,13 @@
 \usage{
 nfsa_get_data(
   input_sel = "M:/nas/Rprod/db/",
-  country,
+  country = "PL",
   table = "T0801",
   filters = NULL,
   complete = FALSE,
   ref_period = NULL,
-  last = TRUE
+  last = TRUE,
+  fill_M = TRUE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ all available versions. The \code{version} column is retained whenever
 \code{last = FALSE}, \code{ref_period = NULL}, or multiple reference periods are
 requested. It is excluded only when \code{last = TRUE} and exactly one
 reference period is specified.}
+
+\item{fill_M}{By default \code{TRUE}, convert obs_status M to obs_value 0 when complete is set to \code{FALSE}.}
 }
 \value{
 A tibble containing the selected NFSA observations, or \code{NULL} if

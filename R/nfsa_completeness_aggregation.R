@@ -15,6 +15,10 @@
 #' missing_data <- nfsa_completeness_aggregation(dat)
 #' }
 #'
+#' @import dplyr
+#' @import janitor
+#' @import tidyr
+#' @import readxl
 #' @export
 nfsa_completeness_aggregation <- function(data,
                                           end_quarter,
@@ -68,7 +72,7 @@ nfsa_completeness_aggregation <- function(data,
   req <- dplyr::bind_rows(req_smallEA, req_bigEA, req_bigEU) |>
     dplyr::filter(ref_area %in% country)%>%
     tidyr::crossing(., time_period) |>
-    select(ref_area,id,time_period)
+    dplyr::select(ref_area,id,time_period)
 
   rm(req_smallEA,req_bigEA, req_bigEU, time_period)
 
@@ -76,13 +80,13 @@ nfsa_completeness_aggregation <- function(data,
 
   dat <- data |>
     nfsa::nfsa_separate_id() |>
-    filter(time_period >= "1999-Q1",
+    dplyr::filter(time_period >= "1999-Q1",
            ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
     nfsa_unite_id() %>%
-    left_join(req,., by = join_by(ref_area,id, time_period))
+    dplyr::left_join(req,., by = join_by(ref_area,id, time_period))
 
   dat_missing <- dat |>
-    filter(is.na(obs_value))
+    dplyr::filter(is.na(obs_value))
 
 
   if (nrow(dat_missing) == 0) {
@@ -91,15 +95,15 @@ nfsa_completeness_aggregation <- function(data,
 
 
     dat_missing <- dat_missing |>
-      mutate(
+      dplyr::mutate(
         from = min(time_period),
         to = max(max(time_period)),.by = c(id)
       ) |>
-      select(-time_period) |>
-      distinct() |>
-      rename(missing_series = id) |>
-      select(ref_area,missing_series,from,to) |>
-      arrange(ref_area)
+      dplyr::select(-time_period) |>
+      dplyr::distinct() |>
+      dplyr::rename(missing_series = id) |>
+      dplyr::select(ref_area,missing_series,from,to) |>
+      dplyr::arrange(ref_area)
 
   return(dat_missing)
   }

@@ -16,10 +16,14 @@
 #' nfsa_completeness_regulation_T0801SA(country = "DE",output_sel = "my_output")
 
 #' }
+#' @import dplyr
+#' @import janitor
+#' @import tidyr
+#' @import readxl
 #' @export
-nfsa_completeness_regulation_T0801SA <- function(data,
-                                                 end_quarter,
-                                                 requirements = "M:/nas/Rprod/assets/completeness_T0801SA.xlsx") {
+nfsa_completeness_T0801SA <- function(data,
+                                      end_quarter,
+                                      requirements = "M:/nas/Rprod/assets/completeness_T0801SA.xlsx") {
 
   country <- unique(data$ref_area)
 
@@ -54,7 +58,7 @@ nfsa_completeness_regulation_T0801SA <- function(data,
   req <- dplyr::bind_rows(req_small, req_big) |>
     dplyr::filter(ref_area %in% country)%>%
     tidyr::crossing(., time_period) |>
-    select(ref_area,id,time_period)
+    dplyr::select(ref_area,id,time_period)
 
   rm(req_small,req_big, time_period)
 
@@ -63,27 +67,27 @@ nfsa_completeness_regulation_T0801SA <- function(data,
     dplyr::filter(time_period >= "1999-Q1",
                   ref_sector %in% c("S1", "S1N", "S11", "S12", "S13", "S1M", "S2")) |>
     nfsa_unite_id() %>%
-    left_join(req,., by = join_by(ref_area,id, time_period))
+    dplyr::left_join(req,., by = join_by(ref_area,id, time_period))
 
 
   dat_missing <- dat |>
     dplyr::filter(is.na(obs_value))|>
-    select(ref_area,id, time_period)
+    dplyr::select(ref_area,id, time_period)
 
   if (nrow(dat_missing) == 0) {
     cli::cli_inform(paste0("Data requirements for T0801SA are fulfilled" ))
   } else  {
 
     dat_missing <- dat_missing |>
-      mutate(
+      dplyr::mutate(
         from = min(time_period),
         to = max(max(time_period))
       ) |>
-      select(-time_period) |>
-      distinct() |>
-      rename(missing_series = id) |>
-      select(ref_area,missing_series,from,to) |>
-      arrange(ref_area)
+      dplyr::select(-time_period) |>
+      dplyr::distinct() |>
+      dplyr::rename(missing_series = id) |>
+      dplyr::select(ref_area,missing_series,from,to) |>
+      dplyr::arrange(ref_area)
 
   return(dat_missing)
   }

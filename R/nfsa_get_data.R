@@ -23,6 +23,7 @@
 #'   using Arrow before collecting the data.
 #' @param complete Logical. If `FALSE`, returns selected columns; if `TRUE`,
 #'   returns all columns after joining the lookup, subject to version removal.
+#' @param fill_M By default `TRUE`, convert obs_status M to obs_value 0 when complete is set to `FALSE`.
 #' @param ref_period Optional character vector of reference periods in the
 #'   format "YYYY_NNNN". `NULL` includes all reference periods.
 #' @param last Logical. If `TRUE` (default), retrieves only the highest
@@ -55,12 +56,13 @@
 #' @export
 nfsa_get_data <- function(
     input_sel = "M:/nas/Rprod/db/",
-    country ,
+    country = "PL",
     table = "T0801",
     filters = NULL,
     complete = FALSE,
     ref_period = NULL,
-    last = TRUE
+    last = TRUE,
+    fill_M = TRUE
 ) {
   # 1. Setup configuration ------------------------------------------
   cfg_map <- list(
@@ -77,6 +79,10 @@ nfsa_get_data <- function(
   }
   if (!is.logical(complete) || length(complete) != 1L || is.na(complete)) {
     cli::cli_abort("`complete` must be TRUE or FALSE.")
+  }
+
+  if (!is.logical(fill_M) || length(fill_M) != 1L || is.na(fill_M)) {
+    cli::cli_abort("`fill_M` must be TRUE or FALSE.")
   }
 
   keep_version <- !last || is.null(ref_period) ||
@@ -158,8 +164,16 @@ nfsa_get_data <- function(
 
   # 7. Format output -------------------------------------------------
   if (!complete) {
+
+    if (fill_M == TRUE) {
+      res <- res |>
+        dplyr::mutate(
+          obs_value = dplyr::if_else(obs_status %in% "M", 0, obs_value)
+        )
+    }
     res <- res |>
       tidyr::drop_na(obs_value)
+
     if (keep_version) {
       res <- dplyr::select(res, ref_area, version, id, time_period, obs_value)
     } else {
@@ -174,4 +188,3 @@ nfsa_get_data <- function(
 
   return(res)
 }
-

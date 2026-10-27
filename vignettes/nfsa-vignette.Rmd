@@ -12,6 +12,7 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  eval = FALSE,
   comment = "#>"
 )
 ```
@@ -143,7 +144,7 @@ nfsa_get_data(country = "IT",
 
 ```
 
-By default observation values with `obs_status M` are converted to zero unless `complete = TRUE`, but we can change the behavior with the fill_M argument.
+By default observation values with `obs_status M` are converted to zero, but we can change the behavior with the fill_M argument.
 
 ```{r 12}
 nfsa_get_data(country = "EE", 
@@ -168,7 +169,7 @@ nfsa_get_data_validated(country = "IT",
   n=16
 )
 ```
-
+yu
 ### How the server is populated with country files
 
 The function `nfsa_move_convert()` scans the folder `M:/nas/Incoming_SDMX_files/` for the country, table and time period we choose. If it finds a file that is not in `N:/nas/Rprod/db` it converts the xml file to parquet and moves it.
@@ -262,6 +263,7 @@ nfsa_plots(version1 = new_data,
 Apart from `nfsa_plots()` we can use `nfsa_theme()` and `nfsa_scale_colour()` and  `nfsa_scale_fill()` to quickly improve ggplot2 defaults.
 
 ```{r 22}
+library(ggplot2)
 ggplot(new_data,aes(x = lubridate::yq(time_period),
                 y = obs_value,
                 colour = ref_area))+
@@ -277,5 +279,36 @@ ggplot(new_data,aes(x = lubridate::yq(time_period),
                       breaks = scales::pretty_breaks(n = 4)))
   
 ```
+
+## Completeness
+
+There are three completeness functions (maybe  a fourth will be added in the near future). Two the completeness of tables T0801 and T0801 against the regulation requirements. The third one checks that all data needed in T0801 for the estimation is available, and there is no need to do imputations. 
+
+In all cases they work similarly, the y check the available data against a parameter file.
+
+```{r 23}
+dat <- nfsa_get_data(country = c("EE", "PL"),
+                     table = "T0801SA",
+                     ref_period = "2026_0002")
+
+nfsa_completeness_T0801SA(data = dat,
+                        end_quarter = "2026-Q2")
+```
+
+## Quarterly vs Annual
+
+## Internal consistency
+
+## Cross-domain consistency
+
+## Revisions
+
+## Compilation European aggregates
+
+## Seasonality
+
+## Helper functions
+
+
 
 
