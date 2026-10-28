@@ -2,26 +2,20 @@
 % Please edit documentation in R/nfsa_sequence_T0801.R
 \name{nfsa_sequence_T0801}
 \alias{nfsa_sequence_T0801}
-\title{Show data or revisions as sequence of accounts}
+\title{Show data or revisions as sequence of accounts for T0801}
 \usage{
 nfsa_sequence_T0801(
-  country,
-  time_min = "2020-Q1",
-  type = "values",
+  data,
   template = "M:/nas/Rprod/assets/seq_accounts_T0801.xlsx",
-  output_sel = here::here("output", "sequence")
+  output_sel = here::here()
 )
 }
 \arguments{
-\item{country}{A character vector specifying the countries to process (e.g., "BE", "NL").}
-
-\item{time_min}{A numeric value specifying the minimum time period to consider (default: "2020-Q1").}
-
-\item{type}{Either "values" by default or "vintages" or "versions".}
+\item{data}{A data frame with T0800 data for one or several countries and years.}
 
 \item{template}{A character string specifying the file path to the Excel template file. Default: \verb{M:/nas/Rprod/assets/seq_accounts_T0801.xlsx}.}
 
-\item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here("output","sequence")}.}
+\item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here::here()}.}
 }
 \value{
 None. The function saves an Excel file to the specified output directory.
@@ -29,28 +23,17 @@ The filename includes the country code(s) and a timestamp. A success message is 
 indicating the location of the created file, or if there are no revisions.
 }
 \description{
-This function takes T0801 data or revisions, formats the output, and exports it to an Excel file based on a
-specified template. It processes data for selected countries and time periods.
-}
-\details{
-The function performs the following steps:
-\enumerate{
-\item Reads the data from the parquet files using \code{arrow::open_dataset()}.
-\item Filters the data based on sector, time period, and other criteria.
-\item Joins the new and previous data based on common identifiers.
-\item Calculates the revisions (new - previous).
-\item Formats the revisions and creates an Excel file using the specified template via \code{openxlsx}.
-\item Saves the Excel file to the output directory with a timestamped filename.
-}
+This function takes T0800 data if there is not a version \code{column} or calculates the revision of the two more
+recent versions, formats the output, and exports it to an Excel file based on a
+specified template.
 }
 \examples{
 \dontrun{
   # Example usage with specific country and default settings
-  nfsa_sequence_T0801(country = "BE", type = "values")
+  nfsa_sequence_T0801(data = dataset)
 
-  # Example usage with multiple countries and custom time period
-  nfsa_sequence_T0801(country = c("BE", "NL"), time_min = 2021, type = "revisions")
+  # Example usage with specifit output holder
+  nfsa_sequence_T0801(data = dataset, output_sel = "C:/tmp/")
 
 }
-
 }

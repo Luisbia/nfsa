@@ -6,8 +6,8 @@
 \usage{
 nfsa_get_data(
   input_sel = "M:/nas/Rprod/db/",
-  country = "PL",
-  table = "T0801",
+  country,
+  table,
   filters = NULL,
   complete = FALSE,
   ref_period = NULL,

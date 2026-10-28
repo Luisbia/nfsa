@@ -47,6 +47,7 @@ if ("version" %in% names(data) == FALSE){
     dplyr::group_by(ref_area,id,time_period) |>
     dplyr::slice_tail(n=2) |>
     dplyr::mutate(obs_value = obs_value - dplyr::lag(obs_value,1)) |>
+    dplyr::mutate(obs_value = round(obs_value,1)) |>
     dplyr::mutate(obs_value = ifelse(is.na(obs_value), ':', obs_value)) |>
     dplyr::ungroup() |>
     tidyr::unite("id",time_period,ref_area,id,sep = ".") |>
