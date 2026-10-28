@@ -122,12 +122,10 @@ q_data_a_data <- q_data |>
 if(nrow(q_data_a_data) == 0) {
   cli::cli_alert_success("Quarterly an annual data are consistent within the chosen thresholds")
 
-return(q_data_a_data)
-
-    } else {
+    }
 
 return(q_data_a_data)
-  }
+
 }
 
 

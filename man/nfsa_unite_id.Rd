@@ -31,5 +31,4 @@ result <- nfsa_unite_id(df)
 
 # Print the result
 print(result)
-
 }

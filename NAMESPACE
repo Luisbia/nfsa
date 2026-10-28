@@ -52,7 +52,11 @@ import(data.table)
 import(dplyr)
 import(ggplot2)
 import(janitor)
+import(lubridate)
 import(openxlsx)
+import(purrr)
+import(readr)
+import(readsdmx)
 import(readxl)
 import(stringr)
 import(tibble)
@@ -60,7 +64,8 @@ import(tidyr)
 importFrom(arrow,open_dataset)
 importFrom(cli,
   cli_abort,
-  cli_alert_danger
+  cli_alert_danger,
+  cli_inform
 )
 importFrom(data.table,fread)
 importFrom(dplyr,
@@ -114,7 +119,9 @@ importFrom(readr,
   read_delim,
   write_excel_csv
 )
+importFrom(readsdmx,read_sdmx)
 importFrom(readxl,read_xlsx)
+importFrom(restatapi,get_eurostat_data)
 importFrom(rlang,
   .data,
   parse_exprs
@@ -145,6 +152,7 @@ importFrom(tidyr,
   nest,
   pivot_longer,
   separate_wider_delim,
+  unite,
   unnest_wider
 )
 importFrom(utils,capture.output)

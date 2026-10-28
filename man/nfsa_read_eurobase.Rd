@@ -92,5 +92,4 @@ df <- nfsa_read_eurobase(
 )
 }
 
-
 }
