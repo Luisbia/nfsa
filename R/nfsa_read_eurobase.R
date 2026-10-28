@@ -68,7 +68,9 @@
 #' )
 #'}
 #'
-#'
+#' @import dplyr
+#' @import tidyr
+#' @import lubridate
 #' @export
 nfsa_read_eurobase <- function(
     type     = "nasq_10_ki_partial_Y",

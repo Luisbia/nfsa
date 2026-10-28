@@ -5,9 +5,10 @@
 #' @param ... Additional arguments to be passed to \code{\link[ggplot2]{scale_colour_manual}}.
 #'
 #' @return A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
+#' @import ggplot2
 #' @export
 nfsa_scale_colour <- function(...) {
-  scale_colour_manual(
+  ggplot2::scale_color_manual(
     values = c("#672DC4", "#208486", "#003399", "#AF155F","#FFB800", "#5694CA", "#9DC3E6",
                "#A6CE39", "#F47B20", "#C00000"),
     ...
@@ -23,7 +24,7 @@ nfsa_scale_colour <- function(...) {
 #' @return A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
 #' @export
 nfsa_scale_fill <- function(...) {
-  scale_fill_manual(
+  ggplot2::scale_fill_manual(
     values = c("#003399", "#FFB800", "#5694CA", "#9DC3E6",
                "#A6CE39", "#F47B20", "#C00000"),
     ...

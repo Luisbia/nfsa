@@ -46,7 +46,7 @@ export(nfsa_to_excel)
 export(nfsa_transmissions)
 export(nfsa_unite_id)
 export(nfsa_validated)
-export(nfsa_write_excel_template_T0801)
+export(nfsa_write_excel_template)
 import(cli)
 import(data.table)
 import(dplyr)
@@ -137,6 +137,7 @@ importFrom(stringr,
 )
 importFrom(tibble,
   as_tibble,
+  enframe,
   tibble
 )
 importFrom(tidyr,

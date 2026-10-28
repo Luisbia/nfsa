@@ -1,6 +1,6 @@
-#' Create NFSA Excel template T0801
+#' Create NFSA Excel template
 #'
-#' Generate an Excel file for table T0801 by reshaping NFSA data and
+#' Generate an Excel file for table T0801/T0800 by reshaping NFSA data and
 #' writing it into a predefined Excel template.
 #'
 #' The function splits the `id` column into NFSA components, filters
@@ -13,22 +13,22 @@
 #'   encode `ref_sector`, `sto`, and `accounting_entry` separated by dots
 #'   (for example, `"S1.A.B"`).
 #' @param template Path to the Excel template file to use for
-#'   table T0801. Defaults to `"M:/nas/Rprod/assets/T0801_template.xlsx"`.
+#'   table T0801/T0800. Defaults to `"M:/nas/Rprod/assets/T0801_template.xlsx"`.
+#'   For table 8 should be changed to `"M:/nas/Rprod/assets/T0801_template.xlsx"`
 #' @param output_sel Path to the output directory where the generated
 #'   Excel file will be saved. Defaults to
-#'   `here("output", "excel_template")`.
+#'   `here::here()`.
 #'
 #' @details
 #' The function:
 #' - Splits `id` into `ref_sector`, `sto`, and `accounting_entry`.
-#' - Keeps only selected NFSA reference sectors and observations from
-#'   1999-Q1 onwards.
+#' - Keeps only selected NFSA reference sectors and observations.
 #' - Rebuilds a compact `id` by combining period, reference area,
 #'   and NFSA identifier and writes this to the `data` sheet in the template,
 #'   starting at cell A1.
 #'
 #' The output file name follows the pattern
-#' `"T0801_<country>_<YYYYMMDD_HHMMSS>.xlsx"`, where `<country>` must be
+#' `"<country>_<YYYYMMDD_HHMMSS>.xlsx"`, where `<country>` must be
 #' available in the calling environment.
 #'
 #' @returns
@@ -61,19 +61,23 @@
 #'   output_sel = here::here("output", "excel_template")
 #' )
 #' }
+#' @import dplyr
+#' @import tidyr
+#' @import openxlsx
+#' @import cli
+#' @importFrom tibble enframe
 #'
 #' @export
-nfsa_write_excel_template_T0801 <- function(data,
+nfsa_write_excel_template <- function(data,
                                             template = "M:/nas/Rprod/assets/T0801_template.xlsx",
-                                            output_sel = here::here("output","excel_template")) {
+                                            output_sel = here::here()) {
 
   country <- unique(data$ref_area)
   nfsa_data <- data |>
     tidyr::separate_wider_delim(cols = id,
                          delim = ".",
                          names = c("ref_sector", "sto", "accounting_entry")) |>
-    dplyr::filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2"),
-           time_period >= "1999-Q1") |>
+    dplyr::filter(ref_sector %in% c("S1", "S1N", "S11", "S12", "S13","S1M", "S2")) |>
     stats::na.omit() |>
     tidyr::unite("id",c(ref_sector,sto,accounting_entry), sep = ".") |>
     stats::na.omit() |>
@@ -81,10 +85,21 @@ nfsa_write_excel_template_T0801 <- function(data,
     dplyr::mutate(time_period = stringr::str_remove(time_period,"-")) |>
     tidyr::unite("id",c(time_period,ref_area,id),sep = ".")
 
+  metadata <- tibble::enframe(list(REF_AREA = country,
+                           Version = "",
+                           Date = format(lubridate::now(),"%Y-%m-%dT%H:%M:%SZ" ),
+                           LAST_UPDATE = "",
+                           original_file = "",
+                           adjustments = "",
+                           annual_file = "",
+                           estimations = "",
+                           reponsible = ""))
+
   wb <- openxlsx::loadWorkbook(template)
   openxlsx::writeData(wb, "data", nfsa_data, startRow = 1, startCol = 1)
+  openxlsx::writeData(wb, "metadata", metadata, startRow = 1, startCol = 1)
+  openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 
-  openxlsx::saveWorkbook(wb, ,file =paste0(output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-
-  cli::cli_alert_success(paste0("File created in ",output_sel,"/T0801_",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
+  cli::cli_alert_success(paste0("File created in ",output_sel,"/",country,"_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
 }
+

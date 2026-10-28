@@ -5,6 +5,7 @@
 #' @param data A data frame containing the `id` column to be separated.
 #'
 #' @return A data frame with the original `id` column removed and three new columns: `ref_area`, `sto`, and `accounting_entry`.
+#' @importFrom tidyr separate_wider_delim
 #' @export
 #' @examples
 #' # Create a sample data frame

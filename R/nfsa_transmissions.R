@@ -18,6 +18,7 @@
 #' # Generate a report, save to alternative location and search in subdirectories
 #' nfsa_transmissions(time_min = "2025-10-25",recursive = TRUE)
 #' }
+#' @importFrom cli cli_inform
 #' @export
 nfsa_transmissions <- function(time_min,
                                time_max = lubridate::now(),

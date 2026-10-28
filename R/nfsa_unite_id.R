@@ -22,7 +22,7 @@
 #'
 #' # Print the result
 #' print(result)
-#'
+#' @importFrom tidyr unite
 #' @export
 nfsa_unite_id <- function(data){
   tmp <- data |>

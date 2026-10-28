@@ -16,6 +16,9 @@
 #' head(nfsa_data)
 #' }
 #'
+#' @importFrom readsdmx read_sdmx
+#' @importFrom janitor  clean_names
+#' @importFrom dplyr mutate
 #' @export
 nfsa_read_xml <- function(file){
   data <- readsdmx::read_sdmx(file) |>
