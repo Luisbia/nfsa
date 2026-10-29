@@ -15,6 +15,10 @@
 #' # Example usage with annual data
 #' data_pop <- nfsa_percapita(data = your_data, freq = "A")
 #' }
+#' @importFrom restatapi get_eurostat_data
+#' @import dplyr
+#' @inport stringr
+#' @importFrom tibble as_tibble
 #' @export
 nfsa_percapita <- function(data, freq = "Q"){
 
@@ -28,32 +32,32 @@ nfsa_percapita <- function(data, freq = "Q"){
       tibble::as_tibble()
 
     tmp <- data |>
-      filter(str_detect(id,".PS|.HW"))
+      filter(stringr::str_detect(id,".PS|.HW"))
 
-    data_pop<- left_join(data,pop, by = join_by(ref_area, time_period)) |>
-      mutate(obs_value = (obs_value/pop)*1000) |>
-      select(-pop) |>
-      filter(!str_detect(id,".PS|.HW"))
+    data_pop<- dplyr::left_join(data,pop, by = join_by(ref_area, time_period)) |>
+      dplyr::mutate(obs_value = (obs_value/pop)*1000) |>
+      dplyr::select(-pop) |>
+      dplyr::filter(!stringr::str_detect(id,".PS|.HW"))
 
-    data_pop <- bind_rows(data_pop,tmp)
+    data_pop <- dplyr::bind_rows(data_pop,tmp)
   }
   else if (freq == "A"){
     pop <- restatapi::get_eurostat_data("nama_10_pe",
                                           filters = list(na_item = "POP_NC",
                                                          unit = "THS_PER"),
                                           stringsAsFactors = FALSE) |>
-      select(ref_area = geo,time_period=time,pop = values)|>
-      as_tibble()
+      dplyr::select(ref_area = geo,time_period=time,pop = values)|>
+      tibble::as_tibble()
 
     tmp <- data |>
-      filter(str_detect(id,".PS|.HW"))
+      dplyr::filter(str_detect(id,".PS|.HW"))
 
-    data_pop <- left_join(data,pop, by = join_by(ref_area, time_period)) |>
-      mutate(obs_value = (obs_value/pop)*1000) |>
-      select(-pop) |>
-      filter(!str_detect(id,".PS|.HW"))
+    data_pop <- dplyr::left_join(data,pop, by = join_by(ref_area, time_period)) |>
+      dplyr::mutate(obs_value = (obs_value/pop)*1000) |>
+      dplyr::select(-pop) |>
+      dplyr::filter(!stringr::str_detect(id,".PS|.HW"))
 
-    data_pop <- bind_rows(data_pop,tmp)
+    data_pop <- dplyr::bind_rows(data_pop,tmp)
   }
   return(data_pop)
 }

@@ -36,7 +36,7 @@
 #' The structure of the returned data depends on \code{complete}:
 #' \itemize{
 #'   \item If \code{complete = FALSE}, observations with missing values
-#'   in any column after the lookup join are removed, and only
+#'   in `obs_value` are removed, and only
 #'   \code{ref_area}, \code{version}, \code{id}, \code{time_period},
 #'   and \code{obs_value} are returned.
 #'   \item If \code{complete = TRUE}, all columns resulting from the
@@ -69,9 +69,15 @@
 #' @param complete Logical indicating whether to return the complete
 #'   dataset, including all available columns and lookup information.
 #'   If \code{FALSE} (default), returns only the standard NFSA
-#'   observation columns and removes rows containing missing values.
+#'   observation columns and removes rows with missing `obs_value`.
 #'   If \code{TRUE}, retains all columns and does not explicitly
 #'   remove missing values.
+#'
+#' @param ref_period Optional character vector of transmission reference periods.
+#'   Accepts quarterly periods such as `"2026Q2"` or `"2026_0002"`,
+#'   annual periods such as `"2026"` or `"2026_0000"`, and vectors
+#'   of periods. `NULL` (default) selects all reference periods.
+#'   Internally, these are normalized to the filename format `YYYY_NNNN`.
 #'
 #' @return A data frame (tibble) containing the observations retrieved
 #'   from validated Parquet files.
@@ -102,7 +108,7 @@
 #' @importFrom dplyr filter left_join select mutate arrange collect
 #' @importFrom dplyr if_else join_by pull
 #' @importFrom rlang parse_exprs
-#' @importFrom stringr str_extract str_detect fixed
+#' @importFrom stringr str_extract str_detect fixed str_replace
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr drop_na
 #'
@@ -152,100 +158,121 @@
 #'   complete = TRUE
 #' )
 #'
+#' # Select one or several transmission reference periods
+#' nfsa_get_data_validated(country = "IT", ref_period = "2026Q2")
+#' nfsa_get_data_validated(country = "IT", ref_period = c("2025Q1", "2025Q2"))
+#' nfsa_get_data_validated(country = "IT", table = "T0800", ref_period = "2026")
+#'
 #' }
 nfsa_get_data_validated <- function(input_sel = "M:/nas/Rprod/db/",
-                              country,
-                              table = "T0801",
-                              filters = NULL,
-                              complete = FALSE) {
+                                    country,
+                                    table = "T0801",
+                                    filters = NULL,
+                                    complete = FALSE,
+                                    ref_period = NULL) {
 
-  # 1. Setup Configuration -------------------------------------------------
+  # Accept both readable periods (2026Q2, 2026) and filename periods
+  # (2026_0002, 2026_0000). Keep filename convention internally.
+  normalize_ref_period <- function(x) {
+    if (is.null(x)) return(NULL)
+    if (!is.character(x) || anyNA(x) ||
+        any(!grepl("^\\d{4}(_000[0-4]|Q[1-4])?$", x, perl = TRUE))) {
+      cli::cli_abort(
+        "`ref_period` must contain YYYY, YYYYQ1-YYYYQ4, or YYYY_0000-YYYY_0004."
+      )
+    }
+    x <- stringr::str_replace(x, "^([0-9]{4})Q([1-4])$", "\\1_000\\2")
+    x <- stringr::str_replace(x, "^([0-9]{4})$", "\\1_0000")
+    unique(x)
+  }
+  ref_period <- normalize_ref_period(ref_period)
+
   cfg_map <- list(
-    "T0800"   = list(freq_code = "_A_", pattern = "NASEC_T0800_A"),
-    "T0801"   = list(freq_code = "_Q_", pattern = "NASEC_T0801_Q"),
-    "T0801SA" = list(freq_code = "_Q_", pattern = "NASEC_T0801SA_Q")
+    T0800   = list(freq_code = "A", pattern = "NASEC_T0800_A"),
+    T0801   = list(freq_code = "Q", pattern = "NASEC_T0801_Q"),
+    T0801SA = list(freq_code = "Q", pattern = "NASEC_T0801SA_Q")
   )
-
-  if (!table %in% names(cfg_map)) {
+  if (length(table) != 1L || is.na(table) || !table %in% names(cfg_map)) {
     cli::cli_abort("Invalid table: {table}. Choose T0800, T0801, or T0801SA.")
+  }
+  if (!is.logical(complete) || length(complete) != 1L || is.na(complete)) {
+    cli::cli_abort("`complete` must be TRUE or FALSE.")
   }
   cfg <- cfg_map[[table]]
 
-  # 2. File Discovery (All Versions) ---------------------------------------
-  target_files <- list.files(path = input_sel,
-                             pattern = cfg$pattern,
-                             recursive = TRUE,
-                             full.names = TRUE) |>
-    tibble::as_tibble() |>
-    dplyr::mutate(
-      ref_area = stringr::str_extract(value, paste0("(?<=", cfg$freq_code, ").."))
-    ) |>
-    dplyr::filter(ref_area %in% !!country)
+  # Discover local Parquet files, including those in subfolders.
+  files <- list.files(
+    path = input_sel,
+    pattern = paste0("^", cfg$pattern, "_.*\\.parquet$"),
+    recursive = TRUE,
+    full.names = TRUE
+  )
 
-  if (length(target_files) == 0) {
-    cli::cli_alert_danger("No files found matching {cfg$pattern} for {country}")
+  # Filename convention: NASEC_T0801_Q_PL_2026_0002_V0002.parquet
+  filename_regex <- paste0(
+    "^", cfg$pattern,
+    "_([A-Z]{2})_([0-9]{4}_[0-9]{4})_V([0-9]+)\\.parquet$"
+  )
+  matches <- stringr::str_match(basename(files), filename_regex)
+  target_files <- tibble::tibble(
+    value = files,
+    ref_area = matches[, 2],
+    ref_period_file = matches[, 3]
+  ) |>
+    dplyr::filter(.data$ref_area %in% .env$country,
+                  !is.na(.data$ref_period_file))
+
+  if (!is.null(ref_period)) {
+    target_files <- target_files |>
+      dplyr::filter(.data$ref_period_file %in% .env$ref_period)
+  }
+
+  if (nrow(target_files) == 0L) {
+    cli::cli_alert_danger("No {table} Parquet files found for the requested countries/periods.")
     return(NULL)
   }
 
-
+  # Retain only files recorded in the validation register.
   files_sel <- data.table::fread("M:/nas/Rprod/assets/validated_files.csv") |>
-    filter(ref_area %in% country,
-           table == table)
+    dplyr::filter(.data$ref_area %in% .env$country,
+                  .data$table == .env$table)
 
+  # Match to registered filenames within each country. Keep the existing
+  # substring-matching convention to support the validation register format.
+  target_files <- target_files |>
+    dplyr::left_join(files_sel, by = "ref_area", relationship = "many-to-many") |>
+    dplyr::filter(!is.na(.data$filename),
+                  stringr::str_detect(.data$value, stringr::fixed(.data$filename))) |>
+    dplyr::distinct(.data$value) |>
+    dplyr::pull(.data$value)
 
-
-  target_files <- left_join(target_files,files_sel,
-                          relationship = "many-to-many",
-                          by = join_by(ref_area)) |>
-    filter(str_detect(value, fixed(filename))) |>
-    distinct(value) |>
-    pull(value)
-
-
-
-  if (length(target_files) == 0) {
-    cli::cli_alert_danger("No files found matching {cfg$pattern} for {country}")
+  if (length(target_files) == 0L) {
+    cli::cli_alert_danger("No validated {table} files found for the requested countries/periods.")
     return(NULL)
   }
 
-  # 3. Data Processing Pipeline --------------------------------------------
-  lookup <- nfsa::nfsa_sto_lookup
-
+  # Apply filters in Arrow, before collecting.
   ds <- arrow::open_dataset(target_files)
-  # Apply Arrow filters (Push-down)
   if (!is.null(filters)) {
     parsed_filters <- rlang::parse_exprs(filters)
-    ds <- ds |> dplyr::filter(!!!parsed_filters)
+    ds <- dplyr::filter(ds, !!!parsed_filters)
   }
+  res <- dplyr::collect(ds) |>
+    dplyr::left_join(
+      nfsa::nfsa_sto_lookup,
+      by = c("counterpart_area", "ref_sector", "counterpart_sector",
+             "consolidation", "accounting_entry", "sto",
+             "instr_asset", "unit_measure", "prices")
+    ) |>
+    dplyr::mutate(ref_area = dplyr::if_else(.data$ref_area == "GR", "EL", .data$ref_area))
 
-  res <- ds |>
-    dplyr::collect()
-
-  if (complete == FALSE){
-    res <-res |>
-      dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
-                                      "consolidation", "accounting_entry", "sto",
-                                      "instr_asset", "unit_measure", "prices")) |>
-      tidyr::drop_na() |>
-      # Note: version is included here as requested
-      dplyr::select(ref_area, version, id, time_period, obs_value) |>
-      dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
+  if (!complete) {
+    # Do not drop rows due to optional metadata columns containing NA.
+    res <- res |>
+      tidyr::drop_na(.data$obs_value) |>
+      dplyr::select(ref_area, version, id, time_period, obs_value)
+  } else {
+    res <- dplyr::arrange(res, time_period, ref_area, id)
   }
-
-  if (complete == TRUE){
-    res <-res |>
-      dplyr::left_join(lookup, by = c("counterpart_area", "ref_sector", "counterpart_sector",
-                                      "consolidation", "accounting_entry", "sto",
-                                      "instr_asset", "unit_measure", "prices")) |>
-      dplyr::arrange(time_period,ref_area,id) |>
-      dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area))
-  }
-
-  return(res)
+  res
 }
-
-
-
-
-
-

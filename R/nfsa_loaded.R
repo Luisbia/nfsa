@@ -25,6 +25,9 @@
 #' @import cli
 #' @import tidyr
 #' @import dplyr
+#' @import purrr
+#' @import janitor
+#' @import stringr
 #' @export
 nfsa_loaded <- function(time_min ,
                         time_max = lubridate::today(),
