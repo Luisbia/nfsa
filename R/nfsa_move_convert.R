@@ -5,9 +5,10 @@
 #'
 #' @param country A character string specifying the country code.
 #' @param table A character string specifying the table type. Must be one of "T0800", "T0801", or "T0801SA".
-#' @param period A character string specifying the time period:
-#'   - For T0800: year in format "2024_0000"
-#'   - For T0801/T0801SA: year and quarter in format "2025_0002" (for 2025Q2)
+#' @param period Optional character vector of reference periods. Accepts
+#'   `YYYY_0000` or `YYYY` for annual tables, and `YYYY_0001` through
+#'   `YYYY_0004` or `YYYYQ1` through `YYYYQ4` for quarterly tables.
+#'   `NULL` searches all reference periods. Formats can be mixed.
 #' @param input_sel A character string specifying the input directory where the SDMX files are located.
 #'   If NULL, uses default path based on table type. Defaults to NULL.
 #' @param output_sel A character string specifying the output directory where the Parquet files should be saved.
@@ -19,26 +20,32 @@
 #'   to the console indicating whether a new file was processed, if no file was found, or if no new file exists.
 #'
 #' @details The function searches for SDMX files matching the pattern based on the table type.
-#'   It identifies the file(s) with the latest version number. If process_all is FALSE, it compares with
-#'   existing files in the output directory and only processes new files. The SDMX data is read, cleaned,
+#'   With `process_all = FALSE`, the highest V-version is selected for
+#'   each matching reference period, and files already present in the output
+#'   directory are skipped. With `process_all = TRUE`, all matching versions
+#'   are processed (and existing output files may be overwritten). The SDMX data is read, cleaned,
 #'   timestamped, and converted to Parquet format.
 #'
 #' @examples
 #' \dontrun{
 #' # Convert T0800 annual data
-#' nfsa_move_convert(country = "BE", table = "T0800", period = "2024_0000")
+#' nfsa_move_convert(country = "BE", table = "T0800", period = "2024")
 #'
 #' # Convert T0801 quarterly data
-#' nfsa_move_convert(country = "BE", table = "T0801", period = "2025_0002")
+#' nfsa_move_convert(country = "BE", table = "T0801", period = "2025Q2")
 #'
 #' # Convert T0801SA with custom paths
 #' nfsa_move_convert(
 #'   country = "IT",
 #'   table = "T0801SA",
-#'   period = "2025_0002",
+#'   period = "2025Q2",
 #'   input_sel = "path/to/input",
 #'   output_sel = "path/to/output"
 #' )
+#'
+#' # Multiple reference periods, including the original format
+#' nfsa_move_convert(country = "BE", table = "T0801",
+#'                   period = c("2025Q1", "2025_0002"))
 #'
 #' # Process all files (ASA/QSA workflow)
 #' nfsa_move_convert(country = "BE", table = "T0800", process_all = TRUE)
@@ -91,52 +98,85 @@ nfsa_move_convert <- function(country,
   if (is.null(input_sel)) input_sel <- config$default_input
   if (is.null(output_sel)) output_sel <- config$default_output
 
-  # Build file pattern
+  # Accept both human-readable and original filename reference periods.
+  # Keep YYYY_NNNN internally because this is what appears in XML filenames.
   if (!is.null(period)) {
-    file_pattern <- paste0(config$pattern_suffix, "_", period)
-  } else {
-    file_pattern <- config$pattern_suffix
+    if (!is.character(period) || !length(period) ||
+        anyNA(period) || any(!nzchar(period))) {
+      cli::cli_abort("`period` must be NULL or a non-empty character vector.")
+    }
+
+    period <- period |>
+      stringr::str_replace("^([0-9]{4})Q([1-4])$", "\\1_000\\2") |>
+      stringr::str_replace("^([0-9]{4})$", "\\1_0000")
+
+    valid_format <- grepl("^[0-9]{4}_000[0-4]$", period)
+    valid_frequency <- if (table == "T0800") {
+      grepl("_0000$", period)
+    } else {
+      grepl("_000[1-4]$", period)
+    }
+    if (any(!valid_format | !valid_frequency)) {
+      cli::cli_abort(
+        "Invalid `period` for {table}. Use YYYY or YYYY_0000 for T0800, or YYYYQ1-YYYYQ4 or YYYY_0001-YYYY_0004 for quarterly tables."
+      )
+    }
+    period <- unique(period)
   }
 
   cli::cli_inform("Looking for files in the server...")
 
-  # Find files matching pattern
+  # Match XML filenames exactly and extract their reference period and V-version.
+  filename_pattern <- paste0(
+    "^", config$pattern_suffix,
+    "_([0-9]{4}_000[0-4])_V([0-9]+)\\.xml$"
+  )
   files <- list.files(
     path = input_sel,
-    pattern = file_pattern,
+    pattern = paste0("^", config$pattern_suffix, "_.*\\.xml$"),
     full.names = TRUE
   )
 
-  if (length(files) == 0) {
-    cli::cli_alert_warning("No {table} file for {country}")
+  matches <- stringr::str_match(basename(files), filename_pattern)
+  files_df <- tibble::tibble(
+    value = files,
+    ref_period_file = matches[, 2],
+    version_number = as.integer(matches[, 3])
+  ) |>
+    dplyr::filter(!is.na(ref_period_file), !is.na(version_number))
+
+  if (!is.null(period)) {
+    files_df <- files_df |>
+      dplyr::filter(ref_period_file %in% period)
+  }
+
+  if (nrow(files_df) == 0L) {
+    cli::cli_alert_warning("No {table} file for {country} and requested period(s).")
     return(invisible(NULL))
   }
 
-  # Extract versions and get latest
-  files_df <- tibble::as_tibble(files) |>
-    dplyr::mutate(version = as.numeric(stringr::str_extract(value, config$version_regex)))
-
-  if (process_all) {
-    # Process all files (ASA/QSA workflow)
-    files_to_process <- files_df |> dplyr::pull(value)
-  } else {
-    # Get only the latest version file
-    files_to_process <- files_df |>
-      dplyr::filter(version == max(version)) |>
-      dplyr::pull(value)
+  if (!process_all) {
+    # Choose the latest version independently for each reference period.
+    files_df <- files_df |>
+      dplyr::group_by(ref_period_file) |>
+      dplyr::slice_max(version_number, n = 1, with_ties = FALSE) |>
+      dplyr::ungroup()
   }
+
+  files_to_process <- files_df$value
 
   # Helper function to convert a single file
   convert_file <- function(file, config, output_sel) {
-    file_name <- stringr::str_sub(file, nchar(file) - config$filename_length, nchar(file))
-    file_name <- stringr::str_replace(file_name, ".xml", ".parquet")
+    file_name <- paste0(tools::file_path_sans_ext(basename(file)), ".parquet")
 
     dat <- file |>
       readsdmx::read_sdmx() |>
       janitor::clean_names() |>
       dplyr::mutate(
         received = as.character(file.mtime(file)),
-        version = stringr::str_extract(file, config$version_regex_extract)
+        version = stringr::str_extract(
+          basename(file), "[0-9]{4}_000[0-4]_V[0-9]+(?=\\.xml$)"
+        )
       )
 
     # Handle embargo_date presence/absence
@@ -172,42 +212,29 @@ nfsa_move_convert <- function(country,
     cli::cli_alert_success("Converted {file_name}")
   }
 
-  if (!process_all && length(files_to_process) == 1) {
-    # Check if file already exists (vintage comparison workflow)
-    files_have <- list.files(
-      path = output_sel,
-      pattern = file_pattern,
-      recursive = FALSE
+  if (!process_all) {
+    # Skip a version only if the corresponding Parquet file already exists.
+    # This also works when multiple reference periods were requested.
+    output_names <- paste0(
+      tools::file_path_sans_ext(basename(files_to_process)), ".parquet"
     )
-
-    if (length(files_have) == 0) {
-      files_have <- "no file"
-    } else {
-      files_have_df <- tibble::as_tibble(files_have) |>
-        dplyr::mutate(version = as.numeric(stringr::str_extract(value, config$version_regex))) |>
-        dplyr::filter(version == max(version)) |>
-        dplyr::mutate(
-          value = stringr::str_replace_all(value, ".parquet", ".xml"),
-          value = paste0(input_sel, value)
-        ) |>
-        dplyr::pull(value)
-      files_have <- files_have_df[1]
+    already_converted <- file.exists(file.path(output_sel, output_names))
+    if (any(already_converted)) {
+      cli::cli_alert_info("Skipping {sum(already_converted)} existing Parquet file(s).")
     }
-
-    if (files_to_process[1] == files_have) {
-      cli::cli_alert_info("No new {table} file for {country}")
-      return(invisible(NULL))
-    }
+    files_to_process <- files_to_process[!already_converted]
   }
+
+  if (length(files_to_process) == 0L) {
+    cli::cli_alert_info("No new {table} file for {country}")
+    return(invisible(NULL))
+  }
+
+  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
 
   # Convert files
   cli::cli_inform("Converting files...")
-
-  if (process_all) {
-    purrr::walk(files_to_process, ~ convert_file(.x, config, output_sel))
-  } else {
-    purrr::walk(files_to_process, ~ convert_file(.x, config, output_sel))
-  }
+  purrr::walk(files_to_process, ~ convert_file(.x, config, output_sel))
 
   invisible(NULL)
 }
