@@ -140,6 +140,7 @@ importFrom(stringr,
   str_detect,
   str_extract,
   str_match,
+  str_replace,
   str_sub
 )
 importFrom(tibble,

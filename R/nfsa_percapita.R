@@ -17,7 +17,7 @@
 #' }
 #' @importFrom restatapi get_eurostat_data
 #' @import dplyr
-#' @inport stringr
+#' @import stringr
 #' @importFrom tibble as_tibble
 #' @export
 nfsa_percapita <- function(data, freq = "Q"){

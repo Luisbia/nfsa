@@ -18,11 +18,10 @@ nfsa_move_convert(
 
 \item{table}{A character string specifying the table type. Must be one of "T0800", "T0801", or "T0801SA".}
 
-\item{period}{A character string specifying the time period:
-\itemize{
-\item For T0800: year in format "2024_0000"
-\item For T0801/T0801SA: year and quarter in format "2025_0002" (for 2025Q2)
-}}
+\item{period}{Optional character vector of reference periods. Accepts
+\code{YYYY_0000} or \code{YYYY} for annual tables, and \code{YYYY_0001} through
+\code{YYYY_0004} or \code{YYYYQ1} through \code{YYYYQ4} for quarterly tables.
+\code{NULL} searches all reference periods. Formats can be mixed.}
 
 \item{input_sel}{A character string specifying the input directory where the SDMX files are located.
 If NULL, uses default path based on table type. Defaults to NULL.}
@@ -43,26 +42,32 @@ It handles T0800 (annual), T0801 (quarterly NSA), and T0801SA (quarterly seasona
 }
 \details{
 The function searches for SDMX files matching the pattern based on the table type.
-It identifies the file(s) with the latest version number. If process_all is FALSE, it compares with
-existing files in the output directory and only processes new files. The SDMX data is read, cleaned,
+With \code{process_all = FALSE}, the highest V-version is selected for
+each matching reference period, and files already present in the output
+directory are skipped. With \code{process_all = TRUE}, all matching versions
+are processed (and existing output files may be overwritten). The SDMX data is read, cleaned,
 timestamped, and converted to Parquet format.
 }
 \examples{
 \dontrun{
 # Convert T0800 annual data
-nfsa_move_convert(country = "BE", table = "T0800", period = "2024_0000")
+nfsa_move_convert(country = "BE", table = "T0800", period = "2024")
 
 # Convert T0801 quarterly data
-nfsa_move_convert(country = "BE", table = "T0801", period = "2025_0002")
+nfsa_move_convert(country = "BE", table = "T0801", period = "2025Q2")
 
 # Convert T0801SA with custom paths
 nfsa_move_convert(
   country = "IT",
   table = "T0801SA",
-  period = "2025_0002",
+  period = "2025Q2",
   input_sel = "path/to/input",
   output_sel = "path/to/output"
 )
+
+# Multiple reference periods, including the original format
+nfsa_move_convert(country = "BE", table = "T0801",
+                  period = c("2025Q1", "2025_0002"))
 
 # Process all files (ASA/QSA workflow)
 nfsa_move_convert(country = "BE", table = "T0800", process_all = TRUE)

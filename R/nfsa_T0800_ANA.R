@@ -33,8 +33,6 @@ nfsa_T0800_ANA <- function(data,
                            non_validated = FALSE){
 
 
-  cli::cli_progress_message("Collecting NFSA...")
-
   limit_validation <- as.numeric(max(data$time_period)) -4
 
   nfsa_data <- data |>

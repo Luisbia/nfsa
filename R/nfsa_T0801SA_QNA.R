@@ -18,7 +18,7 @@
 #' result <- nfsa_T0801SA_QNA(country = "FR", threshold = 10)
 #' }
 #' @import cli
-#' @import restatapi get_eurostat_data
+#' @importFrom restatapi get_eurostat_data
 #' @import dplyr
 #' @import tidyr
 #' @export

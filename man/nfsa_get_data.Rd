@@ -7,7 +7,7 @@
 nfsa_get_data(
   input_sel = "M:/nas/Rprod/db/",
   country,
-  table,
+  table = "T0801",
   filters = NULL,
   complete = FALSE,
   ref_period = NULL,
@@ -20,29 +20,27 @@ nfsa_get_data(
 
 \item{country}{Character vector specifying countries to retrieve.}
 
-\item{table}{Character scalar. One of "T0800", "T0801", or "T0801SA".}
+\item{table}{Character scalar. One of \code{"T0800"}, \code{"T0801"}, or \code{"T0801SA"}.}
 
 \item{filters}{Optional character vector of filter expressions applied
 using Arrow before collecting the data.}
 
-\item{complete}{Logical. If \code{FALSE}, returns selected columns; if \code{TRUE},
-returns all columns after joining the lookup, subject to version removal.}
+\item{complete}{Logical. If \code{FALSE}, return selected columns; if \code{TRUE},
+return all columns after joining the lookup, subject to version removal.}
 
-\item{ref_period}{Optional character vector of reference periods in the
-format "YYYY_NNNN". \code{NULL} includes all reference periods.}
+\item{ref_period}{Optional character vector of reference periods in
+\code{"YYYY_NNNN"}, \code{"YYYYQn"}, or \code{"YYYY"} format. \code{NULL} includes all
+reference periods.}
 
-\item{last}{Logical. If \code{TRUE} (default), retrieves only the highest
-version for each country and reference period. If \code{FALSE}, retrieves
-all available versions. The \code{version} column is retained whenever
-\code{last = FALSE}, \code{ref_period = NULL}, or multiple reference periods are
-requested. It is excluded only when \code{last = TRUE} and exactly one
-reference period is specified.}
+\item{last}{Logical. If \code{TRUE} (default), retrieve only the highest version
+for each country and reference period. Otherwise retrieve all versions.}
 
-\item{fill_M}{By default \code{TRUE}, convert obs_status M to obs_value 0 when complete is set to \code{FALSE}.}
+\item{fill_M}{Logical. If \code{TRUE} (default) and \code{complete = FALSE}, convert
+observations with \code{obs_status == "M"} to zero.}
 }
 \value{
-A tibble containing the selected NFSA observations, or \code{NULL} if
-no matching files are found.
+A tibble containing selected NFSA observations, or \code{NULL} if no
+matching files are found.
 }
 \description{
 Retrieves NFSA data from Parquet files, optionally filtering by country,
@@ -51,6 +49,10 @@ table, reference period, and data conditions.
 \details{
 Filenames follow a convention such as
 \code{NASEC_T0801_Q_PL_2026_0002_V0002.parquet}.
+Reference periods may be supplied as \code{"2026_0002"}, \code{"2026Q2"}, or
+(for annual reference periods) \code{"2026"} / \code{"2026_0000"}.
+They are normalized to the filename format before file matching.
+
 When \code{last = TRUE}, the highest numeric V-version is selected separately
 for each country and reference period. When \code{last = FALSE}, all versions
 are retrieved.
@@ -58,18 +60,16 @@ are retrieved.
 The \code{version} column is included if \code{last = FALSE}, if \code{ref_period = NULL},
 or if more than one distinct reference period is supplied. It is omitted
 only when \code{last = TRUE} and exactly one reference period is requested.
-Note that keeping \code{version} does not automatically deduplicate observations.
+Keeping \code{version} does not automatically deduplicate observations.
 }
 \examples{
 \dontrun{
 nfsa_get_data(country = "PL")
 nfsa_get_data(country = "PL", ref_period = "2026_0002")
-nfsa_get_data(country = "PL", ref_period = "2026_0002", last = FALSE)
-nfsa_get_data(
-  country = c("PL", "DE"),
-  ref_period = c("2026_0001", "2026_0002"),
-  last = TRUE
-)
+nfsa_get_data(country = "PL", ref_period = "2026Q2")
+nfsa_get_data(country = "PL", table = "T0800", ref_period = "2026")
+nfsa_get_data(country = c("PL", "DE"),
+              ref_period = c("2025Q1", "2025_0002"), last = FALSE)
 }
 
 }

@@ -2,40 +2,30 @@
 % Please edit documentation in R/nfsa_T0801SA_GFS.R
 \name{nfsa_T0801SA_GFS}
 \alias{nfsa_T0801SA_GFS}
-\title{Compare NFSA and GFS data for a given country.}
+\title{Compare NFSA and GFS Seasonally Adjusted data .}
 \usage{
-nfsa_T0801SA_GFS(
-  country,
-  quarter,
-  threshold = 1,
-  input_sel = "M:/nas/Rprod/q/new/sca/",
-  output_sel = here::here("output", "inter_domain")
-)
+nfsa_T0801SA_GFS(data, ref_quarter = "2026Q2", threshold = 5)
 }
 \arguments{
-\item{country}{A character string representing the country code (e.g., "DE").}
-
-\item{quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
+\item{ref_quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
 
 \item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 1.}
 
-\item{input_sel}{A file path to the location of the 'sca' dataset. Default is "M:/nas/Rprod/q/new/sca/".}
-
-\item{output_sel}{A file path to the directory where the output Excel file will be saved. Default is here::here("output", "inter_domain").}
+\item{country}{A character string representing the country code (e.g., "DE").}
 }
 \value{
 A data frame containing the joined NFSA and GFS data, the difference between them,
-and the difference as a percentage of GDP.  Returns the data frame \code{gfs_nfsa}.
+and the difference as a percentage of GDP.
 If no discrepancies are found, the function prints a success message and returns an empty data frame.
 }
 \description{
-This function retrieves NFSA and GFS data, joins them, calculates the difference,
-and identifies discrepancies exceeding a specified threshold.
+This function compares data from the NFSA  (table T0801SA) with corresponding data from the GFS and
+identifies discrepancies between the two datasets .
 }
 \examples{
 \dontrun{
   # Compare NFSA and GFS data for Germany with a threshold of 10
-  result <- nfsa_T0801SA_GFS(country = "DE", quarter = "2025Q3")
+  result <- nfsa_T0801SA_GFS(data = dat, quarter = "2025Q3")
 
 }
 

@@ -4,21 +4,12 @@
 \alias{nfsa_T0801SA_QNA}
 \title{Compare NFSA (T0801SA) and Quarterly National Accounts (QNA) Data}
 \usage{
-nfsa_T0801SA_QNA(
-  country,
-  threshold = 1,
-  input_sel = "M:/nas/Rprod/data/q/new/sca/",
-  output_sel = here::here("output", "inter_domain")
-)
+nfsa_T0801SA_QNA(data, threshold = 5)
 }
 \arguments{
-\item{country}{A character string specifying the country code (e.g., "DE" for Germany).}
+\item{data}{A dataframe containing T0801SA data.}
 
-\item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and QNA values for a discrepancy to be flagged. Default is 1.}
-
-\item{input_sel}{A character string specifying the directory path where input data is stored. The default path is M:/nas/Rprod/data/q/new/sca/".  Note that this parameter is not used in the function.}
-
-\item{output_sel}{A character string specifying the directory path where the output Excel file will be saved. The default path is "output/inter_domain" relative to the project directory.}
+\item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and QNA values for a discrepancy to be flagged. Default is 5.}
 }
 \value{
 A data frame containing the comparison results, including the NFSA value, QNA value, the difference between them (\code{diff}), the difference as a percentage of GDP (\code{as_GDP}), and a logical flag (\code{threshold}) indicating if the absolute percentage difference exceeds 0.3.  Returns \code{nama_nfsa} data frame that contains comparison data.
@@ -31,10 +22,9 @@ between the two datasets and outputs the results to an Excel file.
 \examples{
 \dontrun{
 # Compare NFSA and QNA data for Germany with default settings
-result <- nfsa_T0801SA_QNA(country = "DE")
+result <- nfsa_T0801SA_QNA(data = dat)
 
 # Compare NFSA and QNA data for France with a threshold of 5
-result <- nfsa_T0801SA_QNA(country = "FR", threshold = 5)
+result <- nfsa_T0801SA_QNA(country = "FR", threshold = 10)
 }
-
 }

@@ -36,6 +36,8 @@ nfsa_T0800_GFS <- function(data ,
     dplyr::select(ref_area,id,time_period,nfsa = obs_value)
 
   ## GFS -----
+  cli::cli_progress_message("Collecting GFS...")
+
   country <- sort(unique(data$ref_area))
   country <- stringr::str_replace(country,"EL", "GR")# EL is GR in nama file names
   cli::cli_progress_message("Collecting GFS...")

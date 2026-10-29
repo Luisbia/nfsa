@@ -9,7 +9,8 @@ nfsa_get_data_validated(
   country,
   table = "T0801",
   filters = NULL,
-  complete = FALSE
+  complete = FALSE,
+  ref_period = NULL
 )
 }
 \arguments{
@@ -35,9 +36,15 @@ Defaults to \code{NULL}, meaning no additional filtering.}
 \item{complete}{Logical indicating whether to return the complete
 dataset, including all available columns and lookup information.
 If \code{FALSE} (default), returns only the standard NFSA
-observation columns and removes rows containing missing values.
+observation columns and removes rows with missing \code{obs_value}.
 If \code{TRUE}, retains all columns and does not explicitly
 remove missing values.}
+
+\item{ref_period}{Optional character vector of transmission reference periods.
+Accepts quarterly periods such as \code{"2026Q2"} or \code{"2026_0002"},
+annual periods such as \code{"2026"} or \code{"2026_0000"}, and vectors
+of periods. \code{NULL} (default) selects all reference periods.
+Internally, these are normalized to the filename format \code{YYYY_NNNN}.}
 }
 \value{
 A data frame (tibble) containing the observations retrieved
@@ -94,7 +101,7 @@ to obtain the corresponding NFSA series identifiers.
 The structure of the returned data depends on \code{complete}:
 \itemize{
 \item If \code{complete = FALSE}, observations with missing values
-in any column after the lookup join are removed, and only
+in \code{obs_value} are removed, and only
 \code{ref_area}, \code{version}, \code{id}, \code{time_period},
 and \code{obs_value} are returned.
 \item If \code{complete = TRUE}, all columns resulting from the
@@ -148,6 +155,11 @@ dat <- nfsa_get_data_validated(
   table = "T0801SA",
   complete = TRUE
 )
+
+# Select one or several transmission reference periods
+nfsa_get_data_validated(country = "IT", ref_period = "2026Q2")
+nfsa_get_data_validated(country = "IT", ref_period = c("2025Q1", "2025Q2"))
+nfsa_get_data_validated(country = "IT", table = "T0800", ref_period = "2026")
 
 }
 }
