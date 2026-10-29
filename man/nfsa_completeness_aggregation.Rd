@@ -16,7 +16,7 @@ nfsa_completeness_aggregation(
 
 \item{end_quarter}{Last quarter that should have been reported (e.g.: "2026-Q3")}
 
-\item{requirements}{A link to the file to be checked, by default \verb{""M:/nas/Rprod/assets/completeness_aggregation.xlsx"}.}
+\item{requirements}{A link to the file to be checked, by default \code{"M:/nas/Rprod/assets/completeness_aggregation.xlsx"}.}
 }
 \value{
 A data frame containing the missing data points. Returns an empty dataframe if data requirements are fulfilled.
@@ -27,7 +27,7 @@ comparing it against predefined data requirements. .
 }
 \examples{
 \dontrun{
-missing_data <- nfsa_completeness_aggregation(dat)
+missing_data <- nfsa_completeness_aggregation(dat, end_quarter = "2026-Q3")
 }
 
 }

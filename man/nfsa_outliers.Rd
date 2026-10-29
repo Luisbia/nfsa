@@ -25,7 +25,7 @@ for quarter-on-quarter changes.}
 
 \item{time_min}{Character scalar. Earliest reporting period
 to include, expressed in \code{"YYYY-Qn"} format.
-Default is \code{"1999-Q1"}.}
+Default is \code{"2010-Q1"}.}
 
 \item{rate_limit}{Numeric scalar. Minimum absolute percentage
 growth rate required for an observation to be considered

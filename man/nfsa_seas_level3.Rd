@@ -4,44 +4,32 @@
 \alias{nfsa_seas_level3}
 \title{Perform Level 3 Seasonal Adjustment Validation for Eurostat Data}
 \usage{
-nfsa_seas_level3(
-  series = here::here("assets", "seas_level1.xlsx"),
-  time_min = "1999-Q1",
-  input_sel = "M:/nas/Rprod/data/",
-  output_sel = here::here("output", "seas"),
-  dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
-  default_type_sel = "X13",
-  default_spec_nsa_sel = "RSA1",
-  default_spec_sa_sel = "RSA2c"
-)
+nfsa_seas_level3(series = here::here("assets", "seas_level1.xlsx"), time_min = "1999-Q1",
+    input_sel = "M:/nas/Rprod/data/", output_sel = here::here("output", "seas"),
+    dashboard_sel = here::here("assets", "level3_eurostat.qmd"), default_type_sel = "X13",
+    default_spec_nsa_sel = "RSA1", default_spec_sa_sel = "RSA2c")
 }
 \arguments{
-\item{series}{Path to an Excel file containing a list of series to process.
-Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
-at least \code{ref_area} and \code{id} columns.}
+\item{series}{Path to an Excel file containing a list of series to process. Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain at least \code{ref_area} and \code{id} columns.}
 
 \item{time_min}{from which quarter the analysis starts}
 
-\item{input_sel}{Path to the directory where input data is stored. Defaults
-to \code{"M:/nas/Rprod/data/"}.}
+\item{input_sel}{Path to the directory where input data is stored. Defaults to \code{"M:/nas/Rprod/data/"}.}
 
-\item{output_sel}{Path to the directory where output reports should be
-saved. Defaults to \code{here::here("output", "seas")}.}
+\item{output_sel}{Path to the directory where output reports should be saved. Defaults to \code{here::here("output", "seas")}.}
 
-\item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to
-\code{here::here("assets", "level3_eurostat.qmd")}.}
+\item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to \code{here::here("assets", "level3_eurostat.qmd")}.}
 
 \item{default_type_sel}{Default seasonal adjustment type. Defaults to \code{"X13"}.}
 
-\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults to
-\code{"RSA1"}.}
+\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults to \code{"RSA1"}.}
 
-\item{default_spec_sa_sel}{Default specification for SA series. Defaults to
-\code{"RSA2c"}.}
+\item{default_spec_sa_sel}{Default specification for SA series. Defaults to \code{"RSA2c"}. }
 }
 \value{
 This function does not explicitly return a value.  It generates
-Quarto dashboard reports and saves them to the \code{output_sel} directory.
+  Quarto dashboard reports and saves them to the \code{output_sel} directory.
+
 }
 \description{
 This function performs Level 3 seasonal adjustment validation on Eurostat
@@ -62,6 +50,7 @@ specified Quarto dashboard template.
 }
 }
 \examples{
+
 \dontrun{
 # Example usage with default parameters
 nfsa_seas_level3()

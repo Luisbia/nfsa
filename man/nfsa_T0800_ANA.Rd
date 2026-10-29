@@ -9,7 +9,7 @@ nfsa_T0800_ANA(data, ref_year, threshold = 5, non_validated = FALSE)
 \arguments{
 \item{data}{a data.frame containing T0800 data}
 
-\item{ref_year}{A numeric value specifying the referencew year to which the data should be compared.}
+\item{ref_year}{A numeric value specifying the reference year to which the data should be compared.}
 
 \item{threshold}{A numeric value specifying the threshold for acceptable differences between NFSA and ANA data.
 Defaults to 5.}

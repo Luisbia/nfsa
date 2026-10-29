@@ -19,12 +19,11 @@ should include columns for \code{sto} (Statistical Object), \code{ref_sector}
 \code{ref_area} (Reference Area), and \code{time_period}.}
 
 \item{output_sel}{(optional) A character string specifying the directory where
-the output Excel file will be saved. Defaults to \code{"output/internal"}
-within the project directory (using \code{here::here()}).}
+the output Excel file will be saved. Defaults to the project directory (\code{here::here()}).}
 
 \item{threshold}{(optional) A numeric value specifying the threshold for
 identifying discrepancies.  Differences greater than this threshold
-(in absolute value) will be flagged. Defaults to 2.}
+(in absolute value) will be flagged. Defaults to 1.}
 
 \item{rounding}{(optional) An integer specifying the number of decimal places
 to round the \code{obs_value} and check calculations to.  Defaults to 1.}
@@ -71,7 +70,7 @@ missing data to avoid errors in Excel.
 \examples{
 \dontrun{
 # Example usage:
-nfsa_internal_consistency_T0801(my_dataset, output_sel = "my_output_folder", threshold = 5)
+nfsa_internal_consistency(my_dataset, output_sel = "my_output_folder", threshold = 5)
 }
 
 }

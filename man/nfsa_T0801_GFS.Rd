@@ -4,48 +4,27 @@
 \alias{nfsa_T0801_GFS}
 \title{Compare NFSA T0801 data with GFS data}
 \usage{
-nfsa_T0801_GFS(
-  country,
-  quarter,
-  threshold = 1,
-  input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-  output_sel = here::here("output", "inter_domain")
-)
+nfsa_T0801_GFS(data, ref_quarter, threshold = 5)
 }
 \arguments{
-\item{country}{A character vector specifying the country code(s) to process.}
+\item{data}{Data frame containing T0801 observations with \code{ref_area}, \code{id},
+\code{time_period}, and \code{obs_value}.}
 
-\item{quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
+\item{ref_quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
 
-\item{threshold}{A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 1.}
-
-\item{input_sel}{A character string specifying the file path for the NFSA input data directory. Defaults to \code{"M:/nas/Rprod/data/q/new/nsa/"}.}
-
-\item{output_sel}{A character string specifying the file path for the output directory. Defaults to \code{here::here("output", "inter_domain")}.}
+\item{threshold}{A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 5.}
 }
 \value{
-This function does not return a value. It generates an Excel file containing the comparison results in the specified output directory if discrepancies are found. If no discrepancies are found, a success message is displayed.
+A data frame of discrepancies and validation indicators. Returns
+\code{NULL} with a success message when no discrepancies are found.
 }
 \description{
 This function compares NFSA T0801 data with GFS data for a given country and quarter, identifying discrepancies above a specified threshold.
 }
-\details{
-The function performs the following steps:
-\enumerate{
-\item Collects NFSA T0801 data using \code{nfsa_get_data}.
-\item Collects GFS data from XML files located in a specific directory structure based on the provided quarter.
-\item Joins the NFSA and GFS data based on \code{ref_area}, \code{ref_sector}, \code{sto}, \code{accounting_entry}, and \code{time_period}.
-\item Calculates the absolute difference between NFSA and GFS values.
-\item Filters for discrepancies where the absolute difference exceeds the specified threshold.
-\item Calculates the difference as a percentage of GDP.
-\item Flags observations where the difference as a percentage of GDP exceeds 0.3\%.
-\item Writes the comparison results to an Excel file in the specified output directory.
-}
-}
 \examples{
 \dontrun{
 # Example usage:
-nfsa_T0801_GFS(country = "IE", quarter = "2023-Q1", threshold = 5)
+nfsa_T0801_GFS(data = dat, ref_quarter = "2023Q1", threshold = 5)
 }
 
 }

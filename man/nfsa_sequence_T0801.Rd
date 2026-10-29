@@ -4,23 +4,21 @@
 \alias{nfsa_sequence_T0801}
 \title{Show data or revisions as sequence of accounts for T0801}
 \usage{
-nfsa_sequence_T0801(
-  data,
-  template = "M:/nas/Rprod/assets/seq_accounts_T0801.xlsx",
-  output_sel = here::here()
-)
+nfsa_sequence_T0801(data, template = "M:/nas/Rprod/assets/seq_accounts_T0801.xlsx", output_sel = here::here())
 }
 \arguments{
-\item{data}{A data frame with T0800 data for one or several countries and years.}
+\item{data}{A data frame with T0801 data for one or several countries and years.}
 
-\item{template}{A character string specifying the file path to the Excel template file. Default: \verb{M:/nas/Rprod/assets/seq_accounts_T0801.xlsx}.}
+\item{template}{A character string specifying the file path to the Excel template file. Default: \code{M:/nas/Rprod/assets/seq_accounts_T0801.xlsx}.}
 
-\item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here::here()}.}
+\item{output_sel}{A character string specifying the file path to the directory where the output Excel file will be saved. Default: \code{here::here()}. }
 }
 \value{
 None. The function saves an Excel file to the specified output directory.
-The filename includes the country code(s) and a timestamp. A success message is printed to the console
-indicating the location of the created file, or if there are no revisions.
+  The filename includes the country code(s) and a timestamp. A success message is printed to the console
+  indicating the location of the created file, or if there are no revisions.
+
+
 }
 \description{
 This function takes T0800 data if there is not a version \code{column} or calculates the revision of the two more
@@ -28,6 +26,7 @@ recent versions, formats the output, and exports it to an Excel file based on a
 specified template.
 }
 \examples{
+
 \dontrun{
   # Example usage with specific country and default settings
   nfsa_sequence_T0801(data = dataset)

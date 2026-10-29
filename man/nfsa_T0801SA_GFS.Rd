@@ -7,11 +7,12 @@
 nfsa_T0801SA_GFS(data, ref_quarter = "2026Q2", threshold = 5)
 }
 \arguments{
+\item{data}{Data frame containing T0801SA observations with \code{ref_area}, \code{id},
+\code{time_period}, and \code{obs_value}.}
+
 \item{ref_quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
 
-\item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 1.}
-
-\item{country}{A character string representing the country code (e.g., "DE").}
+\item{threshold}{A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 5.}
 }
 \value{
 A data frame containing the joined NFSA and GFS data, the difference between them,
@@ -24,9 +25,10 @@ identifies discrepancies between the two datasets .
 }
 \examples{
 \dontrun{
-  # Compare NFSA and GFS data for Germany with a threshold of 10
-  result <- nfsa_T0801SA_GFS(data = dat, quarter = "2025Q3")
+  # Compare NFSA and GFS data for Germany with the default threshold
+  result <- nfsa_T0801SA_GFS(data = dat, ref_quarter = "2025Q3")
 
 }
+
 
 }

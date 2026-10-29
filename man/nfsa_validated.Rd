@@ -4,22 +4,16 @@
 \alias{nfsa_validated}
 \title{Find and Compile Validation Timestamps}
 \usage{
-nfsa_validated(
-  time_min = lubridate::ymd(lubridate::today()),
-  time_max = lubridate::ymd(lubridate::today())
-)
+nfsa_validated(time_min = lubridate::ymd(lubridate::today()), time_max = lubridate::ymd(lubridate::today()))
 }
 \arguments{
-\item{time_min}{A date object or character string coercible to a date,
-specifying the minimum date for validation files to be considered.
-Files with timestamps earlier than this date will be ignored. Defaults to current date}
+\item{time_min}{A date object or character string coercible to a date, specifying the minimum date for validation files to be considered. Files with timestamps earlier than this date will be ignored. Defaults to current date }
 
-\item{time_max}{A date object or character string coercible to a date,
-specifying the maximum date for validation files to be considered.
-Files with timestamps later than this date will be ignored. Defaults to current date}
+\item{time_max}{A date object or character string coercible to a date, specifying the maximum date for validation files to be considered. Files with timestamps later than this date will be ignored. Defaults to current date }
 }
 \value{
-a data frame
+ a data frame
+
 }
 \description{
 This function searches for validation files in a specified directory,
@@ -27,6 +21,7 @@ extracts the timestamps, and compiles the earliest timestamp for each table,
 frequency, adjustment, and reference area combination.
 }
 \examples{
+
 \dontrun{
 nfsa_validation(time_min = "2023-01-01")
 }

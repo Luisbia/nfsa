@@ -8,9 +8,10 @@ nfsa_loaded(time_min, time_max = lubridate::today(), recursive = FALSE)
 }
 \arguments{
 \item{time_min}{A date specifying the minimum time for log files to be considered.
-Defaults to the beginning of the current day.}
+Required; log files dated before this value are excluded.}
 
-\item{time_max}{A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.}
+\item{time_max}{Date or date-time upper bound. Defaults to the current date
+at midnight; files received after this time are excluded.}
 
 \item{recursive}{Logical. Should the function search for log files recursively within subdirectories?
 Defaults to \code{FALSE}.}

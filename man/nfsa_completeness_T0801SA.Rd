@@ -11,11 +11,12 @@ nfsa_completeness_T0801SA(
 )
 }
 \arguments{
+\item{data}{Data frame containing \code{ref_area}, \code{id}, \code{time_period}, and
+\code{obs_value} for the countries to check.}
+
 \item{end_quarter}{Last quarter that should have been reported (e.g.: "2026-Q3")}
 
 \item{requirements}{A link to the file to be checked, by default \code{"M:/nas/Rprod/assets/completeness_T0801SA.xlsx"}.}
-
-\item{country}{A character vector specifying the countries for which to check data completeness.}
 }
 \value{
 Invisible. The function's primary side effect is to produce an Excel file when data is missing.
@@ -28,6 +29,6 @@ This function checks the completeness of NFSA data against predefined regulatory
 \examples{
 \dontrun{
 # Check completeness for Germany save the output in "my_output" directory
-nfsa_completeness_regulation_T0801SA(country = "DE",output_sel = "my_output")
+nfsa_completeness_T0801SA(data = dat, end_quarter = "2026-Q3")
 }
 }

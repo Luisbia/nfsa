@@ -4,56 +4,36 @@
 \alias{nfsa_seas_level2}
 \title{Perform Level 2 Seasonal Adjustment Validation}
 \usage{
-nfsa_seas_level2(
-  mode = "country",
-  agg = NULL,
-  series = here::here("assets", "seas_level1.xlsx"),
-  time_min = "1999-Q1",
-  input_sel = "M:/nas/Rprod/data/",
-  output_sel = here::here("output", "seas"),
-  dashboard_sel = here::here("assets", "level2_eurostat_short.qmd"),
-  default_type_sel = "X13",
-  default_spec_nsa_sel = "RSA1",
-  default_spec_sa_sel = "RSA2c"
-)
+nfsa_seas_level2(mode = "country", agg = NULL, series = here::here("assets", "seas_level1.xlsx"),
+    time_min = "1999-Q1", input_sel = "M:/nas/Rprod/data/", output_sel = here::here("output",
+        "seas"), dashboard_sel = here::here("assets", "level2_eurostat_short.qmd"),
+    default_type_sel = "X13", default_spec_nsa_sel = "RSA1", default_spec_sa_sel = "RSA2c")
 }
 \arguments{
-\item{mode}{A character string specifying the data loading mode. Either
-\code{"country"} (default) or \code{"agg"}.}
+\item{series}{Path to an Excel file containing a list of series to process. Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain at least \code{ref_area} and \code{id} columns.}
 
-\item{agg}{A character string specifying the aggregate area, used when
-\code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when
-\code{mode = "country"}.}
+\item{mode}{A character string specifying the data loading mode. Either \code{"country"} (default) or \code{"agg"}.}
 
-\item{series}{Path to an Excel file containing a list of series to process.
-Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
-at least \code{ref_area} and \code{id} columns.}
+\item{agg}{A character string specifying the aggregate area, used when \code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when \code{mode = "country"}.}
 
-\item{time_min}{The earliest quarter to include in the analysis. Defaults to
-\code{"1999-Q1"}. Only applied when \code{mode = "country"}.}
+\item{time_min}{The earliest quarter to include in the analysis. Defaults to \code{"1999-Q1"}. Only applied when \code{mode = "country"}.}
 
-\item{input_sel}{Path to the directory containing input data files. Defaults
-to \code{"M:/nas/Rprod/data/"}. In \code{"agg"} mode this should point to
-the parent data directory (the function appends \code{<agg>_data/<agg>_new.csv}).}
+\item{input_sel}{Path to the directory containing input data files. Defaults to \code{"M:/nas/Rprod/data/"}. In \code{"agg"} mode this should point to the parent data directory (the function appends \code{<agg>_data/<agg>_new.csv}).}
 
-\item{output_sel}{Path to the directory where Quarto reports will be saved.
-Defaults to \code{here::here("output", "seas")}.}
+\item{output_sel}{Path to the directory where Quarto reports will be saved. Defaults to \code{here::here("output", "seas")}.}
 
-\item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to
-\code{here::here("assets", "level2_eurostat_short.qmd")}.}
+\item{dashboard_sel}{Path to the Quarto dashboard template. Defaults to \code{here::here("assets", "level2_eurostat_short.qmd")}.}
 
-\item{default_type_sel}{Default seasonal adjustment method. Defaults to
-\code{"X13"}.}
+\item{default_type_sel}{Default seasonal adjustment method. Defaults to \code{"X13"}.}
 
-\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults
-to \code{"RSA1"}.}
+\item{default_spec_nsa_sel}{Default specification for NSA series. Defaults to \code{"RSA1"}.}
 
-\item{default_spec_sa_sel}{Default specification for SA series. Defaults to
-\code{"RSA2c"}.}
+\item{default_spec_sa_sel}{Default specification for SA series. Defaults to \code{"RSA2c"}. }
 }
 \value{
 Called for its side effects. Generates one Quarto dashboard report
-per series in \code{output_sel}. Returns \code{NULL} invisibly.
+  per series in \code{output_sel}. Returns \code{NULL} invisibly.
+
 }
 \description{
 Performs level 2 seasonal adjustment validation on quarterly
@@ -63,6 +43,7 @@ individual countries (loaded via \code{nfsa_get_data}), and \code{"agg"}
 for aggregates (EA, EU, etc.) loaded from a flat CSV file.
 }
 \examples{
+
 \dontrun{
 # Country mode: process series listed in the default Excel file
 nfsa_seas_level2()

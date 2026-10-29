@@ -7,6 +7,16 @@
 nfsa_quartely_annual(df_q, df_a, abs_threshold = 5, rel_threshold = 1)
 }
 \arguments{
+\item{df_q}{Data frame containing quarterly NFSA
+observations, typically from T0801.
+Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
+Time periods must begin with a four-digit year.}
+
+\item{df_a}{Data frame containing annual NFSA
+observations, typically from T0800.
+Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
+Annual time periods must be expressed as "YYYY".}
+
 \item{abs_threshold}{Numeric. Maximum acceptable absolute
 difference between the sum of quarterly observations and
 the annual observation. Defaults to 5.}
@@ -14,20 +24,10 @@ the annual observation. Defaults to 5.}
 \item{rel_threshold}{Numeric. Maximum acceptable relative
 difference between the sum of quarterly observations and
 the annual observation. Defaults to 1\%.}
-
-\item{quarterly_data}{Data frame containing quarterly NFSA
-observations, typically from T0801.
-Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
-Time periods must begin with a four-digit year.}
-
-\item{annual_data}{Data frame containing annual NFSA
-observations, typically from T0800.
-Must contain \code{ref_area}, \code{id}, \code{time_period}, and \code{obs_value}.
-Annual time periods must be expressed as "YYYY".}
 }
 \value{
 A tibble containing discrepancies exceeding the thresholds,
-with the following columns:
+including the quarterly aggregate, annual value, \code{Difference}, and \verb{In \%}.
 }
 \description{
 Compares quarterly data (T0801) with annual data
@@ -35,7 +35,8 @@ and identifies discrepancies exceeding a specified
 threshold.
 }
 \details{
-Quarterly observations are aggregated by calendar year.
+Quarterly observations are aggregated by calendar year: \code{.PS} series use
+their mean; other series use their sum.
 
 Only years containing exactly four quarterly observations
 are considered. The annual totals are then compared with
@@ -45,7 +46,7 @@ The comparison uses a left join, meaning that only series
 present in the quarterly dataset are considered.
 
 The function returns only observations for which the
-absolute difference exceeds the specified threshold.
+absolute and percentage differences both exceed their respective thresholds.
 If no discrepancies are found, an empty tibble is returned.
 }
 \examples{
@@ -60,4 +61,5 @@ nfsa_quartely_annual(quarterly_nsa,
 nfsa_quartely_annual(quarterly_sca,
                     annual)
 }
+
 }

@@ -7,7 +7,10 @@
 nfsa_T0800_GFS(data, ref_year, threshold = 5)
 }
 \arguments{
-\item{ref_year}{A character string specifying the quarter in the format "YYYY" (e.g., 2025).}
+\item{data}{Data frame containing T0800 observations with \code{ref_area}, \code{id},
+\code{time_period}, and \code{obs_value}.}
+
+\item{ref_year}{Reference year as a number or character string (e.g., 2025).}
 
 \item{threshold}{A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 5.}
 }

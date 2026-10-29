@@ -4,29 +4,20 @@
 \alias{nfsa_write_excel_template}
 \title{Create NFSA Excel template}
 \usage{
-nfsa_write_excel_template(
-  data,
-  template = "M:/nas/Rprod/assets/T0801_template.xlsx",
-  output_sel = here::here()
-)
+nfsa_write_excel_template(data, template = "M:/nas/Rprod/assets/T0801_template.xlsx", output_sel = here::here())
 }
 \arguments{
-\item{data}{A data frame containing at least the columns
-\code{id}, \code{ref_area}, \code{time_period}, and \code{obs_value}. The \code{id} column must
-encode \code{ref_sector}, \code{sto}, and \code{accounting_entry} separated by dots
-(for example, \code{"S1.A.B"}).}
+\item{data}{A data frame containing at least the columns \code{id}, \code{ref_area}, \code{time_period}, and \code{obs_value}. The \code{id} column must encode \code{ref_sector}, \code{sto}, and \code{accounting_entry} separated by dots (for example, \code{"S1.A.B"}).}
 
-\item{template}{Path to the Excel template file to use for
-table T0801/T0800. Defaults to \code{"M:/nas/Rprod/assets/T0801_template.xlsx"}.
-For table 8 should be changed to \code{"M:/nas/Rprod/assets/T0801_template.xlsx"}}
+\item{template}{Path to the Excel template file to use for table T0801/T0800. Defaults to \code{"M:/nas/Rprod/assets/T0801_template.xlsx"}. For table 8 should be changed to \code{"M:/nas/Rprod/assets/T0801_template.xlsx"}}
 
-\item{output_sel}{Path to the output directory where the generated
-Excel file will be saved. Defaults to
-\code{here::here()}.}
+\item{output_sel}{Path to the output directory where the generated Excel file will be saved. Defaults to \code{here::here()}. }
 }
 \value{
+
 Invisibly returns the \code{Workbook} object (from \code{openxlsx}) after the
 data have been written and the file has been created.
+
 }
 \description{
 Generate an Excel file for table T0801/T0800 by reshaping NFSA data and
@@ -52,6 +43,7 @@ The output file name follows the pattern
 available in the calling environment.
 }
 \examples{
+
 \dontrun{
 library(tidyverse)
 library(here)
@@ -72,6 +64,7 @@ nfsa_write_excel_template_T0801(
   output_sel = here::here("output", "excel_template")
 )
 }
+
 }
 \seealso{
 \code{\link[openxlsx]{loadWorkbook}},

@@ -25,6 +25,6 @@ between the two datasets and outputs the results to an Excel file.
 result <- nfsa_T0801SA_QNA(data = dat)
 
 # Compare NFSA and QNA data for France with a threshold of 5
-result <- nfsa_T0801SA_QNA(country = "FR", threshold = 10)
+result <- nfsa_T0801SA_QNA(data = dat, threshold = 10)
 }
 }

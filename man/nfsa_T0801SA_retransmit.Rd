@@ -2,20 +2,23 @@
 % Please edit documentation in R/nfsa_T0801SA_retransmit.R
 \name{nfsa_T0801SA_retransmit}
 \alias{nfsa_T0801SA_retransmit}
-\title{#' Identify the need to ask for a new T0801SA}
+\title{Identify the need to ask for a new T0801SA}
 \usage{
 nfsa_T0801SA_retransmit(country, ref_period)
 }
 \arguments{
-\item{country_sel}{a character string for an individual country.}
+\item{country}{Character string specifying one country code.}
+
+\item{ref_period}{Transmission reference period, such as \code{"2026Q2"} or
+\code{"2026_0002"}, passed to \code{nfsa_get_data()}.}
 }
 \value{
 a data.frame showing T0801 values before and after the transmission
 of T081SA or a printed statement declaring no need to ask for a new transmission.
 }
 \description{
-#' Identify the need to ask for a new T0801SA
+Identify the need to ask for a new T0801SA
 }
 \examples{
-se <-nfsa_T0801SA_retransmit("SE")
+se <-nfsa_T0801SA_retransmit("SE", ref_period = "2026Q2")
 }

@@ -30,11 +30,22 @@ nfsa_balancing(
 \item{output_dir}{Optional complete output directory. By default a subfolder
 named <run_name>_reconciliation_output is created in getwd() at call time.}
 
-\item{scale_floor, weight_rules}{Original scale and weight settings.}
+\item{scale_floor}{Positive numeric floor for relative adjustment scales.
+\code{NULL} selects a floor from the nonzero observations.}
 
-\item{osqp_eps_abs, osqp_eps_rel, osqp_max_iter, osqp_verbose}{Original OSQP controls.}
+\item{weight_rules}{Data frame with \code{match_type}, \code{pattern}, and \code{weight}
+columns defining adjustment penalties. Use \code{NULL} or zero rows for unit weights.}
 
-\item{check_tolerance}{Post-solve tolerance.}
+\item{osqp_eps_abs}{Absolute OSQP convergence tolerance; defaults to \code{1e-6}.}
+
+\item{osqp_eps_rel}{Relative OSQP convergence tolerance; defaults to \code{1e-6}.}
+
+\item{osqp_max_iter}{Maximum OSQP iterations; defaults to \code{10000000L}.}
+
+\item{osqp_verbose}{Logical; whether OSQP prints solver progress. Defaults to \code{FALSE}.}
+
+\item{check_tolerance}{Positive numeric tolerance for post-solve constraint
+violations and residuals. Defaults to \code{0.1}.}
 
 \item{equation_file}{Optional path to an equation workbook.}
 }

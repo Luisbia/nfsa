@@ -7,21 +7,24 @@
 nfsa_theme(base_size = 13, base_family = "sans", grid = TRUE, axis = TRUE)
 }
 \arguments{
-\item{base_size}{Numeric. Base font size for the theme (default is 11).}
+\item{base_size}{Numeric. Base font size for the theme (default is 13).}
 
 \item{base_family}{Character. Base font family for the theme (default is "sans").}
 
 \item{grid}{Logical. Whether to display major grid lines (default is TRUE).}
 
-\item{axis}{Logical. Whether to display axis lines (default is TRUE).}
+\item{axis}{Logical. Whether to display axis lines (default is TRUE). }
 }
 \value{
 A ggplot2 theme object.
+
+
 }
 \description{
 A custom ggplot2 theme similar to Eurostats
 }
 \examples{
+
 # Apply the NFSA theme to a ggplot
 library(ggplot2)
 
