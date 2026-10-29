@@ -9,11 +9,10 @@ nfsa_to_eur(data, freq = "Q")
 \arguments{
 \item{data}{A data frame containing financial data, with columns \code{ref_area} (country code) and \code{time_period} (time period).}
 
-\item{freq}{A character string indicating the frequency of the data ("Q" for quarterly, "A" for annual). Defaults to "Q". }
+\item{freq}{A character string indicating the frequency of the data ("Q" for quarterly, "A" for annual). Defaults to "Q".}
 }
 \value{
 A data frame with an additional \code{obs_value} column, where the original values have been converted to Euro.
-
 }
 \description{
 Converts data to Euro using exchange rates from Eurostat.
@@ -22,7 +21,6 @@ based on the countries present in the ref_area column. Handles mixed datasets
 containing both types of countries.
 }
 \examples{
-
 \dontrun{
 # Convert to Euro (quarterly data) - automatically detects conversion type
 data_eur <- nfsa_to_eur(data = your_data, freq = "Q")

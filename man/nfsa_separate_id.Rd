@@ -7,7 +7,7 @@
 nfsa_separate_id(data)
 }
 \arguments{
-\item{data}{A data frame containing the \code{id} column to be separated. }
+\item{data}{A data frame containing the \code{id} column to be separated.}
 }
 \value{
 A data frame with the original \code{id} column removed and three new columns: \code{ref_area}, \code{sto}, and \code{accounting_entry}.
@@ -16,7 +16,6 @@ A data frame with the original \code{id} column removed and three new columns: \
 This function separates the \code{id} column in an NFSA data frame into three new columns: \code{ref_area}, \code{sto}, and \code{accounting_entry}. The separation is based on the "." delimiter.
 }
 \examples{
-
 # Create a sample data frame
 df <- data.frame(id = c("REF_SECTOR1.STO1.ENTRY1", "REF_SECTOR2.STO2.ENTRY2"))
 

@@ -17,6 +17,5 @@ For closer inspection of small data frames this functions exports it to excel an
 }
 \examples{
 
-
  nfsa_to_excel(mtcars)
 }
