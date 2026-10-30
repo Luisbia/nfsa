@@ -39,7 +39,7 @@ country <- sort(unique(data$ref_area))
   limit_validation <- paste0(q_year - 4, "-", q_sub)
 
   # 1. Collect NFSA Data
-  nfsa_data <- dat |>
+  nfsa_data <- data |>
     select(ref_area,time_period,id,qsa = obs_value)
 
   # 2. Identify latest QNA XML Files
