@@ -44,6 +44,14 @@
 #' nfsa_seas_level3(output_sel = here::here("my_output"))
 #' }
 #'
+#' @importFrom dplyr arrange filter full_join join_by left_join mutate rename
+#' @importFrom here here
+#' @importFrom lubridate yq
+#' @importFrom quarto quarto_render
+#' @importFrom readxl read_xlsx
+#' @importFrom stats frequency start ts
+#' @importFrom stringr str_sub
+#' @importFrom tidyr nest unite
 #' @export
 nfsa_seas_level3 <- function(series = here::here("assets", "seas_level1.xlsx"),
                              time_min = "1999-Q1",
