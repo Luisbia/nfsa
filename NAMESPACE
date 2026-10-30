@@ -47,44 +47,70 @@ export(nfsa_transmissions)
 export(nfsa_unite_id)
 export(nfsa_validated)
 export(nfsa_write_excel_template)
-import(cli)
-import(data.table)
-import(dplyr)
-import(ggplot2)
-import(janitor)
-import(lubridate)
-import(openxlsx)
-import(purrr)
-import(readr)
-import(readsdmx)
-import(readxl)
-import(stringr)
-import(tibble)
-import(tidyr)
-importFrom(arrow,open_dataset)
+importFrom(Matrix,
+  Diagonal,
+  sparseMatrix
+)
+importFrom(SAvalidation,level1_validation)
+importFrom(arrow,
+  open_dataset,
+  write_parquet
+)
 importFrom(cli,
   cli_abort,
   cli_alert_danger,
-  cli_inform
+  cli_alert_info,
+  cli_alert_success,
+  cli_alert_warning,
+  cli_inform,
+  cli_progress_message,
+  cli_progress_step
 )
-importFrom(data.table,fread)
+importFrom(data.table,
+  ":=",
+  data.table,
+  dcast,
+  fread,
+  rbindlist
+)
 importFrom(dplyr,
   across,
+  add_count,
   all_of,
+  anti_join,
   any_of,
   arrange,
+  bind_rows,
+  case_match,
+  case_when,
   collect,
+  desc,
+  distinct,
+  everything,
   filter,
+  first,
   full_join,
   group_by,
-  group_split,
+  if_all,
   if_else,
+  inner_join,
   join_by,
+  lag,
   left_join,
   mutate,
+  n,
+  pick,
   pull,
+  relocate,
+  rename,
+  row_number,
   select,
+  slice_head,
   slice_max,
+  slice_tail,
+  summarise,
+  tally,
+  transmute,
   ungroup
 )
 importFrom(fs,
@@ -93,38 +119,120 @@ importFrom(fs,
 )
 importFrom(ggplot2,
   aes,
+  annotate,
+  coord_flip,
   element_blank,
+  element_line,
+  element_rect,
+  element_text,
   facet_wrap,
   geom_area,
   geom_col,
   geom_hline,
   geom_line,
+  geom_point,
+  geom_tile,
   ggplot,
   ggsave,
+  ggtitle,
   labs,
+  margin,
+  rel,
+  scale_color_manual,
   scale_colour_manual,
+  scale_fill_gradient2,
   scale_fill_manual,
   scale_y_continuous,
-  theme
+  sec_axis,
+  theme,
+  theme_minimal,
+  theme_void,
+  xlab,
+  xlim,
+  ylab,
+  ylim
 )
-importFrom(janitor,clean_names)
+importFrom(ggthemes,theme_fivethirtyeight)
+importFrom(grDevices,
+  dev.off,
+  png
+)
+importFrom(grid,
+  grid.layout,
+  grid.newpage,
+  pushViewport,
+  unit,
+  viewport
+)
+importFrom(gridExtra,marrangeGrob)
+importFrom(here,here)
+importFrom(janitor,
+  clean_names,
+  round_half_up
+)
+importFrom(lubridate,
+  as_date,
+  as_datetime,
+  now,
+  today,
+  ymd,
+  ymd_hm,
+  yq
+)
+importFrom(magrittr,"%>%")
+importFrom(openxlsx,
+  addStyle,
+  addWorksheet,
+  createStyle,
+  createWorkbook,
+  freezePane,
+  loadWorkbook,
+  saveWorkbook,
+  setColWidths,
+  write.xlsx,
+  writeData
+)
+importFrom(osqp,
+  osqpSettings,
+  solve_osqp
+)
 importFrom(purrr,
   imap_dfr,
+  list_rbind,
   map,
+  map2,
   map_int,
-  pwalk
+  map_lgl,
+  possibly,
+  pwalk,
+  safely,
+  set_names,
+  walk
 )
 importFrom(quarto,quarto_render)
 importFrom(readr,
+  cols,
+  parse_number,
+  read_csv,
   read_delim,
+  read_lines,
+  write_csv,
   write_excel_csv
 )
 importFrom(readsdmx,read_sdmx)
-importFrom(readxl,read_xlsx)
+importFrom(readxl,
+  excel_sheets,
+  read_excel,
+  read_xlsx
+)
 importFrom(restatapi,get_eurostat_data)
 importFrom(rlang,
   .data,
   parse_exprs
+)
+importFrom(scales,
+  label_number,
+  pretty_breaks
 )
 importFrom(seastests,
   fried,
@@ -134,26 +242,45 @@ importFrom(seastests,
   seasdum,
   welch
 )
-importFrom(stats,ts)
+importFrom(stats,
+  frequency,
+  median,
+  na.omit,
+  quantile,
+  setNames,
+  start,
+  ts
+)
 importFrom(stringr,
   fixed,
   str_detect,
   str_extract,
   str_match,
+  str_remove,
+  str_remove_all,
   str_replace,
-  str_sub
+  str_sub,
+  str_trim
 )
 importFrom(tibble,
+  add_column,
   as_tibble,
+  deframe,
   enframe,
   tibble
 )
 importFrom(tidyr,
+  crossing,
   drop_na,
+  expand_grid,
   nest,
   pivot_longer,
+  pivot_wider,
+  replace_na,
   separate_wider_delim,
   unite,
+  unnest,
   unnest_wider
 )
+importFrom(tools,file_path_sans_ext)
 importFrom(utils,capture.output)

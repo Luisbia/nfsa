@@ -28,7 +28,8 @@
 #' @export
 nfsa_T0800_GFS <- function(data ,
                            ref_year,
-                           threshold = 5){
+                           threshold = 5
+                           ){
 
 
   limit_validation <- as.numeric(max(data$time_period)) -4

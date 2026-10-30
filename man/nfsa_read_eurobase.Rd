@@ -19,11 +19,11 @@ Defaults to \code{"nasq_10_ki_partial_Y"}. Other options are \code{"nasq_10_ki_p
 
 \item{time_min}{\code{Date} or \code{character(1)} coercible to a Date via
 \code{\link[lubridate:as_date]{lubridate::as_date()}}. Only files with a modification date on or after
-this value are parsed. Defaults to \code{\link[lubridate:now]{lubridate::today()}}.}
+this value are parsed. Defaults to \code{\link[lubridate:today]{lubridate::today()}}.}
 
 \item{time_max}{\code{Date} or \code{character(1)} coercible to a Date via
 \code{\link[lubridate:as_date]{lubridate::as_date()}}. Only files with a modification date on or before
-this value are parsed. Defaults to \code{\link[lubridate:now]{lubridate::today()}}.}
+this value are parsed. Defaults to \code{\link[lubridate:today]{lubridate::today()}}.}
 
 \item{path}{\code{character(1)}. Directory to scan for matching files.
 Defaults to \code{"I:/econ/NFSA/ref/sent2eurobase/"}.}
@@ -69,7 +69,7 @@ the file is used as a fallback.
 
 \subsection{Zip support}{
 
-Files with a \code{.zip} extension are handled transparently via \code{\link[base:connections]{base::unz()}}.
+Files with a \code{.zip} extension are handled transparently via \code{\link[base:unz]{base::unz()}}.
 If the archive contains multiple files, the first one is used.
 }
 

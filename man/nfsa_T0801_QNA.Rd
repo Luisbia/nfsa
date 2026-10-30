@@ -4,49 +4,29 @@
 \alias{nfsa_T0801_QNA}
 \title{Compare NFSA T0801 Data with Quarterly National Accounts (QNA)}
 \usage{
-nfsa_T0801_QNA(
-  country,
-  quarter,
-  threshold = 1,
-  non_validated = FALSE,
-  input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-  output_sel = here::here("output", "inter_domain")
-)
+nfsa_T0801_QNA(data, ref_quarter, threshold = 5, non_validated = FALSE)
 }
 \arguments{
-\item{country}{A character vector specifying the country or countries to process (ISO2 code).}
+\item{data}{Data frame containing T0801 observations with \code{ref_area}, \code{id},
+\code{time_period}, and \code{obs_value}.}
 
-\item{quarter}{A character string specifying the quarter in "YYYYQQ" format (e.g., "2023Q1").}
+\item{ref_quarter}{A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").}
 
 \item{threshold}{A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.}
 
 \item{non_validated}{Logical condition. If \code{FALSE}, which is the default option, only looks for files in validated. If set to \code{TRUE} also looks in non-validated.}
-
-\item{input_sel}{A character string specifying the directory containing the NFSA data. Default is \code{"M:/nas/Rprod/data/q/new/nsa/"}.}
-
-\item{output_sel}{A character string specifying the directory to save the output Excel file. Default is \code{here::here("output", "inter_domain")}.}
 }
 \value{
-None. The function generates an Excel file in the \code{output_sel} directory with the comparison results.  It also prints a success message to the console indicating where the file was saved or that the data is consistent.
+A data frame of discrepancies and validation indicators. Returns
+\code{NULL} with a success message when no discrepancies are found.
 }
 \description{
 This function compares the NFSA T0801 data with the Quarterly National Accounts (QNA) data, identifies discrepancies based on a specified threshold, and generates an Excel file containing the comparison results.
 }
-\details{
-This function performs the following steps:
-\enumerate{
-\item Loads NFSA T0801 data using the \code{nfsa_get_data} function.
-\item Reads relevant QNA data from XML files within a specified directory structure.
-\item Merges the NFSA and QNA data based on common keys.
-\item Calculates the absolute difference between NFSA and QNA values.
-\item Flags discrepancies where the absolute difference exceeds the specified \code{threshold}.
-\item Generates an Excel file containing the comparison results.
-}
-}
 \examples{
 \dontrun{
 # Example usage:
-nfsa_T0801_QNA(country = "BE", quarter = "2023Q2", threshold = 2)
+nfsa_T0801_QNA(data = "dat", ref_quarter = "2023Q2", threshold = 2)
 }
 
 }

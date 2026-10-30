@@ -2,66 +2,51 @@
 #'
 #' @description This function compares the NFSA T0801 data with the Quarterly National Accounts (QNA) data, identifies discrepancies based on a specified threshold, and generates an Excel file containing the comparison results.
 #'
-#' @param country A character vector specifying the country or countries to process (ISO2 code).
-#' @param quarter A character string specifying the quarter in "YYYYQQ" format (e.g., "2023Q1").
+#' @param data Data frame containing T0801 observations with `ref_area`, `id`,
+#'   `time_period`, and `obs_value`.
+#' @param ref_quarter A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").
 #' @param threshold A numeric value indicating the absolute difference threshold for flagging discrepancies between NFSA and QNA data. Default is 1.
 #' @param non_validated Logical condition. If `FALSE`, which is the default option, only looks for files in validated. If set to `TRUE` also looks in non-validated.
-#' @param input_sel A character string specifying the directory containing the NFSA data. Default is `"M:/nas/Rprod/data/q/new/nsa/"`.
-#' @param output_sel A character string specifying the directory to save the output Excel file. Default is `here::here("output", "inter_domain")`.
 #'
-#' @return None. The function generates an Excel file in the `output_sel` directory with the comparison results.  It also prints a success message to the console indicating where the file was saved or that the data is consistent.
+#' @return A data frame of discrepancies and validation indicators. Returns
+#'   `NULL` with a success message when no discrepancies are found.
 #'
-#' @details This function performs the following steps:
-#'   \enumerate{
-#'     \item Loads NFSA T0801 data using the `nfsa_get_data` function.
-#'     \item Reads relevant QNA data from XML files within a specified directory structure.
-#'     \item Merges the NFSA and QNA data based on common keys.
-#'     \item Calculates the absolute difference between NFSA and QNA values.
-#'     \item Flags discrepancies where the absolute difference exceeds the specified `threshold`.
-#'     \item Generates an Excel file containing the comparison results.
-#'   }
 #'
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' nfsa_T0801_QNA(country = "BE", quarter = "2023Q2", threshold = 2)
+#' nfsa_T0801_QNA(data = "dat", ref_quarter = "2023Q2", threshold = 2)
 #' }
 #'
 #' @importFrom cli cli_alert_success cli_progress_message
 #' @importFrom dplyr bind_rows case_when distinct filter if_else inner_join left_join mutate pull select slice_max transmute
-#' @importFrom here here
 #' @importFrom janitor clean_names
-#' @importFrom openxlsx write.xlsx
 #' @importFrom purrr map
 #' @importFrom readsdmx read_sdmx
 #' @importFrom stringr str_extract str_replace
 #' @importFrom tibble enframe
 #' @export
-nfsa_T0801_QNA <- function(country,
-                           quarter,
-                           threshold = 1,
-                           non_validated = FALSE,
-                           input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-                           output_sel = here::here("output", "inter_domain")) {
+nfsa_T0801_QNA <- function(data,
+                           ref_quarter,
+                           threshold = 5,
+                           non_validated = FALSE) {
 
-  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
+country <- sort(unique(data$ref_area))
 
   # Robust date logic
-  q_year <- as.numeric(stringr::str_extract(quarter, "^\\d{4}"))
-  q_sub  <- stringr::str_extract(quarter, "Q\\d{2}$")
+  q_year <- as.numeric(stringr::str_extract(ref_quarter, "^\\d{4}"))
+  q_sub  <- stringr::str_extract(ref_quarter, "Q\\d{2}$")
   limit_validation <- paste0(q_year - 4, "-", q_sub)
 
   # 1. Collect NFSA Data
-  cli::cli_progress_message("Collecting NFSA (T0801)...")
-  nfsa_data <- nfsa_get_data(country = country, table = "T0801", type = "new") |>
-    dplyr::select(ref_area, id, time_period, nfsa = obs_value) |>
-    nfsa::nfsa_separate_id()
+  nfsa_data <- dat |>
+    select(ref_area,time_period,id,qsa = obs_value)
 
   # 2. Identify latest QNA XML Files
   cli::cli_progress_message("Locating latest QNA XML files...")
 
-  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
-  base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input")
+  country <- stringr::str_replace(country,"EL", "GR")# EL is GR in nama file names
+  base_path <- file.path("M:/nas/QSA10/Production", ref_quarter, "(1) QSA/(1_2) Validation in progress/(1_2_4) Consistency checks - QSA vs QNA/Input")
 
   # Build country pattern for faster file filtering
   country_pattern <- paste0(".*_(", paste(country, collapse = "|"), ")_.*\\.xml$")
@@ -91,55 +76,53 @@ nfsa_T0801_QNA <- function(country,
           sto == "EMP" & unit_measure == "HW" & counterpart_area == "W2" ~ "HW",
           TRUE ~ accounting_entry
         ),
-        nama = as.numeric(obs_value),
+        qna = as.numeric(obs_value),
         source_date = as.Date(stringr::str_extract(basename(file), "\\d{14}"), format = "%Y%m%d%H%M%S")
       ) |>
+      nfsa::nfsa_unite_id() |>
       dplyr::distinct()
   }
 
   # Read XML files with progress feedback
   cli::cli_progress_message("Reading {length(nama_files)} XML file(s)...")
   nama_data <- purrr::map(nama_files, read_nama, .progress = TRUE) |>
-    dplyr::bind_rows() |>
-    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
+    purrr::list_rbind(names_to = "file") |>
+    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area)) |>
+    dplyr::mutate(status = dplyr::if_else(stringr::str_detect(file,"non-Validated"),"Non-Validated", "Validated")) |>
+    dplyr::select(-file)
 
-  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
+
 
   # 4. Join and Calculate Consistency
   # Creating a GDP lookup ensures we don't lose rows if GDP is missing for some periods
   gdp_lookup <- nama_data |>
-    dplyr::filter(ref_sector == "S1", sto == "B1GQ", accounting_entry == "B") |>
-    dplyr::select(ref_area, time_period, gdp = nama)
+    dplyr::filter(id =="S1.B1GQ.B") |>
+    dplyr::select(ref_area, time_period, gdp = qna)
 
   nama_nfsa <- dplyr::inner_join(nama_data, nfsa_data,
-                                 by = c("ref_area", "ref_sector", "sto", "accounting_entry", "time_period")) |>
+                                 by = c("ref_area", "id", "time_period")) |>
     dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
     dplyr::mutate(
-      diff = round(nfsa - nama, 2),
-      as_gdp = if_else(sto != "EMP",round(diff * 100 / gdp, 3), NA)
+      diff = round(qna - qsa, 2),
+      as_gdp = if_else(!stringr::str_detect(id,"EMP"),round(diff * 100 / gdp, 3), NA)
     ) |>
     dplyr::filter(abs(diff) > threshold) |>
     dplyr::mutate(
       high_diff = abs(as_gdp) > 0.3,
-      validate = dplyr::if_else(high_diff & sto == "B1GQ" & time_period >= limit_validation,
-                                "NOT VALIDATED", "OK")
+      validate = dplyr::if_else(high_diff & id == "S1.B1GQ.B" & time_period >= limit_validation,
+                                "NOT VALIDATE", "VALIDATE")
     ) |>
-    dplyr::select(ref_area,ref_sector,sto,accounting_entry,time_period,nama_date = source_date,nama,nfsa,diff,as_gdp,`over 0.3 % GDP` = high_diff, validate)
+    dplyr::select(ref_area,id,time_period,qna_date = source_date,status,
+                  qna,qsa,Difference = diff,
+                  `As % GDP` = as_gdp,
+                  `Over 0.3 % GDP?` = high_diff,
+                  `Validate?` =validate)
 
   # 5. Summary and Export
   if (nrow(nama_nfsa) == 0) {
     cli::cli_alert_success("T0801 and QNA are fully consistent!")
     return(NULL)
   }
-  # ---------------------------
-
-  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  country_tag <- if(length(unique(nama_nfsa$ref_area)) == 1) unique(nama_nfsa$ref_area) else "Multi"
-  file_out <- file.path(output_sel, paste0("T0801_QNA_", country_tag, "_", ts, ".xlsx"))
-
-  openxlsx::write.xlsx(nama_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
-  cli::cli_alert_success("Validation report created: {.file {file_out}}")
-  nfsa::nfsa_to_excel(nama_nfsa)
   return(nama_nfsa)
 }
 

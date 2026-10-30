@@ -4,28 +4,17 @@
 \alias{nfsa_T0801_BOP}
 \title{Compare NFSA T0801 data with BOP data and identify discrepancies.}
 \usage{
-nfsa_T0801_BOP(
-  country,
-  quarter,
-  threshold = 5,
-  input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-  output_sel = here::here("output", "inter_domain")
-)
+nfsa_T0801_BOP(data, ref_quarter, threshold = 5)
 }
 \arguments{
-\item{country}{A character vector specifying the country code (e.g., "AT").}
+\item{data}{Data frame containing T0800 observations with \code{ref_area}, \code{id},
+\code{time_period}, and \code{obs_value}.}
 
-\item{quarter}{A character vector specifying the quarter of the data (e.g., "2025Q2").}
+\item{ref_quarter}{Reference year as a number or character string (e.g., 2025).}
 
 \item{threshold}{A numeric value specifying the threshold for the difference
 between NFSA and BOP data.  Differences exceeding this threshold are flagged.
 Default is 5.}
-
-\item{input_sel}{A character string specifying the directory containing the input
-NFSA data. Default is \verb{M:/nas/Rprod/data/q/new/nsa/}.}
-
-\item{output_sel}{A character string specifying the directory where the output
-Excel file will be saved. Default is \code{here::here("output", "inter_domain")}.}
 }
 \value{
 This function does not return a value. It generates an Excel file

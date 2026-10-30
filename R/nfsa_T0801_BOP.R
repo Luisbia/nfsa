@@ -4,15 +4,12 @@
 #' identifies discrepancies exceeding a specified threshold, and outputs the results
 #' to an Excel file.
 #'
-#' @param country A character vector specifying the country code (e.g., "AT").
-#' @param quarter A character vector specifying the quarter of the data (e.g., "2025Q2").
+#' @param data Data frame containing T0800 observations with `ref_area`, `id`,
+#'   `time_period`, and `obs_value`.
+#' @param ref_quarter Reference year as a number or character string (e.g., 2025).
 #' @param threshold A numeric value specifying the threshold for the difference
 #'   between NFSA and BOP data.  Differences exceeding this threshold are flagged.
 #'   Default is 5.
-#' @param input_sel A character string specifying the directory containing the input
-#'   NFSA data. Default is `M:/nas/Rprod/data/q/new/nsa/`.
-#' @param output_sel A character string specifying the directory where the output
-#'   Excel file will be saved. Default is `here::here("output", "inter_domain")`.
 #'
 #' @return This function does not return a value. It generates an Excel file
 #'   containing the comparison results in the specified output directory.  A
@@ -33,7 +30,7 @@
 #'
 #' @importFrom cli cli_alert_success cli_progress_message
 #' @importFrom dplyr distinct filter full_join if_else join_by mutate pull select
-#' @importFrom here here
+#' @importFrom tidyr drop_na
 #' @importFrom janitor clean_names
 #' @importFrom openxlsx write.xlsx
 #' @importFrom purrr list_rbind map
@@ -42,88 +39,62 @@
 #' @importFrom stringr str_replace str_sub
 #' @importFrom tibble as_tibble
 #' @export
-nfsa_T0801_BOP <- function(country,
-                           quarter,
-                           threshold = 5,
-                           input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-                           output_sel = here::here("output", "inter_domain")
-){
+nfsa_T0801_BOP <- function(data,
+                           ref_quarter,
+                           threshold = 5
+                          ){
 
 
-  cli::cli_progress_message("Collecting NFSA...")
+country <- sort(unique(dat$ref_area))
 
-
-
-  nfsa_data <- nfsa_get_data(country = country,table = "T0801", type = "new") |>
-    select(ref_area,id,time_period,nfsa = obs_value)  |>
-    nfsa::nfsa_separate_id()
+  nfsa_data <- dat |>
+    dplyr::select(ref_area,id,time_period,qsa = obs_value) |>
+    dplyr::mutate(qsa = round(qsa,2))
 
 
   ## BOP
 
   cli::cli_progress_message("Collecting BOP...")
-  country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
-  bop_files <- nama_files <- list.files(path = paste0("M:/nas/QSA10/Production/",quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_6) Consistency checks - QSA vs BoP/Input"),
-                                        pattern = "xml$",
-                                        full.names = TRUE,
-                                        recursive = TRUE) |>
-    as_tibble() |>
-    mutate(ref_area = str_sub(value,-22,-21)) |>
-    filter(ref_area %in% country) |>
-    select(value) |>
-    pull(value)
+  country <- stringr::str_replace(country,"EL", "GR")# EL is GR in nama file names
+  bop_files  <- list.files(path = paste0("M:/nas/QSA10/Production/",ref_quarter,"/(1) QSA/(1_2) Validation in progress/(1_2_6) Consistency checks - QSA vs BoP/Input"),
+                           pattern = "xml$",
+                           full.names = TRUE,
+                           recursive = TRUE) |>
+    tibble::as_tibble() |>
+    dplyr::mutate(ref_area = stringr::str_sub(value,-22,-21)) |>
+    dplyr::filter(ref_area %in% country) |>
+    dplyr::select(value) |>
+    dplyr::pull(value)
 
   read_bop_files <- function(file){
-    bop_data <- read_sdmx(file) |>
-      janitor::clean_names() |>
-      select(ref_area,ref_sector,sto,accounting_entry,time_period,bop = obs_value) |>
-      mutate(ref_sector = "S2") |>
-      mutate(bop = as.numeric(bop)) |>
-      distinct()
+    bop_data <- readsdmx::read_sdmx(file) |>
+    janitor::clean_names() |>
+    dplyr::select(ref_area,ref_sector,sto,accounting_entry,time_period,bop = obs_value) |>
+    dplyr::mutate(ref_sector = "S2") |>
+    dplyr::mutate(bop = as.numeric(bop)) |>
+    dplyr::distinct()
     return(bop_data)
   }
 
   bop_data <- map(bop_files,read_bop_files) |>
-    list_rbind()|>
-    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
-
-  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
-
-
-  bop_nfsa <- full_join(bop_data, nfsa_data,
-                        by = join_by(ref_area,ref_sector, sto,
-                                     accounting_entry, time_period)) |>
-    na.omit() |>
-    mutate(diff = round(nfsa-bop,1)) |>
-    filter(abs(diff)>threshold)
+    purrr::list_rbind()|>
+    dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area)) |>
+    nfsa::nfsa_unite_id()
 
 
+  bop_nfsa <- dplyr::full_join(bop_data, nfsa_data,
+                        by = join_by(ref_area,id, time_period)) |>
+    tidyr::drop_na() |>
+    dplyr::mutate(diff = round(bop-qsa,1)) |>
+    dplyr::filter(abs(diff)>threshold)
 
 
   if (nrow(bop_nfsa) == 0) {
     cli::cli_alert_success("T0801 and BOP fully consistent!")
+    return(NULL)
 
   }
 
-  if (length(unique(bop_nfsa$ref_area)) == 1) {
-    openxlsx::write.xlsx(bop_nfsa,
-                         file = paste0(output_sel,"/T0801_BOP_",unique(bop_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
-
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_BOP_",unique(bop_nfsa$ref_area), "_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-
-  }
-
-  if (length(unique(bop_nfsa$ref_area)) > 1) {
-    openxlsx::write.xlsx(bop_nfsa,
-                         file = paste0(output_sel,"/T0801_BOP_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"),
-                         overwrite = TRUE,
-                         asTable = TRUE)
-
-    cli::cli_alert_success(paste0("File created in ", output_sel,"/T0801_BOP_",as.character(format(Sys.time(), "%Y%m%d_%H%M%S")),".xlsx"))
-  }
-  nfsa::nfsa_to_excel(bop_nfsa)
   return(bop_nfsa)
 }
 
