@@ -2,6 +2,7 @@
 #'
 #' @description This function scans NFSA loading logs and extracts relevant information.
 #'
+#' @param country Country(ies) to look for.
 #' @param time_min A date specifying the minimum time for log files to be considered.
 #'   Required; log files dated before this value are excluded.
 #' @param time_max Date or date-time upper bound. Defaults to the current date
@@ -33,9 +34,15 @@
 #' @importFrom tibble enframe tibble
 #' @importFrom tidyr pivot_wider separate_wider_delim unnest
 #' @export
-nfsa_loaded <- function(time_min ,
+nfsa_loaded <- function(country
+                        time_min
                         time_max = lubridate::today(),
                         recursive = FALSE) {
+
+  base_path <- file.path("I:/econ/NFSA/LOG")
+
+  # Build country pattern for faster file filtering
+  country_pattern <- paste0(".*_(", paste(country, collapse = "|"), ")_.*\\.txt$")
 
   # 1. Setup Fields & Pattern
   fields <- c("nameproc", "InputFile", "CheckFile", "TypeOfFile", "TypeOfSer",
@@ -54,7 +61,7 @@ nfsa_loaded <- function(time_min ,
   cli::cli_inform("Scanning server for log files...")
 
   # 3. Filter files by date FIRST
-  all_files <- list.files("I:/econ/NFSA/LOG/", pattern = ".*txt$",
+  all_files <- list.files(base_path, pattern = country_pattern,
                           full.names = TRUE, recursive = recursive)
 
   loaded_files <- tibble::tibble(file = all_files) |>
@@ -112,11 +119,11 @@ nfsa_loaded <- function(time_min ,
       instr_asset = instr_assets_l,
       unit = unit_l,
       nb_series,
-      result = dplyr::case_match(feed_rc,
-                                 "0" ~ "OK", "2" ~ "Warning",
-                                 "4" ~ "Rejection", "5" ~ "Error",
-                                 .default = feed_rc)
+      result = dplyr::recode_values(feed_rc,
+                                    "0" ~ "OK", "2" ~ "Warning",
+                                    "4" ~ "Rejection", "5" ~ "Error",
+                                    default = feed_rc)
     )
 
-    return(final_data)
+  return(final_data)
 }
