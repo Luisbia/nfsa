@@ -553,14 +553,7 @@ nfsa_check_equations <- function(
           rhs_value = rhs_value[failed],
           lhs_values = lhs_text,
           rhs_values = rhs_text,
-          operator = parsed$operator,
-          lhs_minus_rhs = difference[failed],
-          violation = violation[failed],
-          threshold = threshold,
-          source_excel_row = row_index + 1L,
-          fill_position_used = instance$fill_position,
-          fill_value_used = instance$fill_value,
-          validation_status = "NOT FULFILLED",
+          difference = violation[failed],
           stringsAsFactors = FALSE
         )
       }

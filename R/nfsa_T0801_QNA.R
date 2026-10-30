@@ -113,7 +113,7 @@ country <- sort(unique(data$ref_area))
                                 "NOT VALIDATE", "VALIDATE")
     ) |>
     dplyr::select(ref_area,id,time_period,qna_date = source_date,status,
-                  qna,qsa,Difference = diff,
+                  QNA=qna,QSA=qsa,Difference = diff,
                   `As % GDP` = as_gdp,
                   `Over 0.3 % GDP?` = high_diff,
                   `Validate?` =validate)

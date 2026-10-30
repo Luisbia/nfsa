@@ -4,9 +4,16 @@
 \alias{nfsa_loaded}
 \title{Check NFSA Loading Logs}
 \usage{
-nfsa_loaded(time_min, time_max = lubridate::today(), recursive = FALSE)
+nfsa_loaded(
+  country,
+  time_min,
+  time_max = lubridate::today(),
+  recursive = FALSE
+)
 }
 \arguments{
+\item{country}{Country(ies) to look for.}
+
 \item{time_min}{A date specifying the minimum time for log files to be considered.
 Required; log files dated before this value are excluded.}
 

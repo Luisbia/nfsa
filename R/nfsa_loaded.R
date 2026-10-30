@@ -34,8 +34,8 @@
 #' @importFrom tibble enframe tibble
 #' @importFrom tidyr pivot_wider separate_wider_delim unnest
 #' @export
-nfsa_loaded <- function(country
-                        time_min
+nfsa_loaded <- function(country,
+                        time_min,
                         time_max = lubridate::today(),
                         recursive = FALSE) {
 
