@@ -98,7 +98,7 @@ nfsa_T0800_GFS <- function(data ,
                                id == "S13.B9.B" &
                                time_period>= limit_validation,
                              "NOT VALIDATE","VALIDATE")) |>
-    dplyr::select(ref_area,id,time_period,gfs_date = source_date,gfs_status,
+    dplyr::select(ref_area,id,time_period,gfs_date = source_date,status,
                   GFS = gfs,ASA= nfsa,Difference = diff,`As % GDP` = as_GDP,`Over 0.3 % GDP?` = threshold, `Validate?` =validate) |>
     dplyr::arrange(time_period,id)
 

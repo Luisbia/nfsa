@@ -76,8 +76,9 @@ nfsa_validated <- function(time_min = lubridate::ymd(lubridate::today()),
                                                      "drop17"
       ),
       too_many = "drop") |>
-      dplyr::select(time,table,type,freq,adjustment,ref_area) |>
-      dplyr::distinct()
+      dplyr::select(ref_area,time,table,type,freq,adjustment) |>
+      dplyr::distinct() |>
+      dplyr::ref_area= dplyr::if_else(country == "GR", "EL", ref_area)
     # group_by(table,freq,adjustment,ref_area) |>
     # arrange(time,.by_group = TRUE) |>
     # slice_head(n = 1)

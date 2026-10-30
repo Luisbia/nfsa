@@ -39,7 +39,10 @@ nfsa_loaded <- function(country,
                         time_max = lubridate::today(),
                         recursive = FALSE) {
 
+ country <- dplyr::if_else(country == "GR", "EL", country)
+
   base_path <- file.path("I:/econ/NFSA/LOG")
+
 
   # Build country pattern for faster file filtering
   country_pattern <- paste0(".*_(", paste(country, collapse = "|"), ")_.*\\.txt$")
