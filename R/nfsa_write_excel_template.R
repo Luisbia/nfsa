@@ -61,12 +61,16 @@
 #'   output_sel = here::here("output", "excel_template")
 #' )
 #' }
-#' @import dplyr
-#' @import tidyr
-#' @import openxlsx
-#' @import cli
-#' @importFrom tibble enframe
 #'
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr filter mutate select
+#' @importFrom here here
+#' @importFrom lubridate now
+#' @importFrom openxlsx loadWorkbook saveWorkbook writeData
+#' @importFrom stats na.omit
+#' @importFrom stringr str_remove
+#' @importFrom tibble enframe
+#' @importFrom tidyr separate_wider_delim unite
 #' @export
 nfsa_write_excel_template <- function(data,
                                             template = "M:/nas/Rprod/assets/T0801_template.xlsx",

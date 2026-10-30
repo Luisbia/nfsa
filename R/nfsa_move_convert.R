@@ -51,6 +51,15 @@
 #' nfsa_move_convert(country = "BE", table = "T0800", process_all = TRUE)
 #' }
 #'
+#' @importFrom arrow write_parquet
+#' @importFrom cli cli_abort cli_alert_info cli_alert_success cli_alert_warning cli_inform
+#' @importFrom dplyr filter group_by mutate select slice_max ungroup
+#' @importFrom janitor clean_names
+#' @importFrom purrr walk
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_extract str_match str_replace
+#' @importFrom tibble tibble
+#' @importFrom tools file_path_sans_ext
 #' @export
 nfsa_move_convert <- function(country,
                               table = c("T0800", "T0801", "T0801SA"),

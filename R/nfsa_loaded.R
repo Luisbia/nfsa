@@ -3,8 +3,9 @@
 #' @description This function scans NFSA loading logs and extracts relevant information.
 #'
 #' @param time_min A date specifying the minimum time for log files to be considered.
-#'   Defaults to the beginning of the current day.
-#' @param time_max A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.
+#'   Required; log files dated before this value are excluded.
+#' @param time_max Date or date-time upper bound. Defaults to the current date
+#'   at midnight; files received after this time are excluded.
 #' @param recursive Logical. Should the function search for log files recursively within subdirectories?
 #'   Defaults to `FALSE`.
 #'
@@ -22,12 +23,15 @@
 #' # Check logs recursively within subdirectories
 #' nfsa_loaded(time_min = "2020-01-01",recursive = TRUE)
 #' }
-#' @import cli
-#' @import tidyr
-#' @import dplyr
-#' @import purrr
-#' @import janitor
-#' @import stringr
+#' @importFrom cli cli_alert_danger cli_alert_warning cli_inform
+#' @importFrom dplyr case_match distinct filter group_by mutate slice_tail transmute ungroup
+#' @importFrom janitor clean_names
+#' @importFrom lubridate today ymd_hm
+#' @importFrom purrr map map_lgl safely
+#' @importFrom readr read_lines
+#' @importFrom stringr str_detect str_remove_all str_replace str_sub str_trim
+#' @importFrom tibble enframe tibble
+#' @importFrom tidyr pivot_wider separate_wider_delim unnest
 #' @export
 nfsa_loaded <- function(time_min ,
                         time_max = lubridate::today(),

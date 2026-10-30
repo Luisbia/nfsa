@@ -18,10 +18,10 @@
 #' head(matis_data)
 #' }
 #'
-#' @import dplyr
-#' @import tidyr
-#' @import readr
-#' @import stringr
+#' @importFrom dplyr mutate select
+#' @importFrom readr cols parse_number read_csv
+#' @importFrom stringr str_detect str_sub
+#' @importFrom tidyr pivot_longer separate_wider_delim
 #' @export
 nfsa_read_matis <- function(file) {
 

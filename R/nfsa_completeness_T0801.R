@@ -2,7 +2,8 @@
 #'
 #' @description This function checks the completeness of NFSA data against predefined regulatory requirements.
 #'
-#' @param country A character vector specifying the countries for which to check data completeness.
+#' @param data Data frame containing `ref_area`, `id`, `time_period`, and
+#'   `obs_value` for the countries to check.
 #' @param end_quarter Last quarter that should have been reported (e.g.: "2026-Q3")
 #' @param requirements A link to the file to be checked, by default `"M:/nas/Rprod/assets/completeness_T0801.xlsx"`.
 #'
@@ -13,13 +14,16 @@
 #' @examples
 #' \dontrun{
 #' # Check completeness for Germany save the output in "my_output" directory
-#' nfsa_completeness_regulation_T0801SA(country = "DE",output_sel = "my_output")
+#' nfsa_completeness_T0801(data = dat, end_quarter = "2026-Q3")
 
 #' }
-#' @import dplyr
-#' @import janitor
-#' @import tidyr
-#' @import readxl
+#' @importFrom cli cli_inform
+#' @importFrom dplyr anti_join arrange bind_rows distinct filter join_by left_join mutate pull rename select
+#' @importFrom janitor clean_names
+#' @importFrom magrittr %>%
+#' @importFrom readxl read_xlsx
+#' @importFrom stringr str_sub
+#' @importFrom tidyr crossing expand_grid
 #' @export
 nfsa_completeness_T0801 <- function(data,
                                     end_quarter,

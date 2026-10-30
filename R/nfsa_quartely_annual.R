@@ -7,7 +7,8 @@
 #' threshold.
 #'
 #' @details
-#' Quarterly observations are aggregated by calendar year.
+#' Quarterly observations are aggregated by calendar year: `.PS` series use
+#' their mean; other series use their sum.
 #'
 #' Only years containing exactly four quarterly observations
 #' are considered. The annual totals are then compared with
@@ -17,14 +18,14 @@
 #' present in the quarterly dataset are considered.
 #'
 #' The function returns only observations for which the
-#' absolute difference exceeds the specified threshold.
+#' absolute and percentage differences both exceed their respective thresholds.
 #' If no discrepancies are found, an empty tibble is returned.
 #'
-#' @param quarterly_data Data frame containing quarterly NFSA
+#' @param df_q Data frame containing quarterly NFSA
 #'   observations, typically from T0801.
 #'   Must contain `ref_area`, `id`, `time_period`, and `obs_value`.
 #'   Time periods must begin with a four-digit year.
-#' @param annual_data Data frame containing annual NFSA
+#' @param df_a Data frame containing annual NFSA
 #'   observations, typically from T0800.
 #'   Must contain `ref_area`, `id`, `time_period`, and `obs_value`.
 #'   Annual time periods must be expressed as "YYYY".
@@ -37,7 +38,7 @@
 #'
 #' @return
 #' A tibble containing discrepancies exceeding the thresholds,
-#' with the following columns:
+#' including the quarterly aggregate, annual value, `Difference`, and `In %`.
 #'
 #' @examples
 #' \dontrun{
@@ -52,10 +53,10 @@
 #'nfsa_quartely_annual(quarterly_sca,
 #'                     annual)
 #' }
-#' @import dplyr
-#' @import tidyr
-#' @import stringr
 #'
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr distinct filter group_by if_else join_by left_join mutate n rename select ungroup
+#' @importFrom stringr str_detect str_sub
 #' @export
 nfsa_quartely_annual <- function(df_q,
                                  df_a,

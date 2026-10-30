@@ -58,12 +58,15 @@
 #'            theme = ggplot2::theme(legend.position = "bottom"),
 #'            labels = ggplot2::labs(title = "NFSA comparison", caption = "Source: MATIS"))
 #' }
-#' @importFrom dplyr select mutate filter left_join full_join arrange group_by group_split
-#' @importFrom ggplot2 ggplot aes geom_line geom_area geom_col geom_hline facet_wrap
-#' @importFrom ggplot2 scale_y_continuous scale_colour_manual scale_fill_manual
-#' @importFrom ggplot2 labs theme element_blank ggsave
+#' @importFrom dplyr all_of arrange filter full_join group_by left_join select ungroup
+#' @importFrom ggplot2 aes element_blank facet_wrap geom_area geom_col geom_hline geom_line ggplot ggsave labs scale_colour_manual scale_y_continuous sec_axis theme
+#' @importFrom ggthemes theme_fivethirtyeight
+#' @importFrom gridExtra marrangeGrob
+#' @importFrom here here
 #' @importFrom purrr map
 #' @importFrom rlang .data
+#' @importFrom scales label_number pretty_breaks
+#' @importFrom stats setNames
 #' @export
 nfsa_plots <- function(
     version1,

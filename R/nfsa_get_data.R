@@ -48,11 +48,13 @@
 #'               ref_period = c("2025Q1", "2025_0002"), last = FALSE)
 #' }
 #'
-#' @importFrom dplyr filter pull collect left_join select mutate arrange group_by slice_max ungroup any_of
-#' @importFrom tibble tibble
-#' @importFrom stringr str_match str_replace
-#' @importFrom tidyr drop_na
+#' @importFrom arrow open_dataset
+#' @importFrom cli cli_abort cli_alert_danger
+#' @importFrom dplyr any_of arrange collect filter group_by if_else left_join mutate pull select slice_max ungroup
 #' @importFrom rlang parse_exprs
+#' @importFrom stringr str_match str_replace
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na
 #' @export
 nfsa_get_data <- function(
     input_sel = "M:/nas/Rprod/db/",

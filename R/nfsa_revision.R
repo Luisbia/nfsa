@@ -12,25 +12,18 @@
 #' Revisions with a relative difference greater than this threshold are flagged. Defaults to 5%.
 #' @param gdp_threshold A numeric value specifying the gdp threshold (percentage of GDP) for
 #'   revision detection. Revisions with a relative difference greater than this threshold are flagged.
-#'   Defaults to 2%.
+#'   Defaults to 1%.
 #' @return A data frame containing the identified revisions with columns for reference area, sector,
 #'   STO, accounting entry, time period, new value, previous value, revision, revision percentage,
 #'   and revision as percentage of GDP. If no revisions are found, returns an empty data frame.
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage with default thresholds for T0800:
-#' nfsa_revision(country = "BE", table = "T0800")
-#'
-#' # Example usage with T0801 and custom thresholds:
-#' nfsa_revision(country = c("ES", "IT"), table = "T0801",
-#'               abs_threshold = 20, rel_threshold = 0.5)
-#'
-#' # Compare with previous version instead of vintage:
-#' nfsa_revision(country = "DE", table = "T0801SA", type = "version")
+#' nfsa_revision(data = dat)
+#' nfsa_revision(data = dat, abs_threshold = 20, rel_threshold = 0.5)
 #' }
-#' @import dplyr
-#' @import cli
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr arrange filter group_by join_by lag left_join mutate select ungroup
 #' @export
 nfsa_revision <- function(data = data,
                           abs_threshold = 100,

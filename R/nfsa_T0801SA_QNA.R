@@ -15,12 +15,13 @@
 #' result <- nfsa_T0801SA_QNA(data = dat)
 #'
 #' # Compare NFSA and QNA data for France with a threshold of 5
-#' result <- nfsa_T0801SA_QNA(country = "FR", threshold = 10)
+#' result <- nfsa_T0801SA_QNA(data = dat, threshold = 10)
 #' }
-#' @import cli
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr case_when filter join_by left_join mutate rename select
+#' @importFrom lubridate today
 #' @importFrom restatapi get_eurostat_data
-#' @import dplyr
-#' @import tidyr
+#' @importFrom tidyr drop_na unite
 #' @export
 nfsa_T0801SA_QNA <- function(data,
                              threshold = 5){

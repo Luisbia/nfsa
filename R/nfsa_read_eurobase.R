@@ -68,9 +68,11 @@
 #' )
 #'}
 #'
-#' @import dplyr
-#' @import tidyr
-#' @import lubridate
+#' @importFrom dplyr filter mutate
+#' @importFrom lubridate as_date today
+#' @importFrom purrr map map_lgl possibly
+#' @importFrom tibble as_tibble tibble
+#' @importFrom tidyr separate_wider_delim unnest
 #' @export
 nfsa_read_eurobase <- function(
     type     = "nasq_10_ki_partial_Y",

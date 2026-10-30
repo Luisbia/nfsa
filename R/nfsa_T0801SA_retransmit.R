@@ -1,17 +1,20 @@
-#' #' Identify the need to ask for a new T0801SA
+#' Identify the need to ask for a new T0801SA
 #'
-#' @param country_sel a character string for an individual country.
+#' @param country Character string specifying one country code.
+#' @param ref_period Transmission reference period, such as `"2026Q2"` or
+#'   `"2026_0002"`, passed to `nfsa_get_data()`.
 #'
 #' @returns a data.frame showing T0801 values before and after the transmission
 #' of T081SA or a printed statement declaring no need to ask for a new transmission.
-#' @import dplyr
-#' @import tidyr
-#' @import stringr
-#' @import cli
+#' @importFrom cli cli_alert_danger cli_alert_info cli_alert_success
+#' @importFrom dplyr arrange bind_rows distinct filter inner_join join_by mutate pick pull select
+#' @importFrom lubridate ymd
+#' @importFrom stringr str_sub
+#' @importFrom tidyr drop_na pivot_wider
 #' @export
 #'
 #' @examples
-#' se <-nfsa_T0801SA_retransmit("SE")
+#' se <-nfsa_T0801SA_retransmit("SE", ref_period = "2026Q2")
 nfsa_T0801SA_retransmit <- function(country,
                                     ref_period){
 ## Just extracting GDP to get dates

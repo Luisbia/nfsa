@@ -2,14 +2,13 @@
 #'
 #' @description A custom ggplot2 theme similar to Eurostats
 #'
-#' @param base_size Numeric. Base font size for the theme (default is 11).
+#' @param base_size Numeric. Base font size for the theme (default is 13).
 #' @param base_family Character. Base font family for the theme (default is "sans").
 #' @param grid Logical. Whether to display major grid lines (default is TRUE).
 #' @param axis Logical. Whether to display axis lines (default is TRUE).
 #'
 #' @return A ggplot2 theme object.
 #'
-#' @import ggplot2
 #'
 #' @examples
 #' # Apply the NFSA theme to a ggplot
@@ -30,6 +29,8 @@
 #'   geom_point() +
 #'   nfsa_theme(base_family = "serif")
 #' }
+#' @importFrom ggplot2 element_blank element_line element_rect element_text margin rel theme theme_minimal
+#' @importFrom grid unit
 #' @export
 # Main theme function
 nfsa_theme <- function(base_size = 13,

@@ -6,19 +6,21 @@
 #' @param data A data frame containing `ref_area`, `id`,
 #'   `time_period` and `obs_value`.
 #' @param end_quarter Last quarter that should have been reported (e.g.: "2026-Q3")
-#' @param requirements A link to the file to be checked, by default `""M:/nas/Rprod/assets/completeness_aggregation.xlsx"`.
+#' @param requirements A link to the file to be checked, by default `"M:/nas/Rprod/assets/completeness_aggregation.xlsx"`.
 
 #'
 #' @return A data frame containing the missing data points. Returns an empty dataframe if data requirements are fulfilled.
 #' @examples
 #' \dontrun{
-#' missing_data <- nfsa_completeness_aggregation(dat)
+#' missing_data <- nfsa_completeness_aggregation(dat, end_quarter = "2026-Q3")
 #' }
 #'
-#' @import dplyr
-#' @import janitor
-#' @import tidyr
-#' @import readxl
+#' @importFrom cli cli_inform
+#' @importFrom dplyr arrange bind_rows distinct filter join_by left_join mutate pull rename select
+#' @importFrom magrittr %>%
+#' @importFrom readxl read_xlsx
+#' @importFrom stringr str_sub
+#' @importFrom tidyr crossing expand_grid
 #' @export
 nfsa_completeness_aggregation <- function(data,
                                           end_quarter,

@@ -15,9 +15,9 @@
 #' # Example usage with annual data
 #' data_pop <- nfsa_percapita(data = your_data, freq = "A")
 #' }
+#' @importFrom dplyr bind_rows filter join_by left_join mutate select
 #' @importFrom restatapi get_eurostat_data
-#' @import dplyr
-#' @import stringr
+#' @importFrom stringr str_detect
 #' @importFrom tibble as_tibble
 #' @export
 nfsa_percapita <- function(data, freq = "Q"){

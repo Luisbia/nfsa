@@ -21,12 +21,6 @@
 #'   \item{obs_value}{Numeric observation value.}
 #' }
 #'
-#' @importFrom readxl read_xlsx
-#' @importFrom dplyr select mutate across all_of
-#' @importFrom tidyr pivot_longer separate_wider_delim
-#' @importFrom purrr imap_dfr
-#' @importFrom stringr str_sub
-#' @importFrom utils capture.output
 #'
 #' @examples
 #' \dontrun{
@@ -42,6 +36,13 @@
 #' )
 #' }
 #'
+#' @importFrom dplyr across all_of mutate select
+#' @importFrom purrr imap_dfr
+#' @importFrom readxl read_xlsx
+#' @importFrom stats na.omit
+#' @importFrom stringr str_sub
+#' @importFrom tidyr pivot_longer separate_wider_delim
+#' @importFrom utils capture.output
 #' @export
 nfsa_read_excel_template <- function(
     file,

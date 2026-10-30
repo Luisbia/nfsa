@@ -14,10 +14,11 @@
 #' `currency_denom`, `valuation`, `prices`, `transformation`,
 #' `cust_breakdown`, `time_period`, `obs_value`, `obs_status`,
 #' `conf_status`, `id`.
+
+#' @importFrom dplyr left_join mutate select
 #' @importFrom janitor clean_names
 #' @importFrom readr read_delim
-#' @import dplyr
-
+#' @importFrom stringr str_detect str_sub
 #' @export
 #'
 #' @examples

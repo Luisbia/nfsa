@@ -43,6 +43,12 @@
 #' # The data is also saved to an Excel file in the specified output directory.
 #' }
 #'
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr arrange bind_rows case_when distinct filter if_else join_by left_join mutate rename select
+#' @importFrom openxlsx write.xlsx
+#' @importFrom restatapi get_eurostat_data
+#' @importFrom stringr str_sub
+#' @importFrom tidyr pivot_longer pivot_wider replace_na
 #' @export
 nfsa_bop_eui <- function(output_sel) {
 

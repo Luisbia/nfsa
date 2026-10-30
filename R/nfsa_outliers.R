@@ -56,7 +56,7 @@
 #'
 #' @param time_min Character scalar. Earliest reporting period
 #'   to include, expressed in `"YYYY-Qn"` format.
-#'   Default is `"1999-Q1"`.
+#'   Default is `"2010-Q1"`.
 #'
 #' @param rate_limit Numeric scalar. Minimum absolute percentage
 #'   growth rate required for an observation to be considered
@@ -141,6 +141,17 @@
 #' [nfsa::nfsa_separate_id()],
 #' [nfsa::nfsa_theme()]
 #'
+#' @importFrom cli cli_alert_info cli_alert_success
+#' @importFrom dplyr arrange filter full_join group_by join_by lag left_join mutate rename select transmute
+#' @importFrom ggplot2 aes element_blank facet_wrap geom_line geom_point ggplot ggsave ggtitle scale_y_continuous theme xlab ylab
+#' @importFrom gridExtra marrangeGrob
+#' @importFrom here here
+#' @importFrom lubridate yq
+#' @importFrom purrr map2
+#' @importFrom scales label_number
+#' @importFrom stringr str_detect
+#' @importFrom tibble deframe
+#' @importFrom tidyr nest pivot_longer
 #' @export
 nfsa_outliers <- function(country_sel,
                           type = 4L,

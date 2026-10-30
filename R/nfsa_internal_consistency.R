@@ -11,11 +11,10 @@
 #'   (Reference Sector), `accounting_entry`, `obs_value` (Observed Value),
 #'   `ref_area` (Reference Area), and `time_period`.
 #' @param output_sel (optional) A character string specifying the directory where
-#'   the output Excel file will be saved. Defaults to `"output/internal"`
-#'   within the project directory (using `here::here()`).
+#'   the output Excel file will be saved. Defaults to the project directory (`here::here()`).
 #' @param threshold (optional) A numeric value specifying the threshold for
 #'   identifying discrepancies.  Differences greater than this threshold
-#'   (in absolute value) will be flagged. Defaults to 2.
+#'   (in absolute value) will be flagged. Defaults to 1.
 #' @param rounding (optional) An integer specifying the number of decimal places
 #'   to round the `obs_value` and check calculations to.  Defaults to 1.
 #' @param clean_NA (optional) A logical value. If `TRUE` it removes the accounting checks for which
@@ -52,9 +51,17 @@
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' nfsa_internal_consistency_T0801(my_dataset, output_sel = "my_output_folder", threshold = 5)
+#' nfsa_internal_consistency(my_dataset, output_sel = "my_output_folder", threshold = 5)
 #' }
 #'
+#' @importFrom cli cli_alert_success cli_inform
+#' @importFrom dplyr across everything filter if_all mutate select
+#' @importFrom here here
+#' @importFrom janitor round_half_up
+#' @importFrom openxlsx write.xlsx
+#' @importFrom purrr map
+#' @importFrom stringr str_detect
+#' @importFrom tidyr pivot_wider unite
 #' @export
 nfsa_internal_consistency <- function(dataset,
                                       output_sel = here::here(),

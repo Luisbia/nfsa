@@ -4,7 +4,7 @@
 #' recent versions, formats the output, and exports it to an Excel file based on a
 #'   specified template.
 #'
-#' @param data A data frame with T0800 data for one or several countries and years.
+#' @param data A data frame with T0801 data for one or several countries and years.
 #' @param template A character string specifying the file path to the Excel template file. Default: `M:/nas/Rprod/assets/seq_accounts_T0801.xlsx`.
 #' @param output_sel A character string specifying the file path to the directory where the output Excel file will be saved. Default: `here::here()`.
 #'
@@ -22,10 +22,11 @@
 #'   nfsa_sequence_T0801(data = dataset, output_sel = "C:/tmp/")
 #'
 #' }
-#' @import dplyr
-#' @import tidyr
-#' @import openxlsx
-#' @import cli
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr arrange desc group_by lag mutate select slice_head slice_tail ungroup
+#' @importFrom here here
+#' @importFrom openxlsx loadWorkbook saveWorkbook writeData
+#' @importFrom tidyr unite
 #' @export
 nfsa_sequence_T0801 <- function(data,
                                 template = "M:/nas/Rprod/assets/seq_accounts_T0801.xlsx",

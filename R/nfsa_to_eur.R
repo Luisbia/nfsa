@@ -18,12 +18,10 @@
 #' # Convert to Euro (annual data)
 #' data_eur <- nfsa_to_eur(data = your_data, freq = "A")
 #' }
-#' @import dplyr
-#' @import tidyr
-#' @import tidyr
-#' @import stringr
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr bind_rows case_when filter join_by left_join mutate select
 #' @importFrom restatapi get_eurostat_data
+#' @importFrom stringr str_detect
+#' @importFrom tibble as_tibble
 #' @export
 nfsa_to_eur <- function(data, freq = "Q"){
 

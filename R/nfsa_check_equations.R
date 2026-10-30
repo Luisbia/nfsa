@@ -8,8 +8,9 @@
 #'   equation is satisfied. Defaults to 3.
 #'
 #' @return a data frame with the rules that do not satisfy the equations
-#' @import data.table
-#' @import readxl
+#' @importFrom data.table := data.table dcast rbindlist
+#' @importFrom readxl excel_sheets read_excel
+#' @importFrom stats setNames
 #' @export
 nfsa_check_equations <- function(
     data_input,

@@ -102,16 +102,15 @@
 #'   \code{\link[dplyr]{filter}},
 #'   \code{\link[dplyr]{left_join}}
 #'
+#'
 #' @importFrom arrow open_dataset
 #' @importFrom cli cli_abort cli_alert_danger
 #' @importFrom data.table fread
-#' @importFrom dplyr filter left_join select mutate arrange collect
-#' @importFrom dplyr if_else join_by pull
-#' @importFrom rlang parse_exprs
-#' @importFrom stringr str_extract str_detect fixed str_replace
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr arrange collect distinct filter if_else left_join mutate pull select
+#' @importFrom rlang .data parse_exprs
+#' @importFrom stringr fixed str_detect str_match str_replace
+#' @importFrom tibble tibble
 #' @importFrom tidyr drop_na
-#'
 #' @export
 #'
 #' @examples

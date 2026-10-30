@@ -3,7 +3,8 @@
 #' @description This function generates a report of NFSA data transmissions received, filtering by a minimum timestamp.
 #'
 #' @param time_min A character string representing the minimum date and time for filtering received files (e.g., "2025-10-20").  Files received before this time will be excluded.
-#' @param time_max A character string representing the maximum date and time for filtering received files, defaults to current date).  Files received after this time will be excluded.
+#' @param time_max Date or date-time upper bound. Defaults to the current date
+#'   at midnight; files received after this time are excluded.
 #' @param input_sel A character string specifying the directory where incoming SDMX files should be scanned.
 #' @param recursive A logical value. If `TRUE`, the function will recursively search for files in subdirectories within the specified path. Defaults to `FALSE`.
 #'
@@ -18,7 +19,12 @@
 #' # Generate a report, save to alternative location and search in subdirectories
 #' nfsa_transmissions(time_min = "2025-10-25",recursive = TRUE)
 #' }
-#' @importFrom cli cli_inform
+#' @importFrom cli cli_alert_info cli_alert_warning cli_inform
+#' @importFrom dplyr arrange desc filter if_else mutate select
+#' @importFrom lubridate as_datetime now
+#' @importFrom stringr str_extract str_remove
+#' @importFrom tibble tibble
+#' @importFrom tidyr separate_wider_delim
 #' @export
 nfsa_transmissions <- function(time_min,
                                time_max = lubridate::now(),

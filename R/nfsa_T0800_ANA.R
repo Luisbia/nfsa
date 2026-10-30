@@ -5,7 +5,7 @@
 #' containing the comparison results.
 #'
 #' @param data a data.frame containing T0800 data
-#' @param ref_year A numeric value specifying the referencew year to which the data should be compared.
+#' @param ref_year A numeric value specifying the reference year to which the data should be compared.
 #' @param threshold A numeric value specifying the threshold for acceptable differences between NFSA and ANA data.
 #'                  Defaults to 5.
 #' @param non_validated Logical condition. If `FALSE`, which is the default option, only looks for files in validated. If set to `TRUE` also looks in non-validated.
@@ -19,13 +19,14 @@
 #' nfsa_T0800_ANA(data = dat, ref_year = 2025, threshold = 0.5)
 #' }
 #'
-#' @import cli
-#' @import dplyr
-#' @import purrr
-#' @import stringr
-#' @import readsdmx
-#' @import janitor
-#' @import tibble
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr arrange distinct filter full_join group_by if_else join_by mutate pull rename select slice_max ungroup
+#' @importFrom janitor clean_names
+#' @importFrom purrr list_rbind map set_names
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_detect str_extract str_replace str_sub
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr drop_na
 #' @export
 nfsa_T0800_ANA <- function(data,
                            ref_year,

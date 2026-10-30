@@ -43,6 +43,16 @@
 #' results <- nfsa_seas_level1(mode = "agg", agg = "EU")
 #' }
 #'
+#' @importFrom SAvalidation level1_validation
+#' @importFrom cli cli_abort cli_alert_success cli_inform
+#' @importFrom dplyr add_count anti_join distinct filter full_join group_by join_by left_join mutate rename select ungroup
+#' @importFrom here here
+#' @importFrom lubridate yq
+#' @importFrom openxlsx write.xlsx
+#' @importFrom purrr map map2
+#' @importFrom stats na.omit ts
+#' @importFrom stringr str_sub
+#' @importFrom tidyr nest unnest
 #' @export
 nfsa_seas_level1 <- function(mode = "country",
                              country = NULL,

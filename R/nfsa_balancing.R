@@ -5,15 +5,32 @@
 #' @param run_name Optional explicit output prefix; overrides Country.
 #' @param output_dir Optional complete output directory. By default a subfolder
 #'   named <run_name>_reconciliation_output is created in getwd() at call time.
-#' @param scale_floor,weight_rules Original scale and weight settings.
-#' @param osqp_eps_abs,osqp_eps_rel,osqp_max_iter,osqp_verbose Original OSQP controls.
-#' @param check_tolerance Post-solve tolerance.
+#' @param scale_floor Positive numeric floor for relative adjustment scales.
+#'   `NULL` selects a floor from the nonzero observations.
+#' @param weight_rules Data frame with `match_type`, `pattern`, and `weight`
+#'   columns defining adjustment penalties. Use `NULL` or zero rows for unit weights.
+#' @param osqp_eps_abs Absolute OSQP convergence tolerance; defaults to `1e-6`.
+#' @param osqp_eps_rel Relative OSQP convergence tolerance; defaults to `1e-6`.
+#' @param osqp_max_iter Maximum OSQP iterations; defaults to `10000000L`.
+#' @param osqp_verbose Logical; whether OSQP prints solver progress. Defaults to `FALSE`.
+#' @param check_tolerance Positive numeric tolerance for post-solve constraint
+#'   violations and residuals. Defaults to `0.1`.
 #' @param equation_file Optional path to an equation workbook.
 #'
 #' @return A data frame with exactly the same columns and row order as
 #'   data_input, with obs_value replaced by the reconciled value where
 #'   reconciliation was performed.
 #'
+#' @importFrom Matrix Diagonal sparseMatrix
+#' @importFrom dplyr arrange bind_rows case_when desc filter first group_by if_else left_join mutate n pull relocate row_number select slice_head summarise transmute
+#' @importFrom ggplot2 aes annotate coord_flip element_blank element_text geom_col geom_hline geom_tile ggplot labs scale_fill_gradient2 theme theme_minimal theme_void xlim ylim
+#' @importFrom grDevices dev.off png
+#' @importFrom grid grid.layout grid.newpage pushViewport unit viewport
+#' @importFrom openxlsx addStyle addWorksheet createStyle createWorkbook freezePane saveWorkbook setColWidths writeData
+#' @importFrom osqp osqpSettings solve_osqp
+#' @importFrom readxl excel_sheets read_excel
+#' @importFrom stats median quantile setNames
+#' @importFrom tibble add_column as_tibble tibble
 #' @export
 nfsa_balancing <- function(
     data_input,

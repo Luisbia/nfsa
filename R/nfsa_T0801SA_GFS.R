@@ -3,9 +3,10 @@
 #' This function compares data from the NFSA  (table T0801SA) with corresponding data from the GFS and
 #' identifies discrepancies between the two datasets .
 #'
-#' @param country A character string representing the country code (e.g., "DE").
+#' @param data Data frame containing T0801SA observations with `ref_area`, `id`,
+#'   `time_period`, and `obs_value`.
 #' @param ref_quarter A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").
-#' @param threshold A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 1.
+#' @param threshold A numeric value specifying the minimum absolute difference between NFSA and GFS data to be considered a discrepancy. Default is 5.
 #'
 #' @return A data frame containing the joined NFSA and GFS data, the difference between them,
 #'         and the difference as a percentage of GDP.
@@ -13,11 +14,20 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Compare NFSA and GFS data for Germany with a threshold of 10
-#'   result <- nfsa_T0801SA_GFS(data = dat, quarter = "2025Q3")
+#'   # Compare NFSA and GFS data for Germany with the default threshold
+#'   result <- nfsa_T0801SA_GFS(data = dat, ref_quarter = "2025Q3")
 #'
 #' }
 #'
+#'
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr arrange distinct filter full_join group_by if_else join_by left_join mutate pull select slice_tail ungroup
+#' @importFrom janitor clean_names
+#' @importFrom purrr list_rbind map set_names
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_extract str_replace str_sub
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr drop_na
 #' @export
 nfsa_T0801SA_GFS <- function(data,
                              ref_quarter = "2026Q2",
@@ -71,12 +81,12 @@ nfsa_T0801SA_GFS <- function(data,
     dplyr::filter(abs(diff)> threshold)
 
   tmp <- nfsa_data |>
-    filter(id == "S1.B1GQ.B") |>
-    select(ref_area,time_period,gdp=qsa)
+    dplyr::filter(id == "S1.B1GQ.B") |>
+    dplyr::select(ref_area,time_period,gdp=qsa)
 
   gfs_nfsa <- left_join(gfs_nfsa,tmp, by = join_by(ref_area, time_period)) |>
-    mutate(as_GDP = round(diff*100/gdp,1)) |>
-    select(-gdp) |>
+    dplyr::mutate(as_GDP = round(diff*100/gdp,1)) |>
+    dplyr::select(-gdp) |>
     dplyr::select(ref_area,id,time_period,gfs_date = source_date,
                   gfs,qsa,Difference = diff,`As % GDP` = as_GDP) |>
     dplyr::arrange(time_period,id)

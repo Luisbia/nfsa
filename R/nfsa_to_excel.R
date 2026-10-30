@@ -4,10 +4,9 @@
 #'
 #'For closer inspection of small data frames this functions exports it to excel and opens the file.
 #' @param .data the data.frame, data.table to be exported
-#' @importFrom fs file_temp
-#' @importFrom fs file_show
-#' @importFrom readr write_excel_csv
 #' @return an excel file in a temporary folder
+#' @importFrom fs file_show file_temp
+#' @importFrom readr write_excel_csv
 #' @export
 #'
 #' @examples

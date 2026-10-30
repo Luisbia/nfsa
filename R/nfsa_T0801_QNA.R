@@ -27,6 +27,15 @@
 #' nfsa_T0801_QNA(country = "BE", quarter = "2023Q2", threshold = 2)
 #' }
 #'
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr bind_rows case_when distinct filter if_else inner_join left_join mutate pull select slice_max transmute
+#' @importFrom here here
+#' @importFrom janitor clean_names
+#' @importFrom openxlsx write.xlsx
+#' @importFrom purrr map
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_extract str_replace
+#' @importFrom tibble enframe
 #' @export
 nfsa_T0801_QNA <- function(country,
                            quarter,

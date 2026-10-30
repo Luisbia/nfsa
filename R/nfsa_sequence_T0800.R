@@ -22,10 +22,11 @@
 #'   nfsa_sequence_T0800(data = dataset, output_sel = "C:/tmp/")
 #'
 #' }
-#' @import dplyr
-#' @import tidyr
-#' @import openxlsx
-#' @import cli
+#' @importFrom cli cli_alert_success
+#' @importFrom dplyr arrange desc group_by lag mutate select slice_head slice_tail ungroup
+#' @importFrom here here
+#' @importFrom openxlsx loadWorkbook saveWorkbook writeData
+#' @importFrom tidyr unite
 #' @export
 nfsa_sequence_T0800 <- function(data,
                                 template = "M:/nas/Rprod/assets/seq_accounts_T0800.xlsx",

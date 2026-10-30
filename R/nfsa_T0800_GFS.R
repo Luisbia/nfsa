@@ -2,7 +2,9 @@
 #'
 #' @description This function compares NFSA T0800 data with GFS data for a given country and year, identifying discrepancies above a specified threshold.
 #'
-#' @param ref_year A character string specifying the quarter in the format "YYYY" (e.g., 2025).
+#' @param data Data frame containing T0800 observations with `ref_area`, `id`,
+#'   `time_period`, and `obs_value`.
+#' @param ref_year Reference year as a number or character string (e.g., 2025).
 #' @param threshold A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 5.
 #'
 #' @return A data frame
@@ -15,14 +17,14 @@
 #' nfsa_T0800_GFS(data = dat, ref_year = 2025, threshold = 0.5)
 #' }
 #'
-#' @import cli
-#' @import dplyr
-#' @import purrr
-#' @import dplyr
-#' @import stringr
-#' @import readsdmx
-#' @import janitor
-#' @import tibble
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr arrange distinct filter full_join group_by if_else join_by left_join mutate pull select slice_tail ungroup
+#' @importFrom janitor clean_names
+#' @importFrom purrr list_rbind map set_names
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_detect str_extract str_replace str_sub
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr drop_na
 #' @export
 nfsa_T0800_GFS <- function(data ,
                            ref_year,

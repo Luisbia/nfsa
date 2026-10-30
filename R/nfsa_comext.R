@@ -22,6 +22,12 @@
 #' nfsa_comext(area = "EU27", quarter = "2024Q1", output_sel = "path/to/output/")
 #' }
 #'
+#' @importFrom cli cli_abort cli_alert_info cli_alert_success cli_progress_step
+#' @importFrom dplyr bind_rows case_when filter group_by if_else mutate select summarise tally
+#' @importFrom readr read_csv write_csv
+#' @importFrom restatapi get_eurostat_data
+#' @importFrom stringr str_sub
+#' @importFrom tidyr unite
 #' @export
 nfsa_comext <- function(area,
                              quarter,

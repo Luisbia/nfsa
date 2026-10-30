@@ -5,7 +5,7 @@
 #' @param ... Additional arguments to be passed to \code{\link[ggplot2]{scale_colour_manual}}.
 #'
 #' @return A \code{\link[ggplot2]{Scale}} object that can be added to a ggplot.
-#' @import ggplot2
+#' @importFrom ggplot2 scale_color_manual scale_fill_manual
 #' @export
 nfsa_scale_colour <- function(...) {
   ggplot2::scale_color_manual(

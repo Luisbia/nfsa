@@ -31,6 +31,16 @@
 #' nfsa_T0801_BOP(country = "AT", quarter = "2024Q2", threshold = 10)
 #' }
 #'
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr distinct filter full_join if_else join_by mutate pull select
+#' @importFrom here here
+#' @importFrom janitor clean_names
+#' @importFrom openxlsx write.xlsx
+#' @importFrom purrr list_rbind map
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stats na.omit
+#' @importFrom stringr str_replace str_sub
+#' @importFrom tibble as_tibble
 #' @export
 nfsa_T0801_BOP <- function(country,
                            quarter,

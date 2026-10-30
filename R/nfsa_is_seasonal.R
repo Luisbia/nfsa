@@ -95,13 +95,13 @@
 #' @seealso [seastests::isSeasonal()],
 #'   [seastests::combined_test()]
 #'
-#' @importFrom dplyr filter select mutate arrange
-#' @importFrom tidyr nest unnest_wider
-#' @importFrom purrr map map_int
-#' @importFrom tibble tibble
-#' @importFrom seastests isSeasonal qs fried kw seasdum welch
-#' @importFrom stats ts
 #'
+#' @importFrom dplyr arrange filter mutate select
+#' @importFrom purrr map map_int
+#' @importFrom rlang .data
+#' @importFrom seastests fried isSeasonal kw qs seasdum welch
+#' @importFrom stats ts
+#' @importFrom tidyr nest unnest_wider
 #' @export
 nfsa_is_seasonal <- function(
     data = NULL,

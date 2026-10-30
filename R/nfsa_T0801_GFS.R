@@ -2,55 +2,47 @@
 #'
 #' @description This function compares NFSA T0801 data with GFS data for a given country and quarter, identifying discrepancies above a specified threshold.
 #'
-#' @param country A character vector specifying the country code(s) to process.
-#' @param quarter A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").
-#' @param threshold A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 1.
-#' @param input_sel A character string specifying the file path for the NFSA input data directory. Defaults to `"M:/nas/Rprod/data/q/new/nsa/"`.
-#' @param output_sel A character string specifying the file path for the output directory. Defaults to `here::here("output", "inter_domain")`.
+#' @param data Data frame containing T0801 observations with `ref_area`, `id`,
+#'   `time_period`, and `obs_value`.
+#' @param ref_quarter A character string specifying the quarter in the format "YYYYQQ" (e.g., "2023Q1").
+#' @param threshold A numeric value specifying the threshold for the absolute difference between NFSA and GFS values.  Defaults to 5.
 #'
-#' @return This function does not return a value. It generates an Excel file containing the comparison results in the specified output directory if discrepancies are found. If no discrepancies are found, a success message is displayed.
+#' @return A data frame of discrepancies and validation indicators. Returns
+#'   `NULL` with a success message when no discrepancies are found.
 #'
-#' @details The function performs the following steps:
-#'   \enumerate{
-#'     \item Collects NFSA T0801 data using `nfsa_get_data`.
-#'     \item Collects GFS data from XML files located in a specific directory structure based on the provided quarter.
-#'     \item Joins the NFSA and GFS data based on `ref_area`, `ref_sector`, `sto`, `accounting_entry`, and `time_period`.
-#'     \item Calculates the absolute difference between NFSA and GFS values.
-#'     \item Filters for discrepancies where the absolute difference exceeds the specified threshold.
-#'     \item Calculates the difference as a percentage of GDP.
-#'     \item Flags observations where the difference as a percentage of GDP exceeds 0.3%.
-#'     \item Writes the comparison results to an Excel file in the specified output directory.
-#'   }
 #'
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' nfsa_T0801_GFS(country = "IE", quarter = "2023-Q1", threshold = 5)
+#' nfsa_T0801_GFS(data = dat, ref_quarter = "2023Q1", threshold = 5)
 #' }
 #'
+#' @importFrom cli cli_alert_success cli_progress_message
+#' @importFrom dplyr distinct filter group_by if_else inner_join left_join mutate pull select slice_max transmute ungroup
+#' @importFrom janitor clean_names
+#' @importFrom purrr list_rbind map
+#' @importFrom readsdmx read_sdmx
+#' @importFrom stringr str_detect str_extract str_replace
+#' @importFrom tibble enframe
 #' @export
-nfsa_T0801_GFS <- function(country,
-                           quarter,
-                           threshold = 1,
-                           input_sel = "M:/nas/Rprod/data/q/new/nsa/",
-                           output_sel = here::here("output", "inter_domain")) {
+nfsa_T0801_GFS <- function(data,
+                           ref_quarter,
+                           threshold = 5) {
 
-  if (!dir.exists(output_sel)) dir.create(output_sel, recursive = TRUE)
+  country <- sort(unique(data$ref_area))
 
   # Robust date logic
-  q_year <- as.numeric(stringr::str_extract(quarter, "^\\d{4}"))
-  q_sub  <- stringr::str_extract(quarter, "Q\\d{2}$")
+  q_year <- as.numeric(stringr::str_extract(ref_quarter, "^\\d{4}"))
+  q_sub  <- stringr::str_extract(ref_quarter, "Q\\d{2}$")
   limit_validation <- paste0(q_year - 4, "-", q_sub)
 
   # 1. Collect NFSA Data
-  cli::cli_progress_message("Collecting NFSA (T0801)...")
-  nfsa_data <- nfsa_get_data(country = country, table = "T0801", type = "new") |>
-    dplyr::select(ref_area, id, time_period, nfsa = obs_value) |>
-    nfsa::nfsa_separate_id()
+  nfsa_data <- data |>
+    dplyr::select(ref_area, id, time_period, qsa = obs_value)
 
   # 2. Identify latest GFS XML Files
   cli::cli_progress_message("Locating latest GFS XML files...")
-  base_path <- file.path("M:/nas/QSA10/Production", quarter, "(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input")
+  base_path <- file.path("M:/nas/QSA10/Production", ref_quarter, "(1) QSA/(1_2) Validation in progress/(1_2_5) Consistency checks - QSA vs GFS/Input")
   country <- str_replace(country,"EL", "GR")# EL is GR in nama file names
   gfs_files <- list.files(path = base_path, pattern = "\\.xml$", full.names = TRUE, recursive = TRUE) |>
     tibble::enframe(name = NULL, value = "path") |>
@@ -77,26 +69,27 @@ nfsa_T0801_GFS <- function(country,
         gfs = as.numeric(obs_value),
         source_date = as.Date(stringr::str_extract(basename(file), "\\d{12,14}"), format = "%Y%m%d")
       ) |>
-      dplyr::distinct()
+      dplyr::distinct() |>
+      nfsa::nfsa_unite_id()
   }
 
-  gfs_data <- purrr::map(gfs_files, read_gfs) |>
-    dplyr::bind_rows()|>
-    dplyr::mutate(ref_area = if_else(ref_area == "GR", "EL", ref_area))
-
-  country <- str_replace(country,"GR", "EL")# EL is GR in nama file names
+  gfs_data <- purrr::map(gfs_files, read_gfs,.progress = TRUE) |>
+    purrr::list_rbind(names_to = "file")  |>
+    dplyr::mutate(ref_area = dplyr::if_else(ref_area == "GR", "EL", ref_area)) |>
+    dplyr::mutate(status = dplyr::if_else(stringr::str_detect(file,"non-Validated"),"Non-Validated", "Validated")) |>
+    dplyr::select(-file)
 
   # 4. Join and Logic
   # We join and filter out rows that don't exist in BOTH datasets (consistency check)
   gfs_nfsa <- dplyr::inner_join(gfs_data, nfsa_data,
-                                by = c("ref_area", "ref_sector", "sto", "accounting_entry", "time_period")) |>
-    dplyr::mutate(diff = round(nfsa - gfs, 2)) |>
+                                by = c("ref_area", "id", "time_period")) |>
+    dplyr::mutate(diff = round(qsa - gfs, 2)) |>
     dplyr::filter(abs(diff) > threshold)
 
   # GDP Lookup from NFSA (using B1GQ)
   gdp_lookup <- nfsa_data |>
-    dplyr::filter(sto == "B1GQ") |>
-    dplyr::select(ref_area, time_period, gdp = nfsa)
+    dplyr::filter(id == "S1.B1GQ.B") |>
+    dplyr::select(ref_area, time_period, gdp = qsa)
 
   gfs_nfsa <- gfs_nfsa |>
     dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
@@ -104,19 +97,19 @@ nfsa_T0801_GFS <- function(country,
       as_gdp = round(diff * 100 / gdp, 3),
       high_diff = abs(as_gdp) > 0.3,
       # GFS validation usually focuses on B9 (Net Lending/Borrowing)
-      validate = dplyr::if_else(high_diff & sto == "B9" & time_period >= limit_validation,
-                                "NOT VALIDATED", "OK")) |>
+      validate = dplyr::if_else(high_diff & id == "S13.B9.B" & time_period >= limit_validation,
+                                "NOT VALIDATE","VALIDATE")) |>
     dplyr::select(ref_area,
-                  ref_sector,
-                  sto,accounting_entry,
+                  id,
                   time_period,
                   gfs_date = source_date,
+                  status,
                   gfs,
-                  nfsa,
-                  diff,
-                  as_gdp,
-                  `over 0.3 % GDP` = high_diff,
-                  validate)
+                  qsa,
+                  Difference = diff,
+                  `As % GDP` = as_gdp,
+                  `Over 0.3 % GDP?` = high_diff,
+                  `Validate?` =validate)
 
 
   # 5. Reporting
@@ -124,16 +117,6 @@ nfsa_T0801_GFS <- function(country,
     cli::cli_alert_success("T0801 and GFS fully consistent!")
     return(NULL)
   }
-
-
-  ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  unique_areas <- unique(gfs_nfsa$ref_area)
-  country_tag <- if(length(unique_areas) == 1) unique_areas else "Multi"
-  file_out <- file.path(output_sel, paste0("T0801_GFS_", country_tag, "_", ts, ".xlsx"))
-
-  openxlsx::write.xlsx(gfs_nfsa, file = file_out, overwrite = TRUE, asTable = TRUE)
-  cli::cli_alert_success("Validation report created: {.file {file_out}}")
-  nfsa::nfsa_to_excel(gfs_nfsa)
   return(gfs_nfsa)
 }
 

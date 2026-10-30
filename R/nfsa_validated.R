@@ -19,10 +19,14 @@
 #' nfsa_validation(time_min = "2023-01-01")
 #' }
 #'
-#' @import dplyr
-#' @import tidyr
-#' @import stringr
-#' @import tibble
+#' @importFrom cli cli_alert_warning cli_progress_message
+#' @importFrom data.table fread
+#' @importFrom dplyr distinct filter mutate select
+#' @importFrom lubridate today ymd
+#' @importFrom purrr map
+#' @importFrom stringr str_sub
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr separate_wider_delim unnest
 #' @export
 nfsa_validated <- function(time_min = lubridate::ymd(lubridate::today()),
                             time_max = lubridate::ymd(lubridate::today())){

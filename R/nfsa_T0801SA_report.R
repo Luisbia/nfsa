@@ -114,10 +114,9 @@
 #' )
 #' }
 #'
-#' @importFrom tibble tibble
-#' @importFrom purrr map pwalk
-#' @importFrom quarto quarto_render
 #'
+#' @importFrom purrr map pwalk
+#' @importFrom tibble tibble
 #' @export
 
 nfsa_T0801SA_report <- function(
