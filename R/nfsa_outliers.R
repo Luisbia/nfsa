@@ -65,50 +65,21 @@
 #' `"No outliers according to this criteria"` and returns
 #' `NULL` invisibly.
 #'
-#' @section Output files:
-#' When outliers are found, a PDF file is saved in `output_sel`
-#' using the following naming convention:
-#'
-#' `YYYYMMDD_HHMMSS_outliers.pdf`
-#'
-#' Each page contains one chart comparing the current and
-#' previous vintages. A success message displays the file path.
-#'
-#' @note
-#' The function relies on [nfsa::nfsa_get_data()] to retrieve
-#' current and previous NFSA vintages. The previous vintage
-#' is requested using `type = "prev"`.
-#'
-#' The initial time filter is applied before calculating growth
-#' rates, so the first `type` observations of each time series
-#' generally cannot be evaluated.
 #'
 #' @examples
-#' \dontrun{
-#' # Detect outliers for Luxembourg using default thresholds
-#' outliers <- nfsa_outliers(country_sel = "LU")
+#' outliers <- nfsa_outliers(data = dat)
 #'
 #'
-#' # Use quarter-on-quarter changes and custom thresholds
 #' outliers <- nfsa_outliers(
 #'   data = dat_q,
 #'   type = 4L,
 #'   time_min = "2010-Q1",
 #'   rate_limit = 20,
-#'   gdp_limit = 0.2
-#' )
+#'   gdp_limit = 0.2)
 #'
-#' # Useing annual data
 #' outliers <- nfsa_outliers(
-#'   data = dat_a",
+#'   data = dat_a,
 #'   type = 1L)
-#' )
-#' }
-#'
-#' @seealso
-#' [nfsa::nfsa_get_data()],
-#' [nfsa::nfsa_separate_id()],
-#' [nfsa::nfsa_theme()]
 #'
 #' @importFrom dplyr arrange filter full_join group_by join_by lag left_join mutate rename select transmute
 #' @importFrom stringr str_detect
