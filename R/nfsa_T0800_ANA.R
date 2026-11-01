@@ -37,7 +37,7 @@ nfsa_T0800_ANA <- function(data,
   limit_validation <- as.numeric(max(data$time_period)) -4
 
   nfsa_data <- data |>
-    dplyr::rename(nfsa = obs_value)
+    dplyr::rename(asa = obs_value)
 
   ## NAMA -----
   cli::cli_progress_message("Collecting ANA...")
@@ -99,10 +99,16 @@ nfsa_T0800_ANA <- function(data,
   nama_nfsa <- dplyr::full_join(nama_data, nfsa_data,by = join_by(ref_area, id,
                                                            time_period)) |>
     tidyr::drop_na() |>
-    dplyr::mutate(diff = round(nfsa-nama,2)) |>
-    dplyr::group_by(ref_area,time_period) |>
-    dplyr::mutate(as_GDP = round(diff*100/nama[id == "S1.B1GQ.B"],3)) |>
-    dplyr::ungroup() |>
+    dplyr::mutate(diff = round(asa-nama,2))
+
+  # GDP Lookup from NFSA (using B1GQ)
+  gdp_lookup <- nfsa_data |>
+    dplyr::filter(id == "S1.B1GQ.B") |>
+    dplyr::select(ref_area, time_period, gdp = asa)
+
+  nama_nfsa <- nama_nfsa |>
+    dplyr::left_join(gdp_lookup, by = c("ref_area", "time_period")) |>
+    dplyr::mutate(as_GDP = round(diff * 100 / gdp, 3)) |>
     dplyr::filter(abs(diff)>threshold) |>
     dplyr::mutate(threshold = dplyr::if_else(abs(as_GDP) > 0.3, "More than 0.3% of GDP","Less than 0.3% of GDP")) |>
     dplyr::mutate(validate = dplyr::if_else(threshold == TRUE &
@@ -110,7 +116,7 @@ nfsa_T0800_ANA <- function(data,
                                       time_period>= limit_validation,
                                     "NOT VALIDATE","VALIDATE"))|>
     dplyr::select(ref_area,id,time_period,ana_date = source_date,status,
-                  ANA=nama,ASA=nfsa,Difference = diff,`As % GDP` = as_GDP,`Over 0.3 % GDP?` = threshold, `Validate?` =validate) |>
+                  ANA=nama,ASA=asa,Difference = diff,`As % GDP` = as_GDP,`Over 0.3 % GDP?` = threshold, `Validate?` =validate) |>
     dplyr::arrange(time_period,id)
 
 

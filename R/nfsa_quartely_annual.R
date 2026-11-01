@@ -60,73 +60,68 @@
 #' @export
 nfsa_quartely_annual <- function(df_q,
                                  df_a,
-                                 abs_threshold =5,
-                                 rel_threshold = 1){
+                                 abs_threshold = 5,
+                                 rel_threshold = 1) {
 
   # 1. Aggregate quarterly data to annual frequency
   q_data <- df_q |>
     dplyr::mutate(
-      year = stringr::str_sub(time_period, 1, 4)
+      time_period = substr(time_period, 1, 4)
     ) |>
-    dplyr::group_by(
-      ref_area, id, year
+    dplyr::summarise(
+      n_quarters = dplyr::n(),
+      total = sum(obs_value),
+      .by = c(ref_area, id, time_period)
     ) |>
-    dplyr::filter(dplyr::n() == 4) |>
-    dplyr::ungroup() |>
-    dplyr::select(
-      ref_area, id, year, obs_value
-    ) |>
-    dplyr::rename(time_period = year) |>
-    dplyr::group_by(ref_area, id, time_period) |>
+    dplyr::filter(n_quarters == 4) |>
     dplyr::mutate(
-      `sum of quarters` = dplyr::if_else(!stringr::str_detect(id,".PS"), sum(obs_value),mean(obs_value)
+      `sum of quarters` = dplyr::if_else(
+        endsWith(id, ".PS"),
+        total / 4,
+        total
       )
     ) |>
-    dplyr::ungroup() |>
-    dplyr::select(-obs_value) |>
-    dplyr::distinct()
-
-
-# 2. Prepare annual data
-a_data <- df_a |>
-  dplyr::select(
-    ref_area, id, time_period, obs_value
-  ) |>
-  dplyr::rename(annual = obs_value)
-
-
-# 3. Compare quarterly and annual observations
-q_data_a_data <- q_data |>
-  dplyr::left_join(
-    a_data,
-    by = dplyr::join_by(
-      ref_area, id, time_period
+    dplyr::select(
+      ref_area, id, time_period, `sum of quarters`
     )
-  ) |>
-  dplyr::mutate(
-    Difference = round(`sum of quarters` - annual, 1)
-  ) |>
-  dplyr::filter(
-    !is.na(Difference),
-    abs(Difference) > abs_threshold,
-  ) |>
-  dplyr::mutate(
-    `In %` = round(Difference * 100/annual, 1)
-  )  |>
-  dplyr::filter(
-    !is.na(`In %`),
-    abs(`In %`) > rel_threshold,
-  )
 
-# 4. Return results
+  # 2. Prepare annual data
+  a_data <- df_a |>
+    dplyr::select(
+      ref_area, id, time_period,
+      annual = obs_value
+    )
 
-if(nrow(q_data_a_data) == 0) {
-  cli::cli_alert_success("Quarterly an annual data are consistent within the chosen thresholds")
+  # 3. Compare quarterly and annual data
+  result <- q_data |>
+    dplyr::left_join(
+      a_data,
+      by = c("ref_area", "id", "time_period")
+    ) |>
+    dplyr::mutate(
+      Difference = round(`sum of quarters` - annual, 1)
+    ) |>
+    dplyr::filter(
+      !is.na(Difference),
+      abs(Difference) > abs_threshold
+    ) |>
+    dplyr::mutate(
+      `In %` = round(Difference * 100 / annual, 1)
+    ) |>
+    dplyr::filter(
+      !is.na(`In %`),
+      abs(`In %`) > rel_threshold
+    )
 
-    }
+  # 4. Return results
+  if (nrow(result) == 0) {
+    cli::cli_alert_success(
+      "Quarterly and annual data are consistent within the chosen thresholds"
+    )
+  }
 
-return(q_data_a_data)
-
+  result
 }
+
 
 

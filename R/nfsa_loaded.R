@@ -126,7 +126,8 @@ nfsa_loaded <- function(country,
                                     "0" ~ "OK", "2" ~ "Warning",
                                     "4" ~ "Rejection", "5" ~ "Error",
                                     default = feed_rc)
-    )
+    ) |>
+    dplyr::mutate(country = dplyr::if_else(country == "GR", "EL", country))
 
   return(final_data)
 }
