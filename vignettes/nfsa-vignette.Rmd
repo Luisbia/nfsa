@@ -181,11 +181,21 @@ head(
 )
 ```
 
+## T0801SA report
+
+The T0801SA report can be rendered with `nfsa_T0801SA_report()`. It is recommended to have the template locally as it is quite slow to write to the M: drive. 
+
+```{r 19 eval = FALSE}
+nfsa_T0801SA_report(countries = c("EE", "PL"),
+                    quarter = "2026Q2",
+                    template = "C:/users/biedmlu/R/QNFSA/Rprod/assets/T0801SA_report.qmd")
+```
+
 ## Plotting
 
 `nfsa_plots()` will create a pdf file comparing two data sets (annual or quarterly). 
 
-```{r 19, eval=FALSE}
+```{r 20, eval=FALSE}
 nfsa_plots <- function(
     version1,
     version2,
@@ -203,7 +213,7 @@ nfsa_plots <- function(
 
 We can set many options: the type of charts (two lines, line and column, line and area), from which period, colours, theme, labels of the series, scales fixed to see absolute magnitudes or that change with the data, if series in one dataset and not present in the other are displayed, pass additional ggplot arguments to change the gridlines, add a title).
 
-```{r 20}
+```{r 21}
 new_data <- nfsa_get_data(country = "IT", ref_period = "2026Q2")
 prev_data <- nfsa_get_data(country = "IT", ref_period = "2026Q1")
 
@@ -214,7 +224,7 @@ nfsa_plots(version1 = new_data,
            output_sel = "C:/users/biedmlu/R")
 ```
 
-```{r 21}
+```{r 22}
 new_data<- new_data |> 
   dplyr::filter(id == "S1.B1GQ.B")
 
@@ -233,7 +243,7 @@ nfsa_plots(version1 = new_data,
 
 Apart from `nfsa_plots()` we can use `nfsa_theme()` and `nfsa_scale_colour()` and  `nfsa_scale_fill()` to quickly improve ggplot2 defaults.
 
-```{r 22}
+```{r 23}
 library(ggplot2)
 ggplot(new_data,aes(x = lubridate::yq(time_period),
                 y = obs_value,
@@ -252,7 +262,72 @@ ggplot(new_data,aes(x = lubridate::yq(time_period),
 ```
 
 
+## Helper functions
+
+There are some functions that could help us get something extra from what the VR offers.
+
+For example we could precise the revision output, instead of the 5 million default in the VR.
+We could just see revisions which are above a % of GDP
+
+```{r 24}
+data <- nfsa_get_data(country = "IT",
+                      ref_period = c("2026Q1", "2026Q2"))
+
+nfsa_revision(data = data,
+              abs_threshold = 0,
+              rel_threshold = 0,
+              gdp_threshold = 2)
+```
+
+We can have as many revisions as versions
+
+```{r 25}
+data <- nfsa_get_data(country = "IT",
+                      ref_period = "2026Q2",
+                      last = FALSE)
+
+nfsa_revision(data = data,
+              abs_threshold = 0,
+              rel_threshold = 0,
+              gdp_threshold = 0) |> 
+  dplyr::filter(id == "S13.B9.B", time_period == "2026-Q2")
+```
 
 
+We can also go further to the visual inspection and use `nfsa_outliers()`.
 
+```{r 26}
+data <- data |> 
+  dplyr::filter(version == "2026_00026") |> 
+  dplyr::select(-version)
+
+nfsa_outliers()
+```
+
+The data, or the revision between versions, can be shown as a sequence of accounts for T0801 with `nfsa_sequence_T0801()` or T0800 with `nfsa_sequence_T0800()`.
+
+`nfsa_to_eur()` converts quarterly or annual data from national currency to euros and `nfsa_percapita()` to per head population.
+
+```{r 27}
+tail(
+  nfsa_get_data(country = "CZ", 
+              ref_period ="2026Q2", 
+              filters = "sto == 'B1GQ'") |> 
+  nfsa_to_eur() |> 
+  nfsa_percapita()
+  )
+```
+
+```{r 28}
+tail(
+nfsa_get_data(country = "CZ", 
+              table = "T0800",
+              ref_period ="2025", 
+              filters = "sto == 'B1GQ'") |> 
+  nfsa_to_eur(freq = "A") |> 
+  nfsa_percapita(freq = "A")
+)
+```
+
+`nfsa_separate_id()` and `nfsa_unite_id()` split or group the `id` column.
 
