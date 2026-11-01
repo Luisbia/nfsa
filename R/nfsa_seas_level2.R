@@ -15,11 +15,7 @@
 #'   \code{mode = "country"}.
 #' @param time_min The earliest quarter to include in the analysis. Defaults to
 #'   \code{"1999-Q1"}. Only applied when \code{mode = "country"}.
-#' @param input_sel Path to the directory containing input data files. Defaults
-#'   to \code{"M:/nas/Rprod/data/"}. In \code{"agg"} mode this should point to
-#'   the parent data directory (the function appends \code{<agg>_data/<agg>_new.csv}).
-#' @param output_sel Path to the directory where Quarto reports will be saved.
-#'   Defaults to \code{here::here("output", "seas")}.
+#' @param ref_quarter Which data to use
 #' @param dashboard_sel Path to the Quarto dashboard template. Defaults to
 #'   \code{here::here("assets", "level2_eurostat_short.qmd")}.
 #' @param default_type_sel Default seasonal adjustment method. Defaults to
@@ -35,10 +31,8 @@
 #' @examples
 #' \dontrun{
 #' # Country mode: process series listed in the default Excel file
-#' nfsa_seas_level2()
+#' nfsa_seas_level2(ref_quarter = "2026Q2")
 #'
-#' # Country mode: custom output directory
-#' nfsa_seas_level2(output_sel = here::here("my_output"))
 #'
 #' # Aggregate mode: Euro Area
 #' nfsa_seas_level2(mode = "agg", agg = "EA")
@@ -58,12 +52,12 @@
 #' @importFrom tidyr nest unite
 #' @export
 nfsa_seas_level2 <- function(mode               = "country",
+                             ref_quarter        = NULL,
                              agg                = NULL,
                              series             = here::here("assets", "seas_level1.xlsx"),
                              time_min           = "1999-Q1",
-                             input_sel          = "M:/nas/Rprod/data/",
                              output_sel         = here::here("output", "seas"),
-                             dashboard_sel      = here::here("assets", "level2_eurostat_short.qmd"),
+                             dashboard_sel      = "M:/nas/Rprod/assets/seas/level2_eurostat_short.qmd",
                              default_type_sel   = "X13",
                              default_spec_nsa_sel = "RSA1",
                              default_spec_sa_sel  = "RSA2c") {
@@ -85,13 +79,13 @@ nfsa_seas_level2 <- function(mode               = "country",
   if (mode == "country") {
 
     nsa <- nfsa_get_data(country = unique(series_list$ref_area),
-                         table   = "T0801",
-                         type    = "new") |>
+                         table         = "T0801",
+                         ref_period    = ref_quarter) |>
       dplyr::rename(NSA = obs_value)
 
     sca <- nfsa_get_data(country = unique(series_list$ref_area),
-                         table   = "T0801SA",
-                         type    = "new") |>
+                         table         = "T0801SA",
+                         ref_period    = ref_quarter) |>
       dplyr::rename(SCA = obs_value)
 
     nsa_sca <- dplyr::full_join(nsa, sca, by = dplyr::join_by(ref_area, id, time_period)) |>
@@ -99,7 +93,7 @@ nfsa_seas_level2 <- function(mode               = "country",
 
   } else {  # mode == "agg"
 
-    raw <- nfsa_read_matis(paste0(input_sel, agg, "_data/", agg, "_new.csv")) |>
+    raw <- nfsa_read_matis(paste0("M:/nas/Rprod/db/", agg, "_data/", agg, "_new.csv")) |>
       dplyr::left_join(y  = nfsa_sto_lookup,
                        by = dplyr::join_by(counterpart_area, ref_sector,
                                            counterpart_sector, consolidation,
@@ -185,4 +179,5 @@ nfsa_seas_level2 <- function(mode               = "country",
 
   invisible(NULL)
 }
+
 

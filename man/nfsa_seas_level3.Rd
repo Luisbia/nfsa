@@ -6,10 +6,10 @@
 \usage{
 nfsa_seas_level3(
   series = here::here("assets", "seas_level1.xlsx"),
+  ref_quarter = NULL,
   time_min = "1999-Q1",
-  input_sel = "M:/nas/Rprod/data/",
   output_sel = here::here("output", "seas"),
-  dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
+  dashboard_sel = "M:/nas/Rprod/assets/seas/level3_eurostat.qmd",
   default_type_sel = "X13",
   default_spec_nsa_sel = "RSA1",
   default_spec_sa_sel = "RSA2c"
@@ -20,10 +20,9 @@ nfsa_seas_level3(
 Defaults to \code{here("assets", "seas_level1.xlsx")}. This file should contain
 at least \code{ref_area} and \code{id} columns.}
 
-\item{time_min}{from which quarter the analysis starts}
+\item{ref_quarter}{Which data to use}
 
-\item{input_sel}{Path to the directory where input data is stored. Defaults
-to \code{"M:/nas/Rprod/data/"}.}
+\item{time_min}{from which quarter the analysis starts}
 
 \item{output_sel}{Path to the directory where output reports should be
 saved. Defaults to \code{here::here("output", "seas")}.}
@@ -38,6 +37,9 @@ saved. Defaults to \code{here::here("output", "seas")}.}
 
 \item{default_spec_sa_sel}{Default specification for SA series. Defaults to
 \code{"RSA2c"}.}
+
+\item{input_sel}{Path to the directory where input data is stored. Defaults
+to \code{"M:/nas/Rprod/data/"}.}
 }
 \value{
 This function does not explicitly return a value.  It generates
@@ -48,26 +50,13 @@ This function performs Level 3 seasonal adjustment validation on Eurostat
 data. It retrieves data, joins NSA and SCA series, and generates validation
 reports using a Quarto dashboard.
 }
-\details{
-The function performs the following steps:
-\enumerate{
-\item Reads the list of series from the Excel file specified by \code{series}.
-\item Retrieves Non-Seasonally Adjusted (NSA) and Seasonally Adjusted (SCA)
-data from Eurostat using \code{nfsa_get_data}.
-\item Joins the NSA and SCA series based on \code{ref_area}, \code{id}, and
-\code{time_period}.
-\item Creates time series objects from the joined data.
-\item Generates Level 3 validation reports for each series using the
-specified Quarto dashboard template.
-}
-}
 \examples{
 \dontrun{
 # Example usage with default parameters
-nfsa_seas_level3()
+nfsa_seas_level3(ref_quarter = "2026Q2")
 
 # Example usage with custom output directory
-nfsa_seas_level3(output_sel = here::here("my_output"))
+nfsa_seas_level3(ref_quarter = "2026Q2",output_sel = here::here("my_output"))
 }
 
 }

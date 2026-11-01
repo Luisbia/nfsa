@@ -14,27 +14,18 @@
 #' @param agg A character string specifying the aggregate area, used when
 #'   \code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when
 #'   \code{mode = "country"}.
+#' @param ref_quarter Which data to use
 #' @param time_min The earliest quarter to include in the analysis. Defaults to
 #'   \code{"1999-Q1"}. Only used when \code{mode = "country"}.
-#' @param input_sel Path to the directory containing input data files. Defaults to
-#'   \code{"M:/nas/Rprod/data/"}. Used in both modes.
-#' @param output_sel Path to the directory where the output Excel file will be saved.
-#'   Defaults to \code{here::here("output", "seas")}.
 #'
 #' @return A data frame with columns \code{ref_area}, \code{id}, and \code{level1}
 #'   (either a \code{"FAIL"} or \code{"WARNING"} message) for all flagged series.
-#'   Also writes an Excel file to \code{output_sel} and calls \code{nfsa::nfsa_to_excel()}.
-#'   Returns invisibly if no issues are found.
 #'
 #' @examples
 #' \dontrun{
 #' # Country mode: check Belgium and Italy
 #' results <- nfsa_seas_level1(country = c("BE", "IT"))
 #'
-#' # Country mode: check France with custom directories
-#' results <- nfsa_seas_level1(country = "FR",
-#'                              input_sel = "/path/to/input",
-#'                              output_sel = "/path/to/output")
 #'
 #' # Aggregate mode: check the Euro Area aggregate
 #' results <- nfsa_seas_level1(mode = "agg", agg = "EA")
@@ -57,9 +48,8 @@
 nfsa_seas_level1 <- function(mode = "country",
                              country = NULL,
                              agg = NULL,
-                             time_min = "1999-Q1",
-                             input_sel = "M:/nas/Rprod/data/",
-                             output_sel = here::here("output", "seas")) {
+                             ref_quarter = NULL,
+                             time_min = "1999-Q1") {
 
   # ---- Input validation ----
   mode <- match.arg(mode, choices = c("country", "agg"))
@@ -77,15 +67,13 @@ nfsa_seas_level1 <- function(mode = "country",
   if (mode == "country") {
 
     nsa <- nfsa_get_data(country = country,
-                         table = "T0801",
-                         type = "new",
-                         input_sel = input_sel) |>
+                         ref_period = ref_quarter,
+                         table = "T0801") |>
       dplyr::rename(NSA = obs_value)
 
     sca <- nfsa_get_data(country = country,
                          table = "T0801SA",
-                         type = "new",
-                         input_sel = input_sel) |>
+                         ref_period = ref_quarter) |>
       dplyr::rename(SCA = obs_value)
 
     data <- dplyr::full_join(nsa, sca, by = dplyr::join_by(ref_area, id, time_period)) |>
@@ -94,7 +82,7 @@ nfsa_seas_level1 <- function(mode = "country",
 
   } else {  # mode == "agg"
 
-    raw <- nfsa_read_matis(paste0(input_sel, agg, "_data/", agg, "_new.csv")) |>
+    raw <- nfsa_read_matis(paste0("M:/nas/Rprod/db/", agg, "_data/", agg, "_new.csv")) |>
       dplyr::left_join(y = nfsa_sto_lookup,
                        by = dplyr::join_by(counterpart_area, ref_sector,
                                            counterpart_sector, consolidation,
@@ -166,14 +154,9 @@ nfsa_seas_level1 <- function(mode = "country",
   # ---- Output ----
   if (nrow(data) == 0) {
     cli::cli_alert_success("No issues")
+    return(invisible(NULL))
   } else {
-    timestamp    <- as.character(format(Sys.time(), "%Y%m%d_%H%M%S"))
-    output_file  <- paste0(output_sel, "/level1_", timestamp, ".xlsx")
-
-    openxlsx::write.xlsx(data, file = output_file, overwrite = TRUE)
-    cli::cli_inform(paste0("File created at ", output_file))
-    nfsa::nfsa_to_excel(data)
-    return(data)
+     return(data)
   }
 
 }

@@ -21,39 +21,7 @@ knitr::opts_chunk$set(
 library(nfsa)
 ```
 
-We will review how to use the functions of the package with several examples and will remain the main source of documentation.
-
-## Server logging functions
-
-There are two functions `nfsa_transmissions()` and `nfsa_loaded()` that will scan the server (M: and I:) and provide some information of what has happened there.
-
-`nfsa_transmissions()` will list the files received during a period defined by the user. For example, to get the list of files received from 2026-10-01 we will use
-
-```{r 1}
-library(nfsa)
-nfsa_transmissions(time_min = "2026-10-01")
-```
-
-This can work on other folders. For example, the 2025Q1 folder 
-
-```{r 2}
-nfsa_transmissions(time_min = "2025-01-01",
-                   input_sel = "M:/nas/QSA10/Production/2025Q1/(1) QSA/(1_1) Original transmission/(1_1_1) Original xml files")
-```
-
-`nfsa_loaded()` will scan the logs in `I:/econ/NFSA/LOG/` to inform us what has been loaded (or not) how and when in Matis.
-
-```{r 3}
-nfsa_loaded(time_min = "2026-10-16",
-            time_max = "2026-10-18")
-```
-
-The last one is `nfsa_validated` which scans Matis logs to find what files have been validated. PLease note that it also includes TM to VM, not just T to V.
-
-```{r 4}
-nfsa_validated(time_min = "2026-10-16",
-               time_max = "2026-10-18")
-```
+We will review how to use the main functions of the package with several examples. We will focus in the vignette in the functions the normal user will be exposed to. 
 
 
 ## Data importing functions
@@ -78,39 +46,41 @@ nfsa_get_data <- function(
 Using the default parameters we only need to provide the country (or countries) for which we want to extract data.
 
 ```{r 5}
-head(
-  nfsa_get_data(country = "IT")
-  )
+
+nfsa_get_data(country = "IT") |> 
+  dplyr::filter(id == "S1.B1GQ.B", time_period == "2024-Q1")
+
 ```
 
 This will get us the latest `T0801` file sent by the country (or countries) in each reference quarter available in the server. If we want `T0800` or `T0801SA` we need to change the table argument.
 
 ```{r 6}
-head(
   nfsa_get_data(country = "IT",
-                   table = "T0800")
-  )
+                   table = "T0800") |> 
+    dplyr::filter(id == "S1.B1GQ.B", time_period == "2023")
+  
 ```
 
-If we want the latest version a particular reference period we have to provide it.
+If we want only the latest version of a particular reference period we have to provide it. In this case the version column is not needed and it will not be returned.
 
 ```{r 7}
 head(
   nfsa_get_data(country = "IT",
                    table = "T0801SA",
-                   ref_period = "2026_0002")
+                   ref_period = "2026Q2")
   )
 ```
 
-If we want to have all the versions, and not only the last one, we have to set the argument last to FALSE
+If we want to have all the versions, and not only the last one, we have to set the argument `last` to `FALSE`.
 ```{r 8}
-head(
+
   nfsa_get_data(country = "IT",
                    table = "T0801SA",
-                   ref_period = "2026_0002",
+                   ref_period = c("2025Q4","2026Q1", "2026Q2"),
                 last = FALSE) |> 
-    dplyr::arrange(time_period,id)
-  )
+   dplyr::filter(id == "S1.B1GQ.B", time_period == "2025-Q4") |> 
+   dplyr::arrange(version,time_period,id)
+  
 ```
 
 
@@ -119,7 +89,7 @@ We can filter what to extract using any of the fields of the original XML file. 
 ```{r 9}
 head(
   nfsa_get_data(country = "IT", 
-                ref_period = "2026_0002",
+                ref_period = "2026Q2",
                    filters = "counterpart_area == '4Y'")
   )
 
@@ -134,7 +104,7 @@ nfsa_get_data(country = "IT",
 
 ```
 
-It is possible to retrieve the data as reported in the original xml file (and some additional info) if we use the argument `complete`.
+It is possible to retrieve the data as reported in the original xml file (and some additional info) if we use the argument `complete = TRUE`.
 
 ```{r 11}
 nfsa_get_data(country = "IT", 
@@ -144,22 +114,23 @@ nfsa_get_data(country = "IT",
 
 ```
 
-By default observation values with `obs_status M` are converted to zero, but we can change the behavior with the fill_M argument.
+By default, observation values with `obs_status M` are converted to zero, but we can change the behavior with the `fill_M` argument.
 
 ```{r 12}
 nfsa_get_data(country = "EE", 
               filters = "sto == 'D8'") |> 
-  dplyr::filter(obs_value == 0,time_period == "2026-Q2")
+  dplyr::filter(obs_value == 0,time_period == "2026-Q2", id == "S2.D8.D")
 ```
 
+In this case we will receive an empty data frame.
 ```{r 13}
 nfsa_get_data(country = "EE",
               filters = "sto == 'D8'",
               fill_M = FALSE) |> 
-  dplyr::filter(obs_value == 0, time_period == "2026-Q2")
+  dplyr::filter(obs_value == 0, time_period == "2026-Q2", id == "S2.D8.D")
 ```
 
-`nfsa_get_data_validated` goes a step further and compared the files with a matching (experimental) table extracted from Matis of what files were actually validated. A word of caution is that many files seem to have been validated from non-standard file names (corr, reload_8) and will not be matched.
+`nfsa_get_data_validated` goes a step further and compares the files with a matching (experimental) table extracted from Matis of what files were actually validated. A word of caution is that some files seem to have been validated from non-standard file names (corr, reload_8) and will not be matched.
 
 ```{r}
 head(
@@ -169,7 +140,7 @@ nfsa_get_data_validated(country = "IT",
   n=16
 )
 ```
-yu
+
 ### How the server is populated with country files
 
 The function `nfsa_move_convert()` scans the folder `M:/nas/Incoming_SDMX_files/` for the country, table and time period we choose. If it finds a file that is not in `N:/nas/Rprod/db` it converts the xml file to parquet and moves it.
@@ -185,7 +156,7 @@ head(
 
 ### Our own files
 
-As long as they respect a required structure (sheets, columns) we should be able to load excel templates created for example for estimation purposes.
+As long as they respect a required structure (sheets, columns) we should be able to load excel templates created for example for estimation purposes for tables T0801 and T0800).
 
 ```{r 16}
 head(
@@ -201,7 +172,7 @@ head(
 ```
 
 
-We will need to add the column `ref_area`, it is not possible to collect flags and it is relatively slow. If we do not need to use the data before loading it in Matis, it is better to use the parsed csv file generated when loading the file. This will give as a file with all the columns (as xml) if we set `full = TRUE`. By default it collapses to the usual 4 columns. 
+We will need to add the column `ref_area`, it is not possible to collect flags and it is relatively slow to import the data. If we do not need to use the data before loading it in Matis, it is better to use the parsed csv file generated when loading the file. This will give as a file with all the columns (as xml) if we set `full = TRUE`. By default, it collapses to the usual 4 columns. 
 
 ```{r 18}
 head(
@@ -233,8 +204,8 @@ nfsa_plots <- function(
 We can set many options: the type of charts (two lines, line and column, line and area), from which period, colours, theme, labels of the series, scales fixed to see absolute magnitudes or that change with the data, if series in one dataset and not present in the other are displayed, pass additional ggplot arguments to change the gridlines, add a title).
 
 ```{r 20}
-new_data <- nfsa_get_data(country = "IT", ref_period = "2026_0002")
-prev_data <- nfsa_get_data(country = "IT", ref_period = "2026_0001")
+new_data <- nfsa_get_data(country = "IT", ref_period = "2026Q2")
+prev_data <- nfsa_get_data(country = "IT", ref_period = "2026Q1")
 
 nfsa_plots(version1 = new_data,
            version2 = prev_data,
@@ -280,34 +251,7 @@ ggplot(new_data,aes(x = lubridate::yq(time_period),
   
 ```
 
-## Completeness
 
-There are three completeness functions (maybe  a fourth will be added in the near future). Two the completeness of tables T0801 and T0801 against the regulation requirements. The third one checks that all data needed in T0801 for the estimation is available, and there is no need to do imputations. 
-
-In all cases they work similarly, the y check the available data against a parameter file.
-
-```{r 23}
-dat <- nfsa_get_data(country = c("EE", "PL"),
-                     table = "T0801SA",
-                     ref_period = "2026_0002")
-
-nfsa_completeness_T0801SA(data = dat,
-                        end_quarter = "2026-Q2")
-```
-
-## Quarterly vs Annual
-
-## Internal consistency
-
-## Cross-domain consistency
-
-## Revisions
-
-## Compilation European aggregates
-
-## Seasonality
-
-## Helper functions
 
 
 

@@ -7,6 +7,7 @@
 #' @param series Path to an Excel file containing a list of series to process.
 #'   Defaults to `here("assets", "seas_level1.xlsx")`. This file should contain
 #'   at least `ref_area` and `id` columns.
+#' @param ref_quarter Which data to use
 #' @param time_min from which quarter the analysis starts
 #' @param input_sel Path to the directory where input data is stored. Defaults
 #'   to `"M:/nas/Rprod/data/"`.
@@ -23,25 +24,15 @@
 #' @return This function does not explicitly return a value.  It generates
 #'   Quarto dashboard reports and saves them to the `output_sel` directory.
 #'
-#' @details The function performs the following steps:
-#'   \enumerate{
-#'     \item Reads the list of series from the Excel file specified by `series`.
-#'     \item Retrieves Non-Seasonally Adjusted (NSA) and Seasonally Adjusted (SCA)
-#'       data from Eurostat using `nfsa_get_data`.
-#'     \item Joins the NSA and SCA series based on `ref_area`, `id`, and
-#'       `time_period`.
-#'     \item Creates time series objects from the joined data.
-#'     \item Generates Level 3 validation reports for each series using the
-#'       specified Quarto dashboard template.
-#'   }
+
 #'
 #' @examples
 #' \dontrun{
 #' # Example usage with default parameters
-#' nfsa_seas_level3()
+#' nfsa_seas_level3(ref_quarter = "2026Q2")
 #'
 #' # Example usage with custom output directory
-#' nfsa_seas_level3(output_sel = here::here("my_output"))
+#' nfsa_seas_level3(ref_quarter = "2026Q2",output_sel = here::here("my_output"))
 #' }
 #'
 #' @importFrom dplyr arrange filter full_join join_by left_join mutate rename
@@ -54,10 +45,10 @@
 #' @importFrom tidyr nest unite
 #' @export
 nfsa_seas_level3 <- function(series = here::here("assets", "seas_level1.xlsx"),
+                             ref_quarter = NULL,
                              time_min = "1999-Q1",
-                             input_sel = "M:/nas/Rprod/data/",
                              output_sel = here::here("output", "seas"),
-                             dashboard_sel = here::here("assets", "level3_eurostat.qmd"),
+                             dashboard_sel = "M:/nas/Rprod/assets/seas/level3_eurostat.qmd",
                              default_type_sel = "X13",
                              default_spec_nsa_sel = "RSA1",
                              default_spec_sa_sel = "RSA2c"){
@@ -66,12 +57,12 @@ nfsa_seas_level3 <- function(series = here::here("assets", "seas_level1.xlsx"),
 
   nsa <- nfsa_get_data(country = unique(series_list$ref_area),
                        table = "T0801",
-                       type = "new") |>
+                       ref_period = ref_quarter) |>
     dplyr::rename(NSA = obs_value)
 
   sca <- nfsa_get_data(country = unique(series_list$ref_area),
                        table = "T0801SA",
-                       type = "new")|>
+                       ref_period = ref_quarter)|>
     dplyr::rename(SCA = obs_value)
 
   nsa_sca <- dplyr::full_join(nsa,sca,by = dplyr::join_by(ref_area, id, time_period) ) |>
@@ -134,11 +125,11 @@ nfsa_seas_level3 <- function(series = here::here("assets", "seas_level1.xlsx"),
 
   for (i in seq_along(nsa_sca$id)) {
     level3_validation_eurostat(stats::ts(nsa_sca$data[[i]][[2]], start = c(stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
-                                                                    stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
-                                  frequency = 4),
+                                                                           stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+                                         frequency = 4),
                                stats::ts(nsa_sca$data[[i]][[3]], start = c(stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],1,4),
-                                                                    stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
-                                  frequency = 4),
+                                                                           stringr::str_sub(nsa_sca$data[[i]][[1]][[1]],7,7)),
+                                         frequency = 4),
                                nsa_sca$id[i])
   }
 }

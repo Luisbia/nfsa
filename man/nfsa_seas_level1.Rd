@@ -8,9 +8,8 @@ nfsa_seas_level1(
   mode = "country",
   country = NULL,
   agg = NULL,
-  time_min = "1999-Q1",
-  input_sel = "M:/nas/Rprod/data/",
-  output_sel = here::here("output", "seas")
+  ref_quarter = NULL,
+  time_min = "1999-Q1"
 )
 }
 \arguments{
@@ -24,20 +23,14 @@ nfsa_seas_level1(
 \code{mode = "agg"} (e.g., \code{"EA"} or \code{"EU"}). Ignored when
 \code{mode = "country"}.}
 
+\item{ref_quarter}{Which data to use}
+
 \item{time_min}{The earliest quarter to include in the analysis. Defaults to
 \code{"1999-Q1"}. Only used when \code{mode = "country"}.}
-
-\item{input_sel}{Path to the directory containing input data files. Defaults to
-\code{"M:/nas/Rprod/data/"}. Used in both modes.}
-
-\item{output_sel}{Path to the directory where the output Excel file will be saved.
-Defaults to \code{here::here("output", "seas")}.}
 }
 \value{
 A data frame with columns \code{ref_area}, \code{id}, and \code{level1}
 (either a \code{"FAIL"} or \code{"WARNING"} message) for all flagged series.
-Also writes an Excel file to \code{output_sel} and calls \code{nfsa::nfsa_to_excel()}.
-Returns invisibly if no issues are found.
 }
 \description{
 Performs level 1 seasonality checks on time series data, comparing
@@ -52,10 +45,6 @@ over-adjustment, or inconsistencies between NSA and SCA data.
 # Country mode: check Belgium and Italy
 results <- nfsa_seas_level1(country = c("BE", "IT"))
 
-# Country mode: check France with custom directories
-results <- nfsa_seas_level1(country = "FR",
-                             input_sel = "/path/to/input",
-                             output_sel = "/path/to/output")
 
 # Aggregate mode: check the Euro Area aggregate
 results <- nfsa_seas_level1(mode = "agg", agg = "EA")

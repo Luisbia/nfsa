@@ -2,30 +2,26 @@
 % Please edit documentation in R/nfsa_outliers.R
 \name{nfsa_outliers}
 \alias{nfsa_outliers}
-\title{Detect Outliers in National Financial Sector Accounts (NFSA)}
+\title{Detect Outliers in National Non Financial Sector Accounts (NFSA)}
 \usage{
 nfsa_outliers(
-  country_sel,
+  data,
   type = 4L,
-  time_min = "2010-Q1",
+  time_min = NULL,
   rate_limit = 30,
-  gdp_limit = 0.3,
-  change_prev = 10,
-  output_sel = here::here("output", "plots")
+  gdp_limit = 0.3
 )
 }
 \arguments{
-\item{country_sel}{Character vector. Country code for which
-outliers should be identified (e.g., \code{"LU"}).}
+\item{data}{a dataframe with T0801/T0801SA ot T0800 data with 4 columns.}
 
 \item{type}{Integer. Number of periods used to calculate
 percentage changes. The default is \code{4L}, corresponding
 to year-on-year changes for quarterly data. Use \code{1L}
-for quarter-on-quarter changes.}
+for quarter-on-quarter changes or year-on-year changes.}
 
 \item{time_min}{Character scalar. Earliest reporting period
-to include, expressed in \code{"YYYY-Qn"} format.
-Default is \code{"2010-Q1"}.}
+to include, expressed in \code{"YYYY-Qn"} or \code{YYYY}. Default is \code{NULL}.}
 
 \item{rate_limit}{Numeric scalar. Minimum absolute percentage
 growth rate required for an observation to be considered
@@ -35,21 +31,10 @@ a potential outlier. Default is \code{30} (30 percent).}
 expressed as a percentage of GDP, required for an
 observation to be retained. Default is \code{0.3}
 (0.3 percent of GDP).}
-
-\item{change_prev}{Numeric scalar. Minimum absolute percentage
-revision between the current and previous data vintages.
-Default is \code{10} (10 percent).
-Observations with missing revision percentages are also
-retained.}
-
-\item{output_sel}{Character scalar. Directory where the
-PDF containing outlier charts will be saved.
-Defaults to \code{here::here("output", "plots")}.
-The directory must already exist.}
 }
 \value{
 If outliers are identified, a tibble containing the observations
-satisfying all three detection criteria, including:
+satisfying all detection criteria, including:
 \itemize{
 \item Country, transaction identifier, and reporting period.
 \item Current observation value (\code{obs_value}).
@@ -57,8 +42,6 @@ satisfying all three detection criteria, including:
 \item Percentage growth rate (\code{growth}).
 \item GDP value (\code{gdp}).
 \item Change expressed as a percentage of GDP (\code{as_gdp}).
-\item Additional transaction components created by
-\code{\link[=nfsa_separate_id]{nfsa_separate_id()}}.
 }
 
 If no outliers are identified, the function prints
@@ -67,15 +50,13 @@ If no outliers are identified, the function prints
 }
 \description{
 Identifies potentially anomalous observations in NFSA time series
-using three sequential criteria: growth rates, changes relative
-to GDP, and revisions compared with the previous data vintage.
+using two sequential criteria: growth rates and changes relative
+to GDP.
 
-For observations meeting all three criteria, the function generates
-a multi-page PDF containing time-series charts comparing the
-current and previous vintages, with identified outliers highlighted.
+Observations meeting these criteria are returned
 }
 \details{
-The outlier detection procedure consists of three stages:
+The outlier detection procedure consists of two stages:
 \enumerate{
 \item \strong{Growth-rate criterion:} Calculates the percentage change
 in each series relative to the observation \code{type} periods
@@ -85,11 +66,6 @@ percentage change exceeds \code{rate_limit}.
 observation as a percentage of GDP (identified by
 \code{"S1.B1GQ.B"}). Observations are retained when the absolute
 percentage exceeds \code{gdp_limit}.
-\item \strong{Vintage revision criterion:} Compares the observation
-with the corresponding value from the previous data vintage.
-Observations are retained when the absolute percentage
-revision exceeds \code{change_prev}, or when the revision
-cannot be calculated (e.g., no previous observation).
 }
 
 All criteria use strict inequalities (\code{>}).
@@ -98,64 +74,20 @@ Before applying these criteria, selected balancing items
 and transactions are excluded using predefined ID patterns.
 These include B101, B9, D43, P5M, D8, B11, B12, B6G,
 B8G, B7G, and B5G.
-
-For each combination of country and transaction (\code{sto}),
-a time-series chart is generated using:
-\itemize{
-\item Separate line types for current and previous vintages.
-\item Different colours for institutional sectors.
-\item Facets by accounting entry.
-\item Dark red points highlighting the identified outliers.
 }
-
-Charts are saved in a timestamped, multi-page PDF file.
-}
-\note{
-The function relies on \code{\link[=nfsa_get_data]{nfsa_get_data()}} to retrieve
-current and previous NFSA vintages. The previous vintage
-is requested using \code{type = "prev"}.
-
-The initial time filter is applied before calculating growth
-rates, so the first \code{type} observations of each time series
-generally cannot be evaluated.
-}
-\section{Output files}{
-
-When outliers are found, a PDF file is saved in \code{output_sel}
-using the following naming convention:
-
-\code{YYYYMMDD_HHMMSS_outliers.pdf}
-
-Each page contains one chart comparing the current and
-previous vintages. A success message displays the file path.
-}
-
 \examples{
-\dontrun{
-# Detect outliers for Luxembourg using default thresholds
-outliers <- nfsa_outliers(country_sel = "LU")
+outliers <- nfsa_outliers(data = dat)
 
 
-# Use quarter-on-quarter changes and custom thresholds
 outliers <- nfsa_outliers(
-  country_sel = "LU",
-  type = 1L,
+  data = dat_q,
+  type = 4L,
   time_min = "2010-Q1",
   rate_limit = 20,
-  gdp_limit = 0.2,
-  change_prev = 5
-)
+  gdp_limit = 0.2)
 
-# Specify an alternative output directory
 outliers <- nfsa_outliers(
-  country_sel = "LU",
-  output_sel = here::here("reports", "outliers")
-)
-}
+  data = dat_a,
+  type = 1L)
 
-}
-\seealso{
-\code{\link[=nfsa_get_data]{nfsa_get_data()}},
-\code{\link[=nfsa_separate_id]{nfsa_separate_id()}},
-\code{\link[=nfsa_theme]{nfsa_theme()}}
 }
