@@ -12,7 +12,7 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = FALSE,
+  eval = TRUE,
   comment = "#>"
 )
 ```
@@ -132,7 +132,7 @@ nfsa_get_data(country = "EE",
 
 `nfsa_get_data_validated` goes a step further and compares the files with a matching (experimental) table extracted from Matis of what files were actually validated. A word of caution is that some files seem to have been validated from non-standard file names (corr, reload_8) and will not be matched.
 
-```{r}
+```{r 14}
 head(
 nfsa_get_data_validated(country = "IT",
                         filters = "sto == 'B1GQ'") |> 
@@ -185,7 +185,7 @@ head(
 
 The T0801SA report can be rendered with `nfsa_T0801SA_report()`. It is recommended to have the template locally as it is quite slow to write to the M: drive. 
 
-```{r 19 eval = FALSE}
+```{r 19, eval=FALSE}
 nfsa_T0801SA_report(countries = c("EE", "PL"),
                     quarter = "2026Q2",
                     template = "C:/users/biedmlu/R/QNFSA/Rprod/assets/T0801SA_report.qmd")
@@ -301,7 +301,7 @@ data <- data |>
   dplyr::filter(version == "2026_00026") |> 
   dplyr::select(-version)
 
-nfsa_outliers()
+nfsa_outliers(data)
 ```
 
 The data, or the revision between versions, can be shown as a sequence of accounts for T0801 with `nfsa_sequence_T0801()` or T0800 with `nfsa_sequence_T0800()`.

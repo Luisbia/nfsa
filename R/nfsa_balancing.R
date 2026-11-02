@@ -3,8 +3,12 @@
 #' @param data_input Data frame with columns: ref_area, id, time_period, obs_value.
 #' @param Country Optional label used only to build <Country>_all_periods.
 #' @param run_name Optional explicit output prefix; overrides Country.
-#' @param output_dir Optional complete output directory. By default a subfolder
-#'   named <run_name>_reconciliation_output is created in getwd() at call time.
+#' @param write_files Logical. If `FALSE` (default), no Excel files, plots, or
+#'   output directories are created. Set `TRUE` to generate diagnostic files.
+#' @param verbose Logical. If `TRUE`, display period-by-period progress.
+#'   Defaults to `FALSE`.
+#' @param output_dir Optional directory used only when `write_files = TRUE`.
+#'   Defaults to a subfolder of the working directory.
 #' @param scale_floor Positive numeric floor for relative adjustment scales.
 #'   `NULL` selects a floor from the nonzero observations.
 #' @param weight_rules Data frame with `match_type`, `pattern`, and `weight`
@@ -15,7 +19,8 @@
 #' @param osqp_verbose Logical; whether OSQP prints solver progress. Defaults to `FALSE`.
 #' @param check_tolerance Positive numeric tolerance for post-solve constraint
 #'   violations and residuals. Defaults to `0.1`.
-#' @param equation_file Optional path to an equation workbook.
+#' @param equation_file Optional path to an equation workbook. The equations
+#'   are read and parsed once per call, then reused for every time period.
 #'
 #' @return A data frame with exactly the same columns and row order as
 #'   data_input, with obs_value replaced by the reconciled value where
@@ -37,14 +42,16 @@ nfsa_balancing <- function(
     Country = NULL,
     run_name = NULL,
     output_dir = NULL,
+    write_files = FALSE,
+    verbose = TRUE,
     scale_floor = NULL,
     weight_rules = data.frame(
     match_type = c("exact", "exact"),
     pattern    = c("S1.B1GQ.B", "S13.B9.B"),
-    weight     = c(1e10, 1e10) 
+    weight     = c(1e10, 1e10)
     ),
-    osqp_eps_abs = 1e-6,
-    osqp_eps_rel = 1e-6,
+    osqp_eps_abs = 1e-3,
+    osqp_eps_rel = 1e-3,
     osqp_max_iter = 10000000L,
     osqp_verbose = FALSE,
     check_tolerance = 0.1,
@@ -74,7 +81,7 @@ nfsa_balancing <- function(
     }
   }
 
-  if (is.null(output_dir)) {
+  if (isTRUE(write_files) && is.null(output_dir)) {
     output_dir <- file.path(
       getwd(),
       paste0(run_name, "_reconciliation_output")
@@ -92,6 +99,8 @@ nfsa_balancing <- function(
     equation_file = equation_file,
     output_dir = output_dir,
     run_name = run_name,
+    write_files = write_files,
+    verbose = verbose,
     scale_floor = scale_floor,
     weight_rules = weight_rules,
     osqp_eps_abs = osqp_eps_abs,
@@ -1394,8 +1403,30 @@ nfsa_balancing <- function(
   #   4. identify the real variables used by at least one accepted equation;
   #   5. add one slack variable to every accepted inequality;
   #   6. construct a sparse coefficient matrix and metadata tables.
-  build_system <- function(data_values, equation_file) {
+  # Read and parse the equation workbook once, not once per time period.
+  # Preserve parsing errors as objects so build_system can report them as before.
+  prepare_equations <- function(equation_file) {
     equation_info <- read_all_equation_instances(equation_file)
+    rows <- equation_info$raw_equations
+    equation_info$parsed_equations <- lapply(seq_len(nrow(rows)), function(i) {
+      tryCatch(
+        parse_equation(
+          equation_raw = rows$equation_raw[i],
+          sheet_name = rows$sheet[i],
+          row_number = rows$row_number[i],
+          fill_position = rows$fill_position[i],
+          fill_value = rows$fill_value[i]
+        ),
+        error = function(e) e
+      )
+    })
+    equation_info
+  }
+
+  build_system <- function(data_values, equation_file, equation_info = NULL) {
+    if (is.null(equation_info)) {
+      equation_info <- prepare_equations(equation_file)
+    }
 
     selected_sheets <- equation_info$selected_sheets
     raw_equations <- equation_info$raw_equations
@@ -1417,16 +1448,8 @@ nfsa_balancing <- function(
       fill_position <- raw_equations$fill_position[instance_index]
       fill_value <- raw_equations$fill_value[instance_index]
 
-      parsed <- tryCatch(
-        parse_equation(
-          equation_raw = equation_raw,
-          sheet_name = sheet_name,
-          row_number = row_number,
-          fill_position = fill_position,
-          fill_value = fill_value
-        ),
-        error = function(e) e
-      )
+      # Equation parsing is independent of the quarter: reuse the prepared result.
+      parsed <- equation_info$parsed_equations[[instance_index]]
 
       # Parsing errors are documented and skipped rather than stopping the entire
       # run. They remain visible in the expanded-equations and checks workbooks.
@@ -3313,8 +3336,10 @@ nfsa_balancing <- function(
   run_reconciliation <- function(
     data_input,
     equation_file,
-    output_dir,
+    output_dir = NULL,
     run_name = "reconciliation",
+    write_files = FALSE,
+    verbose = FALSE,
     scale_floor = NULL,
     weight_rules = tibble::tibble(),
     osqp_eps_abs = 1e-6,
@@ -3338,12 +3363,17 @@ nfsa_balancing <- function(
       )
     }
 
-    if (
-      length(output_dir) != 1 ||
-      is.na(output_dir) ||
-      trimws(output_dir) == ""
-    ) {
-      stop("output_dir must be one non-empty path.", call. = FALSE)
+    if (!is.logical(write_files) || length(write_files) != 1L || is.na(write_files)) {
+      stop("write_files must be TRUE or FALSE.", call. = FALSE)
+    }
+    if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+      stop("verbose must be TRUE or FALSE.", call. = FALSE)
+    }
+    if (write_files && (
+      length(output_dir) != 1L || is.na(output_dir) ||
+      !is.character(output_dir) || trimws(output_dir) == ""
+    )) {
+      stop("output_dir must be one non-empty path when write_files = TRUE.", call. = FALSE)
     }
 
     if (
@@ -3386,6 +3416,9 @@ nfsa_balancing <- function(
       stop("check_tolerance must be positive and finite.", call. = FALSE)
     }
 
+    # The workbook and its parsed equations do not depend on the time period.
+    equation_info <- prepare_equations(equation_file)
+
     time_period_info <- read_time_period_info(data_input)
     time_periods <- time_period_info$time_periods
     period_results <- vector("list", length(time_periods))
@@ -3393,14 +3426,10 @@ nfsa_balancing <- function(
 
     for (period_index in seq_along(time_periods)) {
       time_period <- time_periods[period_index]
-      message(
-        "Reconciling time period ",
-        period_index,
-        " of ",
-        length(time_periods),
-        ": ",
-        time_period
-      )
+      if (verbose) {
+        message("Reconciling time period ", period_index, " of ",
+                length(time_periods), ": ", time_period)
+      }
 
       period_rows <- time_period_info$row_values == time_period
       period_data_input <- data_input[
@@ -3413,7 +3442,8 @@ nfsa_balancing <- function(
 
       system <- build_system(
         data_values = data_values,
-        equation_file = equation_file
+        equation_file = equation_file,
+        equation_info = equation_info
       )
 
       scales <- make_relative_scales(
@@ -3445,71 +3475,46 @@ nfsa_balancing <- function(
       )
     }
 
-    outputs <- write_outputs(
-      period_results = period_results,
-      equation_file = equation_file,
-      output_dir = output_dir,
-      run_name = run_name,
-      check_tolerance = check_tolerance
+    # Run diagnostics in memory regardless of whether files are requested.
+    final_checks_by_period <- vapply(
+      period_results,
+      function(x) isTRUE(x$solution$final_checks_passed),
+      logical(1)
     )
+    failed_time_periods <- names(period_results)[!final_checks_by_period]
 
-    print(outputs$summary_table)
-
-    if (outputs$all_final_checks_passed) {
-      message("Done. The final checks passed for every time period.")
-    } else {
-      message(
-        paste0(
-          "Done. Diagnostic output files were written, but the final checks failed ",
-          "for these time periods: ",
-          paste(outputs$failed_time_periods, collapse = ", "),
-          "."
-        )
+    outputs <- NULL
+    if (write_files) {
+      outputs <- write_outputs(
+        period_results = period_results,
+        equation_file = equation_file,
+        output_dir = output_dir,
+        run_name = run_name,
+        check_tolerance = check_tolerance
       )
     }
 
-    message("Number of reconciled time periods: ", length(time_periods))
-    message("Time periods: ", paste(time_periods, collapse = ", "))
-    message("Solver: OSQP")
-    message("Reconciled values written to: ", outputs$values_file)
-    message("Equation checks written to: ", outputs$checks_file)
-    message("Expanded equations written to: ", outputs$expanded_file)
-    message(
-      "One-old-variable residuals written to: ",
-      outputs$one_old_variable_residuals_file
-    )
-
-    if (!is.na(outputs$plot_file)) {
-      message("Adjustment overview written to: ", outputs$plot_file)
-    } else {
-      message(
-        paste0(
-          "No adjustment overview was written because no non-zero adjustment ",
-          "was found in any time period."
-        )
-      )
+    if (verbose) {
+      message("Number of reconciled time periods: ", length(time_periods))
+      if (length(failed_time_periods) == 0L) {
+        message("Done. Final checks passed for every time period.")
+      } else {
+        message("Done. Final checks failed for: ",
+                paste(failed_time_periods, collapse = ", "))
+      }
+      if (write_files) {
+        message("Diagnostic files written to: ", output_dir)
+      }
     }
 
-    # The warning is deliberately issued only after all output files have been
-    # saved. It clearly flags failed validations without removing the diagnostic
-    # material needed to identify the affected equations and periods.
-    if (!outputs$all_final_checks_passed) {
+    if (length(failed_time_periods) > 0L) {
       failed_messages <- vapply(
-        period_results[outputs$failed_time_periods],
-        function(period_result) {
-          paste0(
-            period_result$time_period,
-            ": ",
-            period_result$solution$final_check_message
-          )
-        },
+        period_results[failed_time_periods],
+        function(x) paste0(x$time_period, ": ",
+                           x$solution$final_check_message),
         character(1)
       )
-
-      warning(
-        paste(failed_messages, collapse = "\n"),
-        call. = FALSE
-      )
+      warning(paste(failed_messages, collapse = "\n"), call. = FALSE)
     }
 
     invisible(
@@ -3528,3 +3533,4 @@ nfsa_balancing <- function(
 
 
 })
+
